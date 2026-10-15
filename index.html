@@ -6,28 +6,37 @@
     <title>epspicy mini games</title>
     <style>
         body {
-            background-color: #08080c;
-            color: #00ffcc;
-            font-family: 'Courier New', Courier, monospace;
+            background-color: #0f0f13;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
             text-align: center;
             margin: 0;
             padding: 20px;
         }
         .container {
-            max-width: 550px;
+            max-width: 500px;
             margin: 40px auto;
-            background: #12121c;
-            border: 2px solid #ff007f;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 0 25px rgba(255, 0, 127, 0.3);
+            background: #1a1a24;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        .model-tag {
+            background-color: #00ffcc;
+            color: #0f0f13;
+            display: inline-block;
+            padding: 5px 12px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
         }
         h2 {
-            font-size: 22px;
-            color: #ff007f;
+            font-size: 18px;
+            color: #ffffff;
             margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            line-height: 1.4;
         }
         video, img {
             width: 100%;
@@ -35,67 +44,109 @@
             object-fit: cover;
             border-radius: 8px;
             margin-bottom: 20px;
-            border: 1px solid #00ffcc;
         }
         .btn-container {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
         button {
-            background-color: transparent;
-            color: #00ffcc;
-            border: 2px solid #00ffcc;
-            padding: 14px 20px;
-            font-size: 16px;
+            background-color: #ff007f;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 15px;
             font-weight: bold;
-            font-family: 'Courier New', Courier, monospace;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            text-transform: uppercase;
+            transition: background 0.2s;
+            text-align: left;
         }
         button:hover {
-            background-color: #00ffcc;
-            color: #08080c;
-            box-shadow: 0 0 15px rgba(0, 255, 204, 0.6);
-        }
-        #result {
-            margin-top: 25px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #ffff00;
-            letter-spacing: 1px;
+            background-color: #e00070;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2 id="question-title">System Ready: Choose Your Path</h2>
+        <!-- Edo emfanizetai to onoma tou modelou/charachter -->
+        <div id="model-name" class="model-tag">Model Name</div>
         
+        <!-- H erotisi h to scenario -->
+        <h2 id="question-text">Loading scenario...</h2>
+        
+        <!-- To media (video h gif) -->
         <video controls autoplay loop muted id="media-element">
-            <source src="-e-x-t-e-r-n-a-l_i-m-a-g-e_-v-i-d-e-o-e663a02d-a2e5-4d1a-9251-4650b879dbb2 (1).mp4" type="video/mp4">
-            Your browser does not support the video tag.
+            <source id="media-source" src="" type="video/mp4">
+            Your browser does not support the video.
         </video>
 
+        <!-- Oi epiloges -->
         <div class="btn-container" id="buttons-area">
-            <button onclick="nextScene(1)">Option Alpha: Proceed to Action</button>
-            <button onclick="nextScene(2)">Option Beta: Switch Protocol</button>
+            <!-- Dynamika gemizoun apo tin JS -->
         </div>
-
-        <div id="result"></div>
     </div>
 
     <script>
-        function nextScene(choice) {
-            const resultDiv = document.getElementById("result");
-            if (choice === 1) {
-                resultDiv.innerHTML = ">>> Alpha path selected. Loading next phase...";
-            } else {
-                resultDiv.innerHTML = ">>> Beta path selected. Re-routing sequence...";
+        // Edo orizoume tis skines mas. Mporis na prostheteis osoes thes poly efkola!
+        const scenes = {
+            1: {
+                model: "Model Alpha",
+                text: "Model Alpha is standing by. What action should be executed?",
+                media: "-e-x-t-e-r-n-a-l_i-m-a-g-e_-v-i-d-e-o-e663a02d-a2e5-4d1a-9251-4650b879dbb2 (1).mp4",
+                choices: [
+                    { text: "Option 1: Execute interaction with Target B", nextScene: 2 },
+                    { text: "Option 2: Switch to alternative position", nextScene: 3 }
+                ]
+            },
+            2: {
+                model: "Model Alpha -> Target B",
+                text: "Action executed successfully! How does the sequence continue?",
+                media: "-e-x-t-e-r-n-a-l_i-m-a-g-e_-v-i-d-e-o-e663a02d-a2e5-4d1a-9251-4650b879dbb2 (1).mp4",
+                choices: [
+                    { text: "Back to main menu / Start over", nextScene: 1 },
+                    { text: "Proceed deeper into the sequence", nextScene: 3 }
+                ]
+            },
+            3: {
+                model: "Alternative Protocol",
+                text: "Alternative position active. Select final move:",
+                media: "-e-x-t-e-r-n-a-g-e_-v-i-d-e-o-e663a02d-a2e5-4d1a-9251-4650b879dbb2 (1).mp4",
+                choices: [
+                    { text: "Restart sequence", nextScene: 1 }
+                ]
             }
+        };
+
+        function loadScene(sceneId) {
+            const scene = scenes[sceneId];
+            if (!scene) return;
+
+            // Enimerosi stoixeiwn
+            document.getElementById("model-name").innerText = scene.model;
+            document.getElementById("question-text").innerText = scene.text;
+            
+            // Allagi video/media (an theleis na bazeis diaforetiko arxeio ana skini, apla to allazeis sto JSON)
+            const videoElement = document.getElementById("media-element");
+            const sourceElement = document.getElementById("media-source");
+            sourceElement.src = scene.media;
+            videoElement.load();
+
+            // Dimiourgia koupion dynamika
+            const buttonsArea = document.getElementById("buttons-area");
+            buttonsArea.innerHTML = ""; // Katharisma proigoumenon koupion
+
+            scene.choices.forEach(choice => {
+                const btn = document.createElement("button");
+                btn.innerText = choice.text;
+                btn.onclick = () => loadScene(choice.nextScene);
+                buttonsArea.appendChild(btn);
+            });
         }
+
+        // Fortosi tis prwtis skinis otan anoigei i selida
+        window.onload = () => loadScene(1);
     </script>
 
 </body>
