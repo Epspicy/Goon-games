@@ -36,7 +36,7 @@
             text-transform: uppercase;
         }
 
-        /* Characters Roster (Pano Meros) */
+        /* Characters Roster */
         .section-label {
             font-size: 13px;
             color: #00ffcc;
@@ -72,6 +72,7 @@
             object-fit: cover;
             border: 2px solid #00ffcc;
             margin-bottom: 6px;
+            background-color: #2a2a3a;
         }
         .char-name {
             font-size: 13px;
@@ -79,7 +80,7 @@
             font-weight: bold;
         }
 
-        /* Positions Grid (Kato Meros) */
+        /* Positions Grid (Όλα τα 5 slots εμφανή) */
         .positions-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -90,7 +91,7 @@
             background: #121218;
             border: 2px dashed #44445c;
             border-radius: 8px;
-            padding: 10px 5px;
+            padding: 12px 5px;
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -109,7 +110,6 @@
             font-size: 12px;
             color: #00ffcc;
             font-weight: bold;
-            word-break: break-all;
         }
 
         /* Action Button & Preview Box */
@@ -148,34 +148,100 @@
         <div class="header-title">Epspicy Engine</div>
         <div class="subtitle">Character & Position Selection Matrix</div>
 
-        <!-- 1. PANO MEROS: Characters Roster (I idia photo 5 fores) -->
+        <!-- 1. Characters Roster -->
         <div class="section-label">1. Select Character (Click to assign):</div>
         <div class="roster-grid">
             <div class="char-card" onclick="selectChar('Elena')">
-                <img src="to2O1.jpg" class="char-img">
+                <img src="to2O1.jpg" onerror="this.src='https://via.placeholder.com/150/ff007f/ffffff?text=Elena'" class="char-img">
                 <div class="char-name">Elena</div>
             </div>
             <div class="char-card" onclick="selectChar('Maria')">
-                <img src="to2O1.jpg" class="char-img">
+                <img src="to2O1.jpg" onerror="this.src='https://via.placeholder.com/150/00ffcc/0f0f13?text=Maria'" class="char-img">
                 <div class="char-name">Maria</div>
             </div>
             <div class="char-card" onclick="selectChar('Kostas')">
-                <img src="to2O1.jpg" class="char-img">
+                <img src="to2O1.jpg" onerror="this.src='https://via.placeholder.com/150/ffcc00/0f0f13?text=Kostas'" class="char-img">
                 <div class="char-name">Kostas</div>
             </div>
             <div class="char-card" onclick="selectChar('Niki')">
-                <img src="to2O1.jpg" class="char-img">
+                <img src="to2O1.jpg" onerror="this.src='https://via.placeholder.com/150/a800ff/ffffff?text=Niki'" class="char-img">
                 <div class="char-name">Niki</div>
             </div>
             <div class="char-card" onclick="selectChar('Alex')">
-                <img src="to2O1.jpg" class="char-img">
+                <img src="to2O1.jpg" onerror="this.src='https://via.placeholder.com/150/ffffff/0f0f13?text=Alex'" class="char-img">
                 <div class="char-name">Alex</div>
             </div>
         </div>
 
-        <!-- 2. KATO MEROS: Positions Grid (Me ta 5 diaforetika GIF antistoicha) -->
+        <!-- 2. Target Positions (Pos 1 - Pos 5) -->
         <div class="section-label">2. Target Positions (Click slot first, then pick character):</div>
         <div class="positions-grid">
             <div class="position-slot active" id="slot-1" onclick="setActiveSlot(1)">
                 <div class="pos-title">Pos 1</div>
                 <div class="pos-assigned" id="val-1">-</div>
+            </div>
+            <div class="position-slot" id="slot-2" onclick="setActiveSlot(2)">
+                <div class="pos-title">Pos 2</div>
+                <div class="pos-assigned" id="val-2">-</div>
+            </div>
+            <div class="position-slot" id="slot-3" onclick="setActiveSlot(3)">
+                <div class="pos-title">Pos 3</div>
+                <div class="pos-assigned" id="val-3">-</div>
+            </div>
+            <div class="position-slot" id="slot-4" onclick="setActiveSlot(4)">
+                <div class="pos-title">Pos 4</div>
+                <div class="pos-assigned" id="val-4">-</div>
+            </div>
+            <div class="position-slot" id="slot-5" onclick="setActiveSlot(5)">
+                <div class="pos-title">Pos 5</div>
+                <div class="pos-assigned" id="val-5">-</div>
+            </div>
+        </div>
+
+        <!-- Confirm Action Button -->
+        <button class="action-btn" onclick="executeSequence()">Launch Sequence</button>
+        
+        <!-- Preview Area -->
+        <div id="preview-area">
+            <div class="section-label" style="margin-top: 15px;">Active Sequence Result:</div>
+            <img id="preview-gif" src="" alt="Result GIF">
+        </div>
+    </div>
+
+    <script>
+        let currentSlot = 1;
+
+        const positionGifs = {
+            1: "hey-cat.gif",
+            2: "hug-bros.gif",
+            3: "man-shaking-head-shakes-head.gif",
+            4: "aj-brown-drake-maye-aj-brown.gif",
+            5: "annoyed.gif"
+        };
+
+        function setActiveSlot(slotNum) {
+            currentSlot = slotNum;
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`slot-${i}`).classList.remove('active');
+            }
+            document.getElementById(`slot-${slotNum}`).classList.add('active');
+        }
+
+        function selectChar(charName) {
+            document.getElementById(`val-${currentSlot}`).innerText = charName;
+            if (currentSlot < 5) {
+                setActiveSlot(currentSlot + 1);
+            }
+        }
+
+        function executeSequence() {
+            const previewArea = document.getElementById("preview-area");
+            const previewGif = document.getElementById("preview-gif");
+            
+            previewGif.src = positionGifs[currentSlot];
+            previewArea.style.display = "block";
+        }
+    </script>
+
+</body>
+</html>
