@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PMV Choice Game</title>
+    <style>
+        body {
+            background-color: #0f0f13;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: 40px auto;
+            background: #1a1a24;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        img, video {
+            width: 100%;
+            border-radius: 8px;
+            max-height: 300px;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        button {
+            background: #7289da;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #5b6eae;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #00ffcc;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2 id="question-title">Loading PMV Scene...</h2>
+        
+        <!-- Edo mpainei to GIF i i eikona sou -->
+        <img id="media-element" src="" alt="PMV Preview">
+
+        <div class="btn-container" id="buttons-area">
+            <!-- Ta koumpia tha emfanistoun aytaomata -->
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Ena aplo demo dataset gia to prwto paixnidi
+        const gameData = {
+            question: "Ti epilogi kaneis se ayth th skhnh;",
+            media: "https://media.giphy.com/media/3o7TKSjRrfIPjeiOkM/giphy.gif", // Paradeigma GIF link
+            choices: [
+                { text: "Epilogi A: Synexeia me to High Voltage", percentage: "15% twn xristwn" },
+                { text: "Epilogi B: Epistrofi sto Tier 1", percentage: "85% twn xristwn" }
+            ]
+        };
+
+        document.getElementById("question-title").innerText = gameData.question;
+        document.getElementById("media-element").src = gameData.media;
+
+        const btnArea = document.getElementById("buttons-area");
+
+        gameData.choices.forEach(choice => {
+            let btn = document.createElement("button");
+            btn.innerText = choice.text;
+            btn.onclick = function() {
+                document.getElementById("result").innerText = `Epilexes afto! To επέλεξε μόλις το ${choice.percentage} twn paiktn.`;
+            };
+            btnArea.appendChild(btn);
+        });
+    </script>
+
+</body>
+</html>
