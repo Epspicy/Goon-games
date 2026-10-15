@@ -1,30 +1,33 @@
 <!DOCTYPE html>
-<html lang="el">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>epspicy mini games</title>
     <style>
         body {
-            background-color: #0f0f13;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
+            background-color: #08080c;
+            color: #00ffcc;
+            font-family: 'Courier New', Courier, monospace;
             text-align: center;
             margin: 0;
             padding: 20px;
         }
         .container {
-            max-width: 500px;
+            max-width: 550px;
             margin: 40px auto;
-            background: #1a1a24;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            background: #12121c;
+            border: 2px solid #ff007f;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 0 25px rgba(255, 0, 127, 0.3);
         }
         h2 {
-            font-size: 20px;
-            color: #00ffcc;
+            font-size: 22px;
+            color: #ff007f;
             margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
         video, img {
             width: 100%;
@@ -32,47 +35,53 @@
             object-fit: cover;
             border-radius: 8px;
             margin-bottom: 20px;
+            border: 1px solid #00ffcc;
         }
         .btn-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
         button {
-            background-color: #ff007f;
-            color: white;
-            border: none;
-            padding: 12px 20px;
+            background-color: transparent;
+            color: #00ffcc;
+            border: 2px solid #00ffcc;
+            padding: 14px 20px;
             font-size: 16px;
             font-weight: bold;
-            border-radius: 6px;
+            font-family: 'Courier New', Courier, monospace;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
         }
         button:hover {
-            background-color: #e00070;
+            background-color: #00ffcc;
+            color: #08080c;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.6);
         }
         #result {
-            margin-top: 20px;
+            margin-top: 25px;
             font-size: 18px;
             font-weight: bold;
-            color: #ffcc00;
+            color: #ffff00;
+            letter-spacing: 1px;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2 id="question-title">Epelege την επόμενη κίνησή σου!</h2>
+        <h2 id="question-title">System Ready: Choose Your Path</h2>
         
         <video controls autoplay loop muted id="media-element">
             <source src="-e-x-t-e-r-n-a-l_i-m-a-g-e_-v-i-d-e-o-e663a02d-a2e5-4d1a-9251-4650b879dbb2 (1).mp4" type="video/mp4">
-            Ο browser δεν υποστηρίζει το βίντεο.
+            Your browser does not support the video tag.
         </video>
 
         <div class="btn-container" id="buttons-area">
-            <button onclick="nextScene(1)">Επιλογή A: Συνέχεια με δράση</button>
-            <button onclick="nextScene(2)">Επιλογή B: Αλλαγή πορείας</button>
+            <button onclick="nextScene(1)">Option Alpha: Proceed to Action</button>
+            <button onclick="nextScene(2)">Option Beta: Switch Protocol</button>
         </div>
 
         <div id="result"></div>
@@ -82,9 +91,9 @@
         function nextScene(choice) {
             const resultDiv = document.getElementById("result");
             if (choice === 1) {
-                resultDiv.innerHTML = "Επέλεξες την Επιλογή A! Συνεχίζουμε δυναμικά...";
+                resultDiv.innerHTML = ">>> Alpha path selected. Loading next phase...";
             } else {
-                resultDiv.innerHTML = "Επέλεξες την Επιλογή B! Αλλάζουμε σκηνή...";
+                resultDiv.innerHTML = ">>> Beta path selected. Re-routing sequence...";
             }
         }
     </script>
