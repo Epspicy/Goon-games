@@ -52,6 +52,10 @@
         .card:hover {
             border-color: #ff4757;
         }
+        .card.selected {
+            border-color: #ff4757;
+            background: #3d2d2d;
+        }
         .card img {
             width: 70px;
             height: 70px;
@@ -151,11 +155,11 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase.app.js";
-        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase.database.js";
+    <!-- Firebase App (Compat) & Realtime Database CDN -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
+    <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAyT85gjbKMf0RtttyECLHv2hiv1mREJtU",
             authDomain: "epspicygames.firebaseapp.com",
@@ -167,8 +171,9 @@
             measurementId: "G-WHG3N8WML4"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
         const characters = [
             { id: 'c1', name: 'Cat', img: 'hey-cat.gif' },
@@ -256,7 +261,7 @@
 
         function checkCompletion() {
             if (Object.keys(assignments).length === 5) {
-                push(ref(db, 'submissions'), { timestamp: Date.now() });
+                db.ref('submissions').push({ timestamp: Date.now() });
             }
         }
 
@@ -265,8 +270,8 @@
             alert("Link copied to clipboard!");
         }
 
-        // Live stats listener from Firebase
-        onValue(ref(db, 'submissions'), (snapshot) => {
+        // Live stats listener from Firebase Realtime Database
+        db.ref('submissions').on('value', (snapshot) => {
             const data = snapshot.val();
             const total = data ? Object.keys(data).length : 0;
             document.getElementById('liveStats').innerText = `Global Completions: ${total}`;
