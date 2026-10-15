@@ -14,7 +14,7 @@
             padding: 20px;
         }
         .container {
-            max-width: 600px;
+            max-width: 650px;
             margin: 20px auto;
             background: #1a1a24;
             padding: 25px;
@@ -23,214 +23,209 @@
         }
         .header-title {
             color: #00ffcc;
-            font-size: 20px;
-            margin-bottom: 15px;
+            font-size: 22px;
+            margin-bottom: 5px;
             text-transform: uppercase;
             letter-spacing: 1px;
-        }
-        video, .main-media {
-            width: 100%;
-            max-height: 320px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #2a2a3a;
-        }
-        
-        /* Position Slots Grid */
-        .section-label {
-            font-size: 14px;
-            color: #8888a0;
-            text-align: left;
-            margin-bottom: 8px;
-            text-transform: uppercase;
             font-weight: bold;
         }
-        .positions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 10px;
-            margin-bottom: 20px;
+        .subtitle {
+            color: #8888a0;
+            font-size: 13px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
         }
-        .position-card {
+
+        /* Characters Roster (Pano Meros) */
+        .section-label {
+            font-size: 13px;
+            color: #00ffcc;
+            text-align: left;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .roster-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        .char-card {
             background: #121218;
-            border: 2px dashed #33334d;
-            border-radius: 8px;
+            border: 2px solid #2a2a3a;
+            border-radius: 10px;
             padding: 10px;
             cursor: pointer;
             transition: all 0.2s;
+            text-align: center;
         }
-        .position-card.active {
-            border-color: #00ffcc;
-            background: #1e1e2d;
-        }
-        .position-card:hover {
+        .char-card:hover {
             border-color: #ff007f;
+            transform: translateY(-3px);
         }
-        .pos-title {
-            font-size: 11px;
-            color: #00ffcc;
-            font-weight: bold;
-            text-transform: uppercase;
+        .char-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #00ffcc;
+            margin-bottom: 8px;
         }
-        .pos-model {
-            font-size: 13px;
+        .char-name {
+            font-size: 14px;
             color: #ffffff;
-            margin-top: 5px;
             font-weight: bold;
         }
 
-        /* Choice Buttons */
-        .btn-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        /* Positions Grid (Kato Meros) */
+        .positions-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 25px;
         }
-        button {
+        .position-slot {
+            background: #121218;
+            border: 2px dashed #44445c;
+            border-radius: 8px;
+            padding: 12px 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .position-slot.active {
+            border-color: #ff007f;
+            background: #251221;
+        }
+        .pos-title {
+            font-size: 11px;
+            color: #8888a0;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .pos-assigned {
+            font-size: 13px;
+            color: #00ffcc;
+            font-weight: bold;
+        }
+
+        /* Action Button */
+        .action-btn {
             background-color: #ff007f;
             color: white;
             border: none;
-            padding: 12px 15px;
-            font-size: 14px;
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
             transition: background 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        button:hover {
+        .action-btn:hover {
             background-color: #e00070;
         }
-        .btn-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 1px solid #fff;
+        #status-msg {
+            margin-top: 15px;
+            font-size: 15px;
+            font-weight: bold;
+            color: #ffcc00;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="header-title">Position & Model Setup</div>
-        
-        <video controls autoplay loop muted id="media-element">
-            <source id="media-source" src="-e-x-t-e-r-n-a-l_i-m-a-g-e_-v-i-d-e-o-e663a02d-a2e5-4d1a-9251-4650b879dbb2 (1).mp4" type="video/mp4">
-            Your browser does not support video.
-        </video>
+        <div class="header-title">Epspicy Engine</div>
+        <div class="subtitle">Character & Position Selection Matrix</div>
 
-        <!-- Positions Layout (1 to 5) -->
-        <div class="section-label">Active Positions Grid:</div>
+        <!-- 1. PANO MEROS: Characters Roster -->
+        <div class="section-label">1. Select Character (Click to assign):</div>
+        <div class="roster-grid">
+            <div class="char-card" onclick="selectChar('Elena')">
+                <img src="https://via.placeholder.com/150/ff007f/ffffff?text=Elena" class="char-img">
+                <div class="char-name">Elena</div>
+            </div>
+            <div class="char-card" onclick="selectChar('Maria')">
+                <img src="https://via.placeholder.com/150/00ffcc/0f0f13?text=Maria" class="char-img">
+                <div class="char-name">Maria</div>
+            </div>
+            <div class="char-card" onclick="selectChar('Kostas')">
+                <img src="https://via.placeholder.com/150/ffcc00/0f0f13?text=Kostas" class="char-img">
+                <div class="char-name">Kostas</div>
+            </div>
+            <div class="char-card" onclick="selectChar('Niki')">
+                <img src="https://via.placeholder.com/150/a800ff/ffffff?text=Niki" class="char-img">
+                <div class="char-name">Niki</div>
+            </div>
+            <div class="char-card" onclick="selectChar('Alex')">
+                <img src="https://via.placeholder.com/150/ffffff/0f0f13?text=Alex" class="char-img">
+                <div class="char-name">Alex</div>
+            </div>
+        </div>
+
+        <!-- 2. KATO MEROS: Positions Grid -->
+        <div class="section-label">2. Target Positions (Click slot first, then pick character):</div>
         <div class="positions-grid">
-            <div class="position-card active" onclick="selectPosition(1)">
+            <div class="position-slot active" id="slot-1" onclick="setActiveSlot(1)">
                 <div class="pos-title">Pos 1</div>
-                <div class="pos-model" id="pos-1-val">Elena</div>
+                <div class="pos-assigned" id="val-1">-</div>
             </div>
-            <div class="position-card" onclick="selectPosition(2)">
+            <div class="position-slot" id="slot-2" onclick="setActiveSlot(2)">
                 <div class="pos-title">Pos 2</div>
-                <div class="pos-model" id="pos-2-val">Maria</div>
+                <div class="pos-assigned" id="val-2">-</div>
             </div>
-            <div class="position-card" onclick="selectPosition(3)">
+            <div class="position-slot" id="slot-3" onclick="setActiveSlot(3)">
                 <div class="pos-title">Pos 3</div>
-                <div class="pos-model" id="pos-3-val">Kostas</div>
+                <div class="pos-assigned" id="val-3">-</div>
             </div>
-            <div class="position-card" onclick="selectPosition(4)">
+            <div class="position-slot" id="slot-4" onclick="setActiveSlot(4)">
                 <div class="pos-title">Pos 4</div>
-                <div class="pos-model" id="pos-4-val">Niki</div>
+                <div class="pos-assigned" id="val-4">-</div>
             </div>
-            <div class="position-card" onclick="selectPosition(5)">
+            <div class="position-slot" id="slot-5" onclick="setActiveSlot(5)">
                 <div class="pos-title">Pos 5</div>
-                <div class="pos-model" id="pos-5-val">Empty</div>
+                <div class="pos-assigned" id="val-5">-</div>
             </div>
         </div>
 
-        <!-- Dynamic Choice Actions -->
-        <div class="section-label" id="action-label">Assign Model / Action for Position 1:</div>
-        <div class="btn-container" id="buttons-area">
-            <!-- Buttons rendered dynamically -->
-        </div>
+        <!-- Confirm Action -->
+        <button class="action-btn" onclick="executeSequence()">Launch Sequence</button>
+        <div id="status-msg"></div>
     </div>
 
     <script>
-        let currentPos = 1;
+        let currentSlot = 1;
 
-        // Configuration for choices per position
-        const positionData = {
-            1: {
-                label: "Select Model / Action for Position 1:",
-                options: [
-                    { text: "Assign Elena to Position 1", modelName: "Elena", icon: "https://via.placeholder.com/100/ff007f/ffffff?text=E" },
-                    { text: "Assign Maria to Position 1", modelName: "Maria", icon: "https://via.placeholder.com/100/00ffcc/0f0f13?text=M" }
-                ]
-            },
-            2: {
-                label: "Select Model / Action for Position 2:",
-                options: [
-                    { text: "Assign Maria to Position 2", modelName: "Maria", icon: "https://via.placeholder.com/100/00ffcc/0f0f13?text=M" },
-                    { text: "Assign Niki to Position 2", modelName: "Niki", icon: "https://via.placeholder.com/100/a800ff/ffffff?text=N" }
-                ]
-            },
-            3: {
-                label: "Select Model / Action for Position 3:",
-                options: [
-                    { text: "Assign Kostas to Position 3", modelName: "Kostas", icon: "https://via.placeholder.com/100/ffcc00/0f0f13?text=K" }
-                ]
-            },
-            4: {
-                label: "Select Model / Action for Position 4:",
-                options: [
-                    { text: "Assign Niki to Position 4", modelName: "Niki", icon: "https://via.placeholder.com/100/a800ff/ffffff?text=N" }
-                ]
-            },
-            5: {
-                label: "Select Model / Action for Position 5:",
-                options: [
-                    { text: "Assign Special Model to Pos 5", modelName: "Alex", icon: "https://via.placeholder.com/100/ffffff/000000?text=A" }
-                ]
+        function setActiveSlot(slotNum) {
+            currentSlot = slotNum;
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`slot-${i}`).classList.remove('active');
             }
-        };
-
-        function selectPosition(posNum) {
-            currentPos = posNum;
-            
-            // Highlight active position card
-            const cards = document.querySelectorAll('.position-card');
-            cards.forEach((card, index) => {
-                if (index + 1 === posNum) {
-                    card.classList.add('active');
-                } else {
-                    card.classList.remove('active');
-                }
-            });
-
-            renderChoices(posNum);
+            document.getElementById(`slot-${slotNum}`).classList.add('active');
         }
 
-        function renderChoices(posNum) {
-            const data = positionData[posNum];
-            document.getElementById("action-label").innerText = data.label;
-            
-            const btnArea = document.getElementById("buttons-area");
-            btnArea.innerHTML = "";
-
-            data.options.forEach(opt => {
-                const btn = document.createElement("button");
-                btn.innerHTML = `
-                    <span>${opt.text}</span>
-                    <img src="${opt.icon}" class="btn-icon">
-                `;
-                btn.onclick = () => {
-                    document.getElementById(`pos-${posNum}-val`).innerText = opt.modelName;
-                };
-                btnArea.appendChild(btn);
-            });
+        function selectChar(charName) {
+            document.getElementById(`val-${currentSlot}`).innerText = charName;
+            // Αυτόματα πηγαίνει στο επόμενο διαθέσιμο slot για ευκολία
+            if (currentSlot < 5) {
+                setActiveSlot(currentSlot + 1);
+            }
         }
 
-        // Initial Load
-        window.onload = () => renderChoices(1);
+        function executeSequence() {
+            let p1 = document.getElementById("val-1").innerText;
+            let p2 = document.getElementById("val-2").innerText;
+            if(p1 === "-" && p2 === "-") {
+                document.getElementById("status-msg").innerText = "Please assign characters to positions first!";
+            } else {
+                document.getElementById("status-msg").innerText = ">>> Sequence initiated successfully! Loading media...";
+            }
+        }
     </script>
 
 </body>
