@@ -188,17 +188,6 @@
             padding: 20px;
             text-align: left;
         }
-        .rating-badge {
-            background: #00ffcc;
-            color: #0f0f13;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: bold;
-            display: inline-block;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-        }
         .stat-row {
             margin-bottom: 12px;
             font-size: 13px;
@@ -215,6 +204,7 @@
             background: #ff007f;
             height: 100%;
             border-radius: 4px;
+            transition: width 0.4s ease;
         }
         #toast {
             display: none;
@@ -291,8 +281,7 @@
         
         <!-- Results Area -->
         <div id="results-area">
-            <div class="rating-badge" id="rating-badge">Your Taste Rating: Balanced Critic</div>
-            <div class="section-label" style="margin-bottom: 12px; color: #ffffff;" id="globalStatsTitle">Global Community Statistics: Loading...</div>
+            <div class="section-label" style="margin-bottom: 15px; color: #00ffcc;" id="globalStatsTitle">REAL COMMUNITY STATISTICS:</div>
             
             <div id="stats-list"></div>
 
@@ -304,7 +293,7 @@
         </div>
     </div>
 
-    <!-- Firebase App (Compat) & Realtime Database CDN -->
+    <!-- Firebase CDN -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
@@ -324,28 +313,16 @@
         const db = firebase.database();
 
         let selectedCharName = null;
-        let currentActiveSlot = 1;
         let assignments = { 1: null, 2: null, 3: null, 4: null, 5: null };
         let hasSubmitted = false;
-        let totalCompletions = 0;
+        let allSubmissionsData = null;
 
-        const ratings = [
-            "Balanced Critic",
-            "Chaos Master",
-            "Wild Strategist",
-            "Trend Setter",
-            "Unconventional Mind"
-        ];
-
-        // Live stats από Firebase
+        // Διαβάζουμε ΟΛΑ τα πραγματικά δεδομένα από τη Firebase live
         db.ref('submissions').on('value', (snapshot) => {
-            const data = snapshot.val();
-            totalCompletions = data ? Object.keys(data).length : 0;
-            document.getElementById("globalStatsTitle").innerText = `Global Community Statistics (Total Completions: ${totalCompletions}):`;
+            allSubmissionsData = snapshot.val();
         });
 
         function selectChar(charName) {
-            // Έλεγχος αν έχει ήδη χρησιμοποιηθεί αλλού
             for (let s = 1; s <= 5; s++) {
                 if (assignments[s] === charName) {
                     alert(charName + " is already assigned to Position " + s + "!");
@@ -353,7 +330,6 @@
                 }
             }
 
-            // Αφαίρεση προηγούμενης επιλογής
             document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
 
             selectedCharName = charName;
@@ -362,11 +338,7 @@
         }
 
         function assignToSlot(slotNum) {
-            currentActiveSlot = slotNum;
-            
-            // Αν έχουμε επιλεγμένο χαρακτήρα, τον βάζουμε απευθείας στο slot
             if (selectedCharName) {
-                // Απελευθέρωση αν υπήρχε άλλος στο slot
                 let oldChar = assignments[slotNum];
                 if (oldChar) {
                     let oldCard = document.getElementById('card-' + oldChar);
@@ -384,7 +356,6 @@
 
                 selectedCharName = null;
 
-                // Μετάβαση οπτικά στο επόμενο ενεργό slot
                 for (let i = 1; i <= 5; i++) {
                     document.getElementById('slot-' + i).classList.remove('active');
                 }
@@ -395,7 +366,6 @@
                     }
                 }
             } else {
-                // Αν δεν έχει επιλεγεί χαρακτήρας, απλά κάνουμε το slot ενεργό
                 for (let i = 1; i <= 5; i++) {
                     document.getElementById('slot-' + i).classList.remove('active');
                 }
@@ -403,7 +373,7 @@
             }
         }
 
-        function executeSequence() {
+        async function executeSequence() {
             let filledCount = 0;
             for (let i = 1; i <= 5; i++) {
                 if (assignments[i] !== null) filledCount++;
@@ -414,28 +384,53 @@
                 return;
             }
 
-            // Καταγραφή στη βάση Firebase
+            // Στέλνουμε στη Firebase αν δεν έχει ξανασταλεί στη συγκεκριμένη παρτίδα
             if (!hasSubmitted) {
                 hasSubmitted = true;
-                db.ref('submissions').push({
+                await db.ref('submissions').push({
                     assignments: assignments,
                     timestamp: Date.now()
                 }).catch(err => console.error("Error:", err));
             }
 
-            let ratingIndex = (assignments[1] === "Elena") ? 0 : (assignments[1] === "Maria" ? 1 : 2);
-            document.getElementById("rating-badge").innerText = "Your Taste Rating: " + ratings[ratingIndex];
+            // Υπολογισμός ΠΡΑΓΜΑΤΙΚΩΝ στατιστικών
+            let total = 0;
+            let counts = {
+                1: { Elena: 0, Maria: 0, Kostas: 0, Niki: 0, Alex: 0 },
+                2: { Elena: 0, Maria: 0, Kostas: 0, Niki: 0, Alex: 0 },
+                3: { Elena: 0, Maria: 0, Kostas: 0, Niki: 0, Alex: 0 },
+                4: { Elena: 0, Maria: 0, Kostas: 0, Niki: 0, Alex: 0 },
+                5: { Elena: 0, Maria: 0, Kostas: 0, Niki: 0, Alex: 0 }
+            };
+
+            if (allSubmissionsData) {
+                Object.values(allSubmissionsData).forEach(sub => {
+                    if (sub.assignments) {
+                        total++;
+                        for (let pos = 1; pos <= 5; pos++) {
+                            let ch = sub.assignments[pos];
+                            if (ch && counts[pos][ch] !== undefined) {
+                                counts[pos][ch]++;
+                            }
+                        }
+                    }
+                });
+            }
+
+            document.getElementById("globalStatsTitle").innerText = `REAL COMMUNITY STATISTICS (${total} Total Players):`;
 
             let statsHtml = "";
-            const samplePercentages = [78, 64, 89, 52, 71];
             for (let i = 1; i <= 5; i++) {
-                let char = assignments[i];
-                let pct = samplePercentages[i - 1];
+                let userChosenChar = assignments[i];
+                let countForThisChar = counts[i][userChosenChar] || 0;
+                let pct = total > 0 ? Math.round((countForThisChar / total) * 100) : 100;
+
                 statsHtml += '<div class="stat-row">' +
-                    '<span>Pos ' + i + ' Match (' + char + ' selected by ' + pct + '% of community)</span>' +
+                    '<span>Pos ' + i + ': <b>' + userChosenChar + '</b> chosen by <b>' + pct + '%</b> of players (' + countForThisChar + '/' + total + ')</span>' +
                     '<div class="stat-bar-container"><div class="stat-bar" style="width: ' + pct + '%;"></div></div>' +
                     '</div>';
             }
+
             document.getElementById("stats-list").innerHTML = statsHtml;
             document.getElementById("results-area").style.display = "block";
         }
