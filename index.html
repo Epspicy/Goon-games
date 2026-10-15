@@ -3,156 +3,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Goon Games - Character Matcher</title>
+    <title>epspicy mini games</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #121212;
+            background-color: #0f0f13;
             color: #ffffff;
+            font-family: Arial, sans-serif;
+            text-align: center;
             margin: 0;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        h1 {
-            color: #ff4757;
-            margin-bottom: 5px;
         }
         .container {
-            max-width: 800px;
-            width: 100%;
-            background: #1e1e1e;
-            padding: 20px;
+            max-width: 650px;
+            margin: 20px auto;
+            background: #1a1a24;
+            padding: 25px;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
-        .roster {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        .card {
-            width: 100px;
-            height: 120px;
-            background: #2d2d2d;
-            border: 2px solid #444;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 5px;
-            transition: 0.2s;
-            text-align: center;
-        }
-        .card:hover {
-            border-color: #ff4757;
-        }
-        .card.selected {
-            border-color: #ff4757;
-            background: #3d2d2d;
-        }
-        .card img {
-            width: 70px;
-            height: 70px;
-            object-fit: cover;
-            border-radius: 6px;
+        .header-title {
+            color: #00ffcc;
+            font-size: 22px;
             margin-bottom: 5px;
-            background: #444;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
         }
-        .card.used {
-            opacity: 0.3;
-            cursor: not-allowed;
-            filter: grayscale(100%);
+        .subtitle {
+            color: #8888a0;
+            font-size: 13px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
         }
-        .positions-grid {
+
+        /* Characters Roster */
+        .section-label {
+            font-size: 13px;
+            color: #00ffcc;
+            text-align: left;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .roster-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 25px;
         }
-        .slot {
-            background: #252525;
-            border: 2px dashed #555;
-            border-radius: 8px;
-            height: 140px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 5px;
+        .char-card {
+            background: #121218;
+            border: 2px solid #2a2a3a;
+            border-radius: 10px;
+            padding: 8px;
             cursor: pointer;
-            position: relative;
+            transition: all 0.2s;
+            text-align: center;
+            user-select: none;
         }
-        .slot:hover {
-            border-color: #ff4757;
+        .char-card:hover:not(.used) {
+            border-color: #ff007f;
+            transform: translateY(-3px);
         }
-        .slot span {
-            font-size: 11px;
-            color: #aaa;
-            margin-bottom: 5px;
+        .char-card.used {
+            opacity: 0.25;
+            cursor: not-allowed;
+            filter: grayscale(100%);
+            border-color: #1a1a24;
         }
-        .slot img {
-            width: 70px;
-            height: 70px;
+        .char-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
             object-fit: cover;
+            border: 2px solid #00ffcc;
+            margin-bottom: 6px;
+            pointer-events: none;
+        }
+        .char-name {
+            font-size: 13px;
+            color: #ffffff;
+            font-weight: bold;
+            pointer-events: none;
+        }
+
+        /* Positions Grid */
+        .positions-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+        .position-slot {
+            background: #121218;
+            border: 2px dashed #44445c;
+            border-radius: 8px;
+            padding: 10px 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .position-slot.active {
+            border-color: #ff007f;
+            background: #251221;
+        }
+        .pos-title {
+            font-size: 11px;
+            color: #8888a0;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            pointer-events: none;
+        }
+        .pos-assigned {
+            font-size: 12px;
+            color: #00ffcc;
+            font-weight: bold;
+            margin-bottom: 6px;
+            min-height: 16px;
+            pointer-events: none;
+        }
+        .pos-gif {
+            width: 45px;
+            height: 45px;
             border-radius: 6px;
-            margin-bottom: 5px;
+            object-fit: cover;
+            border: 1px solid #00ffcc;
+            pointer-events: none;
         }
-        .actions {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 15px;
-        }
-        button {
-            background: #ff4757;
+
+        /* Buttons */
+        .action-btn {
+            background-color: #ff007f;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
             font-weight: bold;
-            transition: 0.2s;
-        }
-        button:hover {
-            background: #ff6b81;
-        }
-        .stats-box {
-            margin-top: 20px;
-            background: #252525;
-            padding: 15px;
             border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .action-btn:hover {
+            background-color: #e00070;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .secondary-btn {
+            flex: 1;
+            background: #2a2a3a;
+            color: #00ffcc;
+            border: 1px solid #00ffcc;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+        .secondary-btn:hover {
+            background: #00ffcc;
+            color: #0f0f13;
+        }
+
+        /* Results Area */
+        #results-area {
+            margin-top: 25px;
+            display: none;
+            background: #121218;
+            border: 1px solid #2a2a3a;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left;
+        }
+        .rating-badge {
+            background: #00ffcc;
+            color: #0f0f13;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        .stat-row {
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+        .stat-bar-container {
+            background: #2a2a3a;
+            border-radius: 4px;
+            height: 8px;
+            width: 100%;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+        .stat-bar {
+            background: #ff007f;
+            height: 100%;
+            border-radius: 4px;
+        }
+        #toast {
+            display: none;
+            color: #ffcc00;
+            font-size: 12px;
+            margin-top: 8px;
             text-align: center;
         }
     </style>
 </head>
 <body>
 
-    <h1>Goon Games</h1>
-    <p>Match characters to positions uniquely!</p>
-
     <div class="container">
-        <!-- Positions Grid (Top) -->
-        <div class="positions-grid" id="positionsGrid"></div>
+        <div class="header-title">Epspicy Engine</div>
+        <div class="subtitle">Character & Position Selection Matrix</div>
 
-        <!-- Roster / Available Characters (Bottom) -->
-        <div class="roster" id="roster"></div>
-
-        <!-- Taste Rating & Stats -->
-        <div class="stats-box">
-            <h3>Taste Rating: <span id="tasteRating">Neutral</span></h3>
-            <p id="liveStats">Global Completions: Loading...</p>
+        <!-- 1. Characters Roster -->
+        <div class="section-label">1. Select Character (Click slot first, then pick):</div>
+        <div class="roster-grid">
+            <div class="char-card" id="card-Elena" onclick="selectChar('Elena')">
+                <img src="PMVheaven THUB.jpg" class="char-img">
+                <div class="char-name">Elena</div>
+            </div>
+            <div class="char-card" id="card-Maria" onclick="selectChar('Maria')">
+                <img src="PMVheaven THUB.jpg" class="char-img">
+                <div class="char-name">Maria</div>
+            </div>
+            <div class="char-card" id="card-Kostas" onclick="selectChar('Kostas')">
+                <img src="PMVheaven THUB.jpg" class="char-img">
+                <div class="char-name">Kostas</div>
+            </div>
+            <div class="char-card" id="card-Niki" onclick="selectChar('Niki')">
+                <img src="PMVheaven THUB.jpg" class="char-img">
+                <div class="char-name">Niki</div>
+            </div>
+            <div class="char-card" id="card-Alex" onclick="selectChar('Alex')">
+                <img src="PMVheaven THUB.jpg" class="char-img">
+                <div class="char-name">Alex</div>
+            </div>
         </div>
 
-        <!-- Actions -->
-        <div class="actions">
-            <button onclick="resetGame()">Reset</button>
-            <button onclick="shareResult()">Share</button>
+        <!-- 2. Target Positions -->
+        <div class="section-label">2. Target Positions (Click slot to target):</div>
+        <div class="positions-grid">
+            <div class="position-slot active" id="slot-1" onclick="setActiveSlot(1)">
+                <div class="pos-title">Pos 1</div>
+                <div class="pos-assigned" id="val-1">-</div>
+                <img src="hey-cat.gif" class="pos-gif" alt="GIF 1">
+            </div>
+            <div class="position-slot" id="slot-2" onclick="setActiveSlot(2)">
+                <div class="pos-title">Pos 2</div>
+                <div class="pos-assigned" id="val-2">-</div>
+                <img src="hug-bros.gif" class="pos-gif" alt="GIF 2">
+            </div>
+            <div class="position-slot" id="slot-3" onclick="setActiveSlot(3)">
+                <div class="pos-title">Pos 3</div>
+                <div class="pos-assigned" id="val-3">-</div>
+                <img src="man-shaking-head-shakes-head.gif" class="pos-gif" alt="GIF 3">
+            </div>
+            <div class="position-slot" id="slot-4" onclick="setActiveSlot(4)">
+                <div class="pos-title">Pos 4</div>
+                <div class="pos-assigned" id="val-4">-</div>
+                <img src="aj-brown-drake-maye-aj-brown.gif" class="pos-gif" alt="GIF 4">
+            </div>
+            <div class="position-slot" id="slot-5" onclick="setActiveSlot(5)">
+                <div class="pos-title">Pos 5</div>
+                <div class="pos-assigned" id="val-5">-</div>
+                <img src="annoyed.gif" class="pos-gif" alt="GIF 5">
+            </div>
+        </div>
+
+        <!-- Confirm Action Button -->
+        <button class="action-btn" onclick="executeSequence()">Launch Sequence & Compare</button>
+        
+        <!-- Results Area -->
+        <div id="results-area">
+            <div class="rating-badge" id="rating-badge">Your Taste Rating: Balanced Critic</div>
+            <div class="section-label" style="margin-bottom: 12px; color: #ffffff;" id="globalStatsTitle">Global Community Statistics (You vs All): Loading...</div>
+            
+            <div id="stats-list"></div>
+
+            <div class="btn-group">
+                <button class="secondary-btn" onclick="shareResults()">Share Results</button>
+                <button class="secondary-btn" style="border-color: #ff007f; color: #ff007f;" onclick="resetSelection()">Reset Selection</button>
+            </div>
+            <div id="toast">Results copied to clipboard!</div>
         </div>
     </div>
 
@@ -176,120 +320,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        const characters = [
-            { id: 'c1', name: 'Cat', img: 'hey-cat.gif' },
-            { id: 'c2', name: 'Bros', img: 'hug-bros.gif' },
-            { id: 'c3', name: 'Shaker', img: 'man-shaking-head-shakes-head.gif' },
-            { id: 'c4', name: 'Maye', img: 'aj-brown-drake-maye-aj-brown.gif' },
-            { id: 'c5', name: 'Annoyed', img: 'annoyed.gif' }
-        ];
-
-        const positions = ['Pos 1', 'Pos 2', 'Pos 3', 'Pos 4', 'Pos 5'];
-        let assignments = {};
-        let selectedChar = null;
+        let currentSlot = 1;
+        let assignments = { 1: null, 2: null, 3: null, 4: null, 5: null };
         let hasSubmitted = false;
-
-        function initGame() {
-            const rosterEl = document.getElementById('roster');
-            const gridEl = document.getElementById('positionsGrid');
-            
-            rosterEl.innerHTML = '';
-            gridEl.innerHTML = '';
-
-            // Render Slots Grid (Top)
-            positions.forEach((pos, index) => {
-                const slot = document.createElement('div');
-                slot.className = 'slot';
-                
-                if (assignments[index]) {
-                    const assignedChar = characters.find(c => c.id === assignments[index]);
-                    slot.innerHTML = `
-                        <span>${pos}</span>
-                        <img src="${assignedChar.img}" onerror="this.src='https://via.placeholder.com/70?text=GIF'">
-                        <span>${assignedChar.name}</span>
-                    `;
-                    slot.onclick = () => {
-                        delete assignments[index];
-                        hasSubmitted = false; // Reset submission lock if user changes items
-                        initGame();
-                    };
-                } else {
-                    slot.innerHTML = `<span>${pos}</span><span style="color:#666; font-size:10px; margin-top:15px;">Click to assign</span>`;
-                    slot.onclick = () => {
-                        if (selectedChar) {
-                            assignments[index] = selectedChar;
-                            selectedChar = null;
-                            initGame();
-                            checkCompletion();
-                        }
-                    };
-                }
-                gridEl.appendChild(slot);
-            });
-
-            // Render Roster Cards (Bottom)
-            characters.forEach(char => {
-                const isUsed = Object.values(assignments).includes(char.id);
-                const card = document.createElement('div');
-                card.className = `card ${isUsed ? 'used' : ''} ${selectedChar === char.id ? 'selected' : ''}`;
-                
-                card.innerHTML = `
-                    <img src="${char.img}" alt="${char.name}" onerror="this.src='https://via.placeholder.com/70?text=GIF'">
-                    <span>${char.name}</span>
-                `;
-
-                if (!isUsed) {
-                    card.onclick = () => {
-                        selectedChar = char.id;
-                        initGame();
-                    };
-                }
-                rosterEl.appendChild(card);
-            });
-
-            updateTasteRating();
-        }
-
-        window.resetGame = function() {
-            assignments = {};
-            selectedChar = null;
-            hasSubmitted = false;
-            initGame();
-        }
-
-        function updateTasteRating() {
-            const count = Object.keys(assignments).length;
-            const ratings = ["Neutral", "Mild", "Spicy", "Hot", "Extreme Goon", "MAXIMUM GOON"];
-            document.getElementById('tasteRating').innerText = ratings[count];
-        }
-
-        function checkCompletion() {
-            if (Object.keys(assignments).length === 5 && !hasSubmitted) {
-                hasSubmitted = true;
-                db.ref('submissions').push({ timestamp: Date.now() })
-                    .then(() => {
-                        console.log("Submission recorded successfully!");
-                    })
-                    .catch((error) => {
-                        console.error("Error recording submission: ", error);
-                        hasSubmitted = false;
-                    });
-            }
-        }
-
-        window.shareResult = function() {
-            navigator.clipboard.writeText(window.location.href);
-            alert("Link copied to clipboard!");
-        }
-
-        // Live stats listener from Firebase Realtime Database
-        db.ref('submissions').on('value', (snapshot) => {
-            const data = snapshot.val();
-            const total = data ? Object.keys(data).length : 0;
-            document.getElementById('liveStats').innerText = `Global Completions: ${total}`;
-        });
-
-        initGame();
-    </script>
-</body>
-</html>
+        let total
