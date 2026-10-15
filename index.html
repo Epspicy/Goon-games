@@ -36,7 +36,7 @@
             text-transform: uppercase;
         }
 
-        /* Characters Roster */
+        /* Characters Roster (Πάνω) */
         .section-label {
             font-size: 13px;
             color: #00ffcc;
@@ -66,6 +66,10 @@
             border-color: #ff007f;
             transform: translateY(-3px);
         }
+        .char-card.selected {
+            border-color: #00ffcc;
+            background: #122825;
+        }
         .char-card.used {
             opacity: 0.25;
             cursor: not-allowed;
@@ -88,7 +92,7 @@
             pointer-events: none;
         }
 
-        /* Positions Grid */
+        /* Positions Grid (Κάτω) */
         .positions-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -227,8 +231,8 @@
         <div class="header-title">Epspicy Engine</div>
         <div class="subtitle">Character & Position Selection Matrix</div>
 
-        <!-- 1. Characters Roster -->
-        <div class="section-label">1. Select Character (Click slot first, then pick):</div>
+        <!-- 1. Characters Roster (Πάνω) -->
+        <div class="section-label">1. Select Character:</div>
         <div class="roster-grid">
             <div class="char-card" id="card-Elena" onclick="selectChar('Elena')">
                 <img src="PMVheaven THUB.jpg" class="char-img">
@@ -252,30 +256,30 @@
             </div>
         </div>
 
-        <!-- 2. Target Positions -->
-        <div class="section-label">2. Target Positions (Click slot to target):</div>
+        <!-- 2. Target Positions (Κάτω) -->
+        <div class="section-label">2. Target Positions (Click slot to assign selected character):</div>
         <div class="positions-grid">
-            <div class="position-slot active" id="slot-1" onclick="setActiveSlot(1)">
+            <div class="position-slot active" id="slot-1" onclick="assignToSlot(1)">
                 <div class="pos-title">Pos 1</div>
                 <div class="pos-assigned" id="val-1">-</div>
                 <img src="hey-cat.gif" class="pos-gif" alt="GIF 1">
             </div>
-            <div class="position-slot" id="slot-2" onclick="setActiveSlot(2)">
+            <div class="position-slot" id="slot-2" onclick="assignToSlot(2)">
                 <div class="pos-title">Pos 2</div>
                 <div class="pos-assigned" id="val-2">-</div>
                 <img src="hug-bros.gif" class="pos-gif" alt="GIF 2">
             </div>
-            <div class="position-slot" id="slot-3" onclick="setActiveSlot(3)">
+            <div class="position-slot" id="slot-3" onclick="assignToSlot(3)">
                 <div class="pos-title">Pos 3</div>
                 <div class="pos-assigned" id="val-3">-</div>
                 <img src="man-shaking-head-shakes-head.gif" class="pos-gif" alt="GIF 3">
             </div>
-            <div class="position-slot" id="slot-4" onclick="setActiveSlot(4)">
+            <div class="position-slot" id="slot-4" onclick="assignToSlot(4)">
                 <div class="pos-title">Pos 4</div>
                 <div class="pos-assigned" id="val-4">-</div>
                 <img src="aj-brown-drake-maye-aj-brown.gif" class="pos-gif" alt="GIF 4">
             </div>
-            <div class="position-slot" id="slot-5" onclick="setActiveSlot(5)">
+            <div class="position-slot" id="slot-5" onclick="assignToSlot(5)">
                 <div class="pos-title">Pos 5</div>
                 <div class="pos-assigned" id="val-5">-</div>
                 <img src="annoyed.gif" class="pos-gif" alt="GIF 5">
@@ -288,7 +292,7 @@
         <!-- Results Area -->
         <div id="results-area">
             <div class="rating-badge" id="rating-badge">Your Taste Rating: Balanced Critic</div>
-            <div class="section-label" style="margin-bottom: 12px; color: #ffffff;" id="globalStatsTitle">Global Community Statistics (You vs All): Loading...</div>
+            <div class="section-label" style="margin-bottom: 12px; color: #ffffff;" id="globalStatsTitle">Global Community Statistics: Loading...</div>
             
             <div id="stats-list"></div>
 
@@ -316,11 +320,156 @@
             measurementId: "G-WHG3N8WML4"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let currentSlot = 1;
+        let selectedCharName = null;
+        let currentActiveSlot = 1;
         let assignments = { 1: null, 2: null, 3: null, 4: null, 5: null };
         let hasSubmitted = false;
-        let total
+        let totalCompletions = 0;
+
+        const ratings = [
+            "Balanced Critic",
+            "Chaos Master",
+            "Wild Strategist",
+            "Trend Setter",
+            "Unconventional Mind"
+        ];
+
+        // Live stats από Firebase
+        db.ref('submissions').on('value', (snapshot) => {
+            const data = snapshot.val();
+            totalCompletions = data ? Object.keys(data).length : 0;
+            document.getElementById("globalStatsTitle").innerText = `Global Community Statistics (Total Completions: ${totalCompletions}):`;
+        });
+
+        function selectChar(charName) {
+            // Έλεγχος αν έχει ήδη χρησιμοποιηθεί αλλού
+            for (let s = 1; s <= 5; s++) {
+                if (assignments[s] === charName) {
+                    alert(charName + " is already assigned to Position " + s + "!");
+                    return;
+                }
+            }
+
+            // Αφαίρεση προηγούμενης επιλογής
+            document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
+
+            selectedCharName = charName;
+            let card = document.getElementById('card-' + charName);
+            if (card) card.classList.add('selected');
+        }
+
+        function assignToSlot(slotNum) {
+            currentActiveSlot = slotNum;
+            
+            // Αν έχουμε επιλεγμένο χαρακτήρα, τον βάζουμε απευθείας στο slot
+            if (selectedCharName) {
+                // Απελευθέρωση αν υπήρχε άλλος στο slot
+                let oldChar = assignments[slotNum];
+                if (oldChar) {
+                    let oldCard = document.getElementById('card-' + oldChar);
+                    if (oldCard) oldCard.classList.remove('used');
+                }
+
+                assignments[slotNum] = selectedCharName;
+                document.getElementById('val-' + slotNum).innerText = selectedCharName;
+
+                let charCard = document.getElementById('card-' + selectedCharName);
+                if (charCard) {
+                    charCard.classList.remove('selected');
+                    charCard.classList.add('used');
+                }
+
+                selectedCharName = null;
+
+                // Μετάβαση οπτικά στο επόμενο ενεργό slot
+                for (let i = 1; i <= 5; i++) {
+                    document.getElementById('slot-' + i).classList.remove('active');
+                }
+                for (let i = 1; i <= 5; i++) {
+                    if (!assignments[i]) {
+                        document.getElementById('slot-' + i).classList.add('active');
+                        break;
+                    }
+                }
+            } else {
+                // Αν δεν έχει επιλεγεί χαρακτήρας, απλά κάνουμε το slot ενεργό
+                for (let i = 1; i <= 5; i++) {
+                    document.getElementById('slot-' + i).classList.remove('active');
+                }
+                document.getElementById('slot-' + slotNum).classList.add('active');
+            }
+        }
+
+        function executeSequence() {
+            let filledCount = 0;
+            for (let i = 1; i <= 5; i++) {
+                if (assignments[i] !== null) filledCount++;
+            }
+
+            if (filledCount < 5) {
+                alert("Please assign characters to all 5 positions before launching!");
+                return;
+            }
+
+            // Καταγραφή στη βάση Firebase
+            if (!hasSubmitted) {
+                hasSubmitted = true;
+                db.ref('submissions').push({
+                    assignments: assignments,
+                    timestamp: Date.now()
+                }).catch(err => console.error("Error:", err));
+            }
+
+            let ratingIndex = (assignments[1] === "Elena") ? 0 : (assignments[1] === "Maria" ? 1 : 2);
+            document.getElementById("rating-badge").innerText = "Your Taste Rating: " + ratings[ratingIndex];
+
+            let statsHtml = "";
+            const samplePercentages = [78, 64, 89, 52, 71];
+            for (let i = 1; i <= 5; i++) {
+                let char = assignments[i];
+                let pct = samplePercentages[i - 1];
+                statsHtml += '<div class="stat-row">' +
+                    '<span>Pos ' + i + ' Match (' + char + ' selected by ' + pct + '% of community)</span>' +
+                    '<div class="stat-bar-container"><div class="stat-bar" style="width: ' + pct + '%;"></div></div>' +
+                    '</div>';
+            }
+            document.getElementById("stats-list").innerHTML = statsHtml;
+            document.getElementById("results-area").style.display = "block";
+        }
+
+        function shareResults() {
+            let text = "My Epspicy Selection Matrix:\n";
+            for (let i = 1; i <= 5; i++) {
+                text += "Pos " + i + ": " + assignments[i] + "\n";
+            }
+            text += "Play at: https://epspicy.github.io/Goon-games/";
+            
+            navigator.clipboard.writeText(text).then(function() {
+                let toast = document.getElementById("toast");
+                toast.style.display = "block";
+                setTimeout(function() { toast.style.display = "none"; }, 2500);
+            });
+        }
+
+        function resetSelection() {
+            assignments = { 1: null, 2: null, 3: null, 4: null, 5: null };
+            selectedCharName = null;
+            hasSubmitted = false;
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById('val-' + i).innerText = "-";
+            }
+            document.querySelectorAll('.char-card').forEach(c => {
+                c.classList.remove('used');
+                c.classList.remove('selected');
+            });
+            document.getElementById("results-area").style.display = "none";
+            document.querySelectorAll('.position-slot').forEach(s => s.classList.remove('active'));
+            document.getElementById('slot-1').classList.add('active');
+        }
+    </script>
+
+</body>
+</html>
