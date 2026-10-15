@@ -21,20 +21,25 @@
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
-        img, video {
+        h2 {
+            font-size: 20px;
+            color: #00ffcc;
+            margin-bottom: 20px;
+        }
+        video, img {
             width: 100%;
-            border-radius: 8px;
-            max-height: 300px;
+            max-height: 350px;
             object-fit: cover;
+            border-radius: 8px;
             margin-bottom: 20px;
         }
         .btn-container {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
         button {
-            background: #7289da;
+            background-color: #ff007f;
             color: white;
             border: none;
             padding: 12px 20px;
@@ -42,58 +47,46 @@
             font-weight: bold;
             border-radius: 6px;
             cursor: pointer;
-            transition: 0.2s;
+            transition: background 0.2s;
         }
         button:hover {
-            background: #5b6eae;
+            background-color: #e00070;
         }
         #result {
             margin-top: 20px;
             font-size: 18px;
-            color: #00ffcc;
             font-weight: bold;
+            color: #ffcc00;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2 id="question-title">Loading PMV Scene...</h2>
+        <h2 id="question-title">Epelege την επόμενη κίνησή σου!</h2>
         
-        <!-- Edo mpainei to GIF i i eikona sou -->
-        <img id="media-element" src="" alt="PMV Preview">
+        <video controls autoplay loop muted id="media-element">
+            <source src="-e-x-t-e-r-n-a-l_i-m-a-g-e_-v-i-d-e-o-e663a02d-a2e5-4d1a-9251-4650b879dbb2 (1).mp4" type="video/mp4">
+            Ο browser δεν υποστηρίζει το βίντεο.
+        </video>
 
         <div class="btn-container" id="buttons-area">
-            <!-- Ta koumpia tha emfanistoun aytaomata -->
+            <button onclick="nextScene(1)">Επιλογή A: Συνέχεια με δράση</button>
+            <button onclick="nextScene(2)">Επιλογή B: Αλλαγή πορείας</button>
         </div>
 
         <div id="result"></div>
     </div>
 
     <script>
-        // Ena aplo demo dataset gia to prwto paixnidi
-        const gameData = {
-            question: "Ti epilogi kaneis se ayth th skhnh;",
-            media: "https://media.giphy.com/media/3o7TKSjRrfIPjeiOkM/giphy.gif", // Paradeigma GIF link
-            choices: [
-                { text: "Epilogi A: Synexeia me to High Voltage", percentage: "15% twn xristwn" },
-                { text: "Epilogi B: Epistrofi sto Tier 1", percentage: "85% twn xristwn" }
-            ]
-        };
-
-        document.getElementById("question-title").innerText = gameData.question;
-        document.getElementById("media-element").src = gameData.media;
-
-        const btnArea = document.getElementById("buttons-area");
-
-        gameData.choices.forEach(choice => {
-            let btn = document.createElement("button");
-            btn.innerText = choice.text;
-            btn.onclick = function() {
-                document.getElementById("result").innerText = `Epilexes afto! To επέλεξε μόλις το ${choice.percentage} twn paiktn.`;
-            };
-            btnArea.appendChild(btn);
-        });
+        function nextScene(choice) {
+            const resultDiv = document.getElementById("result");
+            if (choice === 1) {
+                resultDiv.innerHTML = "Επέλεξες την Επιλογή A! Συνεχίζουμε δυναμικά...";
+            } else {
+                resultDiv.innerHTML = "Επέλεξες την Επιλογή B! Αλλάζουμε σκηνή...";
+            }
+        }
     </script>
 
 </body>
