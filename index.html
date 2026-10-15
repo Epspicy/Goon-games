@@ -40,7 +40,7 @@
             background: #2d2d2d;
             border: 2px solid #444;
             border-radius: 8px;
-            cursor: grab;
+            cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -49,15 +49,19 @@
             transition: 0.2s;
             text-align: center;
         }
+        .card:hover {
+            border-color: #ff4757;
+        }
         .card img {
             width: 70px;
             height: 70px;
             object-fit: cover;
             border-radius: 6px;
             margin-bottom: 5px;
+            background: #444;
         }
         .card.used {
-            opacity: 0.4;
+            opacity: 0.3;
             cursor: not-allowed;
             filter: grayscale(100%);
         }
@@ -77,11 +81,22 @@
             align-items: center;
             justify-content: center;
             padding: 5px;
+            cursor: pointer;
             position: relative;
         }
+        .slot:hover {
+            border-color: #ff4757;
+        }
         .slot span {
-            font-size: 12px;
+            font-size: 11px;
             color: #aaa;
+            margin-bottom: 5px;
+        }
+        .slot img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 6px;
             margin-bottom: 5px;
         }
         .actions {
@@ -118,19 +133,15 @@
 
     <div class="container">
         <!-- Roster / Available Characters -->
-        <div class="roster" id="roster">
-            <!-- Cards will be populated dynamically -->
-        </div>
+        <div class="roster" id="roster"></div>
 
         <!-- Positions Grid -->
-        <div class="positions-grid" id="positionsGrid">
-            <!-- Slots will be populated dynamically -->
-        </div>
+        <div class="positions-grid" id="positionsGrid"></div>
 
         <!-- Taste Rating & Stats -->
         <div class="stats-box">
             <h3>Taste Rating: <span id="tasteRating">Neutral</span></h3>
-            <p id="liveStats">Global Submissions: Loading...</p>
+            <p id="liveStats">Global Completions: Loading...</p>
         </div>
 
         <!-- Actions -->
@@ -167,8 +178,9 @@
             { id: 'c5', name: 'Annoyed', img: 'annoyed.gif' }
         ];
 
-        const positions = ['Position 1', 'Position 2', 'Position 3', 'Position 4', 'Position 5'];
+        const positions = ['Pos 1', 'Pos 2', 'Pos 3', 'Pos 4', 'Pos 5'];
         let assignments = {};
+        let selectedChar = null;
 
         function initGame() {
             const rosterEl = document.getElementById('roster');
@@ -177,50 +189,57 @@
             rosterEl.innerHTML = '';
             gridEl.innerHTML = '';
 
+            // Render Roster Cards
             characters.forEach(char => {
+                const isUsed = Object.values(assignments).includes(char.id);
                 const card = document.createElement('div');
-                card.className = `card ${Object.values(assignments).includes(char.id) ? 'used' : ''}`;
-                card.innerHTML = `<img src="${char.img}" alt="${char.name}"><span>${char.name}</span>`;
-                if (!Object.values(assignments).includes(char.id)) {
-                    card.onclick = () => selectCharacter(char.id);
+                card.className = `card ${isUsed ? 'used' : ''} ${selectedChar === char.id ? 'selected' : ''}`;
+                
+                card.innerHTML = `
+                    <img src="${char.img}" alt="${char.name}" onerror="this.src='https://via.placeholder.com/70?text=GIF'">
+                    <span>${char.name}</span>
+                `;
+
+                if (!isUsed) {
+                    card.onclick = () => {
+                        selectedChar = char.id;
+                        initGame();
+                    };
                 }
                 rosterEl.appendChild(card);
             });
 
+            // Render Slots Grid
             positions.forEach((pos, index) => {
                 const slot = document.createElement('div');
                 slot.className = 'slot';
-                slot.innerHTML = `<span>${pos}</span>`;
+                
                 if (assignments[index]) {
                     const assignedChar = characters.find(c => c.id === assignments[index]);
-                    slot.innerHTML += `<img src="${assignedChar.img}" style="width:70px;height:70px;object-fit:cover;border-radius:6px;"><span>${assignedChar.name}</span>`;
-                    slot.onclick = () => removeAssignment(index);
+                    slot.innerHTML = `
+                        <span>${pos}</span>
+                        <img src="${assignedChar.img}" onerror="this.src='https://via.placeholder.com/70?text=GIF'">
+                        <span>${assignedChar.name}</span>
+                    `;
+                    slot.onclick = () => {
+                        delete assignments[index];
+                        initGame();
+                    };
                 } else {
-                    slot.onclick = () => assignToSlot(index);
+                    slot.innerHTML = `<span>${pos}</span><span style="color:#666; font-size:10px; margin-top:15px;">Click to assign</span>`;
+                    slot.onclick = () => {
+                        if (selectedChar) {
+                            assignments[index] = selectedChar;
+                            selectedChar = null;
+                            initGame();
+                            checkCompletion();
+                        }
+                    };
                 }
                 gridEl.appendChild(slot);
             });
 
             updateTasteRating();
-        }
-
-        let selectedChar = null;
-        window.selectCharacter = function(id) {
-            selectedChar = id;
-        }
-
-        window.assignToSlot = function(index) {
-            if (selectedChar) {
-                assignments[index] = selectedChar;
-                selectedChar = null;
-                initGame();
-                checkCompletion();
-            }
-        }
-
-        window.removeAssignment = function(index) {
-            delete assignments[index];
-            initGame();
         }
 
         window.resetGame = function() {
@@ -246,7 +265,7 @@
             alert("Link copied to clipboard!");
         }
 
-        // Live stats listener
+        // Live stats listener from Firebase
         onValue(ref(db, 'submissions'), (snapshot) => {
             const data = snapshot.val();
             const total = data ? Object.keys(data).length : 0;
