@@ -72,7 +72,6 @@
             object-fit: cover;
             border: 2px solid #00ffcc;
             margin-bottom: 6px;
-            background-color: #2a2a3a;
         }
         .char-name {
             font-size: 13px;
@@ -80,7 +79,7 @@
             font-weight: bold;
         }
 
-        /* Positions Grid (Όλα τα 5 slots εμφανή) */
+        /* Positions Grid */
         .positions-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -91,7 +90,7 @@
             background: #121218;
             border: 2px dashed #44445c;
             border-radius: 8px;
-            padding: 12px 5px;
+            padding: 10px 5px;
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -110,6 +109,14 @@
             font-size: 12px;
             color: #00ffcc;
             font-weight: bold;
+            margin-bottom: 6px;
+        }
+        .pos-gif {
+            width: 45px;
+            height: 45px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid #00ffcc;
         }
 
         /* Action Button & Preview Box */
@@ -173,28 +180,33 @@
             </div>
         </div>
 
-        <!-- 2. Target Positions (Pos 1 - Pos 5) -->
+        <!-- 2. Target Positions (Pos 1 - Pos 5 με τα GIFs τους) -->
         <div class="section-label">2. Target Positions (Click slot first, then pick character):</div>
         <div class="positions-grid">
             <div class="position-slot active" id="slot-1" onclick="setActiveSlot(1)">
                 <div class="pos-title">Pos 1</div>
                 <div class="pos-assigned" id="val-1">-</div>
+                <img src="hey-cat.gif" class="pos-gif" alt="GIF 1">
             </div>
             <div class="position-slot" id="slot-2" onclick="setActiveSlot(2)">
                 <div class="pos-title">Pos 2</div>
                 <div class="pos-assigned" id="val-2">-</div>
+                <img src="hug-bros.gif" class="pos-gif" alt="GIF 2">
             </div>
             <div class="position-slot" id="slot-3" onclick="setActiveSlot(3)">
                 <div class="pos-title">Pos 3</div>
                 <div class="pos-assigned" id="val-3">-</div>
+                <img src="man-shaking-head-shakes-head.gif" class="pos-gif" alt="GIF 3">
             </div>
             <div class="position-slot" id="slot-4" onclick="setActiveSlot(4)">
                 <div class="pos-title">Pos 4</div>
                 <div class="pos-assigned" id="val-4">-</div>
+                <img src="aj-brown-drake-maye-aj-brown.gif" class="pos-gif" alt="GIF 4">
             </div>
             <div class="position-slot" id="slot-5" onclick="setActiveSlot(5)">
                 <div class="pos-title">Pos 5</div>
                 <div class="pos-assigned" id="val-5">-</div>
+                <img src="annoyed.gif" class="pos-gif" alt="GIF 5">
             </div>
         </div>
 
