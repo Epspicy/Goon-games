@@ -31,7 +31,7 @@
             display: flex;
             gap: 10px;
             justify-content: center;
-            margin-bottom: 20px;
+            margin-top: 20px;
             flex-wrap: wrap;
         }
         .card {
@@ -73,7 +73,7 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         .slot {
             background: #252525;
@@ -107,6 +107,7 @@
             display: flex;
             gap: 10px;
             justify-content: center;
+            margin-top: 15px;
         }
         button {
             background: #ff4757;
@@ -136,11 +137,11 @@
     <p>Match characters to positions uniquely!</p>
 
     <div class="container">
-        <!-- Roster / Available Characters -->
-        <div class="roster" id="roster"></div>
-
-        <!-- Positions Grid -->
+        <!-- Positions Grid (Top) -->
         <div class="positions-grid" id="positionsGrid"></div>
+
+        <!-- Roster / Available Characters (Bottom) -->
+        <div class="roster" id="roster"></div>
 
         <!-- Taste Rating & Stats -->
         <div class="stats-box">
@@ -186,6 +187,7 @@
         const positions = ['Pos 1', 'Pos 2', 'Pos 3', 'Pos 4', 'Pos 5'];
         let assignments = {};
         let selectedChar = null;
+        let hasSubmitted = false;
 
         function initGame() {
             const rosterEl = document.getElementById('roster');
@@ -194,7 +196,38 @@
             rosterEl.innerHTML = '';
             gridEl.innerHTML = '';
 
-            // Render Roster Cards
+            // Render Slots Grid (Top)
+            positions.forEach((pos, index) => {
+                const slot = document.createElement('div');
+                slot.className = 'slot';
+                
+                if (assignments[index]) {
+                    const assignedChar = characters.find(c => c.id === assignments[index]);
+                    slot.innerHTML = `
+                        <span>${pos}</span>
+                        <img src="${assignedChar.img}" onerror="this.src='https://via.placeholder.com/70?text=GIF'">
+                        <span>${assignedChar.name}</span>
+                    `;
+                    slot.onclick = () => {
+                        delete assignments[index];
+                        hasSubmitted = false; // Reset submission lock if user changes items
+                        initGame();
+                    };
+                } else {
+                    slot.innerHTML = `<span>${pos}</span><span style="color:#666; font-size:10px; margin-top:15px;">Click to assign</span>`;
+                    slot.onclick = () => {
+                        if (selectedChar) {
+                            assignments[index] = selectedChar;
+                            selectedChar = null;
+                            initGame();
+                            checkCompletion();
+                        }
+                    };
+                }
+                gridEl.appendChild(slot);
+            });
+
+            // Render Roster Cards (Bottom)
             characters.forEach(char => {
                 const isUsed = Object.values(assignments).includes(char.id);
                 const card = document.createElement('div');
@@ -214,42 +247,13 @@
                 rosterEl.appendChild(card);
             });
 
-            // Render Slots Grid
-            positions.forEach((pos, index) => {
-                const slot = document.createElement('div');
-                slot.className = 'slot';
-                
-                if (assignments[index]) {
-                    const assignedChar = characters.find(c => c.id === assignments[index]);
-                    slot.innerHTML = `
-                        <span>${pos}</span>
-                        <img src="${assignedChar.img}" onerror="this.src='https://via.placeholder.com/70?text=GIF'">
-                        <span>${assignedChar.name}</span>
-                    `;
-                    slot.onclick = () => {
-                        delete assignments[index];
-                        initGame();
-                    };
-                } else {
-                    slot.innerHTML = `<span>${pos}</span><span style="color:#666; font-size:10px; margin-top:15px;">Click to assign</span>`;
-                    slot.onclick = () => {
-                        if (selectedChar) {
-                            assignments[index] = selectedChar;
-                            selectedChar = null;
-                            initGame();
-                            checkCompletion();
-                        }
-                    };
-                }
-                gridEl.appendChild(slot);
-            });
-
             updateTasteRating();
         }
 
         window.resetGame = function() {
             assignments = {};
             selectedChar = null;
+            hasSubmitted = false;
             initGame();
         }
 
@@ -260,8 +264,16 @@
         }
 
         function checkCompletion() {
-            if (Object.keys(assignments).length === 5) {
-                db.ref('submissions').push({ timestamp: Date.now() });
+            if (Object.keys(assignments).length === 5 && !hasSubmitted) {
+                hasSubmitted = true;
+                db.ref('submissions').push({ timestamp: Date.now() })
+                    .then(() => {
+                        console.log("Submission recorded successfully!");
+                    })
+                    .catch((error) => {
+                        console.error("Error recording submission: ", error);
+                        hasSubmitted = false;
+                    });
             }
         }
 
