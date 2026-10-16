@@ -400,43 +400,77 @@
 
         let currentUser = null;
 
+        // --- NEW POPUP OAUTH2 LOGIN SYSTEM ---
         function loginWithDiscord() {
             const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
-            window.location.href = discordUrl;
+            
+            const width = 500, height = 700;
+            const left = (window.innerWidth - width) / 2;
+            const top = (window.innerHeight - height) / 2;
+            
+            const authWindow = window.open(discordUrl, 'DiscordLogin', `width=${width},height=${height},top=${top},left=${left}`);
+
+            const checkInterval = setInterval(() => {
+                try {
+                    if (authWindow.closed) {
+                        clearInterval(checkInterval);
+                        checkStoredUser();
+                    }
+                    else if (authWindow.location.href.includes('access_token')) {
+                        const hash = authWindow.location.hash.substring(1);
+                        const params = new URLSearchParams(hash);
+                        const accessToken = params.get('access_token');
+                        
+                        if (accessToken) {
+                            authWindow.close();
+                            clearInterval(checkInterval);
+                            fetchDiscordUser(accessToken);
+                        }
+                    }
+                } catch (e) {
+                    // Cross-origin check bypass during redirection
+                }
+            }, 500);
         }
 
-        function checkDiscordAuth() {
+        function fetchDiscordUser(accessToken) {
+            fetch('https://discord.com/api/users/@me', {
+                headers: { authorization: `Bearer ${accessToken}` }
+            })
+            .then(res => res.json())
+            .then(user => {
+                if (user && user.id) {
+                    const userData = {
+                        id: user.id,
+                        username: user.global_name || user.username,
+                        avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png'
+                    };
+                    localStorage.setItem('discord_user', JSON.stringify(userData));
+                    currentUser = userData;
+                    renderUserProfile(userData);
+                }
+            })
+            .catch(err => console.error("Auth Error:", err));
+        }
+
+        function checkStoredUser() {
             let savedUser = localStorage.getItem('discord_user');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
                 renderUserProfile(currentUser);
-                return;
             }
+        }
 
+        function checkDiscordAuth() {
+            // Check direct redirect fragment if popup was somehow bypassed
             const fragment = new URLSearchParams(window.location.hash.slice(1));
             const accessToken = fragment.get('access_token');
-
             if (accessToken) {
                 window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-                
-                fetch('https://discord.com/api/users/@me', {
-                    headers: { authorization: `Bearer ${accessToken}` }
-                })
-                .then(res => res.json())
-                .then(user => {
-                    if (user && user.id) {
-                        const userData = {
-                            id: user.id,
-                            username: user.global_name || user.username,
-                            avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png'
-                        };
-                        localStorage.setItem('discord_user', JSON.stringify(userData));
-                        currentUser = userData;
-                        renderUserProfile(userData);
-                    }
-                })
-                .catch(err => console.error("Auth Error:", err));
+                fetchDiscordUser(accessToken);
+                return;
             }
+            checkStoredUser();
         }
 
         function renderUserProfile(user) {
