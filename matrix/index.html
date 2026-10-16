@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Character Matrix - Epspicy Arcade</title>
-    <!-- Favicon link -->
-    <link rel="icon" type="image/png" href="../logo.png">
+    <title>Epspicy Mini Games Arcade</title>
+    <!-- Custom Favicon -->
+    <link rel="icon" type="image/png" href="./logo.png">
     <style>
         body {
             background-color: #0f0f13;
@@ -13,576 +13,146 @@
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 0;
-            padding: 10px;
-        }
-        .container {
-            max-width: 780px;
-            margin: 10px auto;
-            background: #1a1a24;
             padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
         }
-        .header-title {
+        .arcade-container {
+            max-width: 900px;
+            width: 100%;
+            background: #1a1a24;
+            padding: 40px 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+            border: 2px solid #2a2a3a;
+        }
+        .arcade-title {
             color: #00ffcc;
-            font-size: 22px;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: bold;
-        }
-        .subtitle {
-            color: #8888a0;
-            font-size: 13px;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-        }
-        .back-link {
-            display: inline-block;
-            color: #8888a0;
-            font-size: 12px;
-            text-decoration: none;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            transition: color 0.2s;
-        }
-        .back-link:hover {
-            color: #00ffcc;
-        }
-
-        /* Characters Roster (6 items) */
-        .section-label {
-            font-size: 13px;
-            color: #00ffcc;
-            text-align: left;
+            font-size: 36px;
             margin-bottom: 10px;
             text-transform: uppercase;
+            letter-spacing: 2px;
             font-weight: bold;
+            text-shadow: 0 0 15px rgba(0,255,204,0.4);
+        }
+        .arcade-subtitle {
+            color: #8888a0;
+            font-size: 14px;
+            margin-bottom: 40px;
+            text-transform: uppercase;
             letter-spacing: 1px;
         }
-        .roster-grid {
+        .games-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 8px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
         }
-        .char-card {
+        .game-card {
             background: #121218;
             border: 2px solid #2a2a3a;
-            border-radius: 10px;
-            padding: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-            user-select: none;
+            border-radius: 12px;
+            padding: 25px 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        .char-card:hover:not(.used) {
-            border-color: #ff007f;
-            transform: translateY(-3px);
-        }
-        .char-card.selected {
+        .game-card.active {
             border-color: #00ffcc;
-            background: #122825;
+            box-shadow: 0 0 20px rgba(0,255,204,0.2);
         }
-        .char-card.used {
-            opacity: 0.25;
-            cursor: not-allowed;
-            filter: grayscale(100%);
-            border-color: #1a1a24;
-        }
-        .char-img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #00ffcc;
-            margin-bottom: 4px;
-            pointer-events: none;
-        }
-        .char-name {
-            font-size: 11px;
-            color: #ffffff;
-            font-weight: bold;
-            pointer-events: none;
-        }
-
-        /* Positions Grid (6 items) */
-        .positions-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-        .position-slot {
-            background: #121218;
-            border: 2px dashed #44445c;
-            border-radius: 10px;
-            padding: 10px 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-            user-select: none;
-        }
-        .position-slot.active {
+        .game-card.active:hover {
+            transform: translateY(-5px);
             border-color: #ff007f;
-            background: #251221;
+            box-shadow: 0 0 25px rgba(255,0,127,0.3);
         }
-        .pos-title {
-            font-size: 11px;
-            color: #8888a0;
+        .game-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+        .game-title {
+            color: #ffffff;
+            font-size: 18px;
             font-weight: bold;
             text-transform: uppercase;
-            margin-bottom: 4px;
-            pointer-events: none;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
         }
-        .pos-assigned {
-            font-size: 11px;
-            color: #00ffcc;
-            font-weight: bold;
-            margin-bottom: 6px;
-            min-height: 16px;
-            pointer-events: none;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .game-desc {
+            color: #8888a0;
+            font-size: 13px;
+            margin-bottom: 20px;
+            line-height: 1.4;
         }
-        .pos-gif {
-            width: 55px;
-            height: 55px;
-            border-radius: 8px;
-            object-fit: cover;
-            border: 2px solid #00ffcc;
-            pointer-events: none;
-        }
-
-        /* Buttons */
-        .action-btn {
+        .play-btn {
             background-color: #ff007f;
             color: white;
             border: none;
-            width: 100%;
-            padding: 14px;
-            font-size: 15px;
+            padding: 10px 24px;
+            font-size: 14px;
             font-weight: bold;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
             text-transform: uppercase;
             letter-spacing: 1px;
+            text-decoration: none;
+            transition: background 0.2s, transform 0.1s;
         }
-        .action-btn:hover {
+        .play-btn:hover {
             background-color: #e00070;
         }
-        .action-btn:active {
-            transform: scale(0.98);
+        .play-btn:active {
+            transform: scale(0.95);
         }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .secondary-btn {
-            flex: 1;
-            background: #2a2a3a;
-            color: #00ffcc;
-            border: 1px solid #00ffcc;
-            padding: 10px;
-            border-radius: 6px;
+        .coming-soon-btn {
+            background-color: #2a2a3a;
+            color: #8888a0;
+            border: none;
+            padding: 10px 24px;
+            font-size: 14px;
             font-weight: bold;
-            cursor: pointer;
+            border-radius: 6px;
             text-transform: uppercase;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-        .secondary-btn:hover {
-            background: #00ffcc;
-            color: #0f0f13;
-        }
-
-        /* Results Area */
-        #results-area {
-            margin-top: 25px;
-            display: none;
-            background: #121218;
-            border: 1px solid #2a2a3a;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: left;
-        }
-        
-        .reaction-photo {
-            width: 100%;
-            max-width: 280px;
-            border-radius: 10px;
-            border: 3px solid #ff007f;
-            margin: 0 auto 15px auto;
-            display: block;
-            box-shadow: 0 0 15px rgba(255, 0, 127, 0.5);
-        }
-
-        .stat-row {
-            margin-bottom: 12px;
-            font-size: 13px;
-        }
-        .stat-bar-container {
-            background: #2a2a3a;
-            border-radius: 4px;
-            height: 8px;
-            width: 100%;
-            margin-top: 4px;
-            overflow: hidden;
-        }
-        .stat-bar {
-            background: #ff007f;
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.4s ease;
-        }
-        #toast {
-            display: none;
-            color: #ffcc00;
-            font-size: 12px;
-            margin-top: 8px;
-            text-align: center;
-        }
-
-        /* 📱 RESPONSIVE GIA KINITA (Screen width < 700px) */
-        @media (max-width: 700px) {
-            body {
-                padding: 5px;
-            }
-            .container {
-                padding: 12px;
-            }
-            .roster-grid {
-                grid-template-columns: repeat(3, 1fr); /* 3 stiles pano, 3 kato sta kinitia */
-            }
-            .positions-grid {
-                grid-template-columns: repeat(3, 1fr); /* 3 stiles pano, 3 kato sta kinitia */
-            }
-            .char-img {
-                width: 45px;
-                height: 45px;
-            }
-            .pos-gif {
-                width: 50px;
-                height: 50px;
-            }
+            letter-spacing: 1px;
+            cursor: not-allowed;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <a href="../" class="back-link" onclick="playClickSound()">← Back to Arcade</a>
-        <div class="header-title">Character Matrix</div>
-        <div class="subtitle">Epspicy Mini-Games</div>
+    <div class="arcade-container">
+        <div class="arcade-title">Epspicy Arcade</div>
+        <div class="arcade-subtitle">Select a mini-game to play</div>
 
-        <!-- 1. Characters Roster -->
-        <div class="section-label">1. Select Character:</div>
-        <div class="roster-grid" id="rosterGrid"></div>
-
-        <!-- 2. Target Positions -->
-        <div class="section-label">2. Target Positions (Click slot to assign selected character):</div>
-        <div class="positions-grid" id="positionsGrid"></div>
-
-        <!-- Confirm Action Button -->
-        <button class="action-btn" onclick="executeSequence()">Launch Sequence & Compare</button>
-        
-        <!-- Results Area -->
-        <div id="results-area">
-            <!-- RANDOM SPYCY MODEL REACTION PHOTO/GIF -->
-            <img id="reactionImg" src="" class="reaction-photo" alt="Sequence Reaction">
-
-            <div class="section-label" style="margin-bottom: 15px; color: #00ffcc;" id="globalStatsTitle">REAL COMMUNITY STATISTICS:</div>
-            
-            <div id="stats-list"></div>
-
-            <div class="btn-group">
-                <button class="secondary-btn" onclick="shareResults()">Share Results</button>
-                <button class="secondary-btn" style="border-color: #ff007f; color: #ff007f;" onclick="resetSelection()">Reset Selection</button>
+        <div class="games-grid">
+            <!-- Game 1: Character Matrix -->
+            <div class="game-card active">
+                <div class="game-icon">🎮</div>
+                <div class="game-title">Character Matrix</div>
+                <div class="game-desc">Assign characters to target GIF positions and compare live stats with the community!</div>
+                <a href="./matrix/" class="play-btn">Play Now</a>
             </div>
-            <div id="toast">Results copied to clipboard!</div>
+
+            <!-- Game 2: Coming Soon -->
+            <div class="game-card">
+                <div class="game-icon">🔮</div>
+                <div class="game-title">Game #2</div>
+                <div class="game-desc">New spicy mini game coming soon to the platform!</div>
+                <div class="coming-soon-btn">Coming Soon</div>
+            </div>
+
+            <!-- Game 3: Coming Soon -->
+            <div class="game-card">
+                <div class="game-icon">⚡</div>
+                <div class="game-title">Game #3</div>
+                <div class="game-desc">Stay tuned for future releases and community challenges.</div>
+                <div class="coming-soon-btn">Coming Soon</div>
+            </div>
         </div>
     </div>
-
-    <!-- Firebase CDN -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-
-    <script>
-        // =========================================================
-        // ⚙️ 6 CHARACTERS & 6 TARGET GIFS CONFIGURATION
-        // =========================================================
-        const CHARACTERS = [
-            { name: "Elena",  img: "../PMVheaven THUB.jpg" },
-            { name: "Maria",  img: "../PMVheaven THUB.jpg" },
-            { name: "Kostas", img: "../PMVheaven THUB.jpg" },
-            { name: "Niki",   img: "../PMVheaven THUB.jpg" },
-            { name: "Alex",   img: "../PMVheaven THUB.jpg" },
-            { name: "Spiros", img: "../PMVheaven THUB.jpg" } // 6os xaraktiras
-        ];
-
-        const TARGET_GIFS = [
-            "../hey-cat.gif",
-            "../hug-bros.gif",
-            "../man-shaking-head-shakes-head.gif",
-            "../aj-brown-drake-maye-aj-brown.gif",
-            "../annoyed.gif",
-            "../hey-cat.gif" // 6o GIF (paromio me to proto)
-        ];
-
-        const REACTION_PHOTOS = [
-            "../spicy-model-1.gif",
-            "../spicy-model-2.gif",
-            "../spicy-model-3.gif"
-        ];
-
-        // =========================================================
-        // 🔊 MINIMAL SFX SYNTHESIZER (Web Audio API)
-        // =========================================================
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        function playClickSound() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.04);
-            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.04);
-        }
-
-        function playAssignSound() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.06);
-            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.06);
-        }
-
-        function playLaunchSound() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(900, audioCtx.currentTime + 0.15);
-            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.15);
-        }
-
-        // =========================================================
-        // 🎮 GAME LOGIC & FIREBASE (6 POSITIONS)
-        // =========================================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyAyT85gjbKMf0RtttyECLHv2hiv1mREJtU",
-            authDomain: "epspicygames.firebaseapp.com",
-            databaseURL: "https://epspicygames-default-rtdb.firebaseio.com",
-            projectId: "epspicygames",
-            storageBucket: "epspicygames.firebasestorage.app",
-            messagingSenderId: "813495756093",
-            appId: "1:813495756093:web:9d0a93c37c457c653e1154",
-            measurementId: "G-WHG3N8WML4"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        let selectedCharName = null;
-        let assignments = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
-        let hasSubmitted = false;
-        let allSubmissionsData = null;
-
-        function initUI() {
-            const rosterGrid = document.getElementById('rosterGrid');
-            rosterGrid.innerHTML = CHARACTERS.map(c => `
-                <div class="char-card" id="card-${c.name}" onclick="selectChar('${c.name}')">
-                    <img src="${c.img}" class="char-img">
-                    <div class="char-name">${c.name}</div>
-                </div>
-            `).join('');
-
-            const posGrid = document.getElementById('positionsGrid');
-            posGrid.innerHTML = TARGET_GIFS.map((gif, idx) => {
-                const pos = idx + 1;
-                return `
-                    <div class="position-slot ${pos === 1 ? 'active' : ''}" id="slot-${pos}" onclick="assignToSlot(${pos})">
-                        <div class="pos-title">Pos ${pos}</div>
-                        <div class="pos-assigned" id="val-${pos}">-</div>
-                        <img src="${gif}" class="pos-gif" alt="GIF ${pos}">
-                    </div>
-                `;
-            }).join('');
-        }
-
-        db.ref('submissions').on('value', (snapshot) => {
-            allSubmissionsData = snapshot.val();
-        });
-
-        function selectChar(charName) {
-            playClickSound();
-            for (let s = 1; s <= 6; s++) {
-                if (assignments[s] === charName) {
-                    alert(charName + " is already assigned to Position " + s + "!");
-                    return;
-                }
-            }
-
-            document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
-            selectedCharName = charName;
-            let card = document.getElementById('card-' + charName);
-            if (card) card.classList.add('selected');
-        }
-
-        function assignToSlot(slotNum) {
-            if (selectedCharName) {
-                playAssignSound();
-                let oldChar = assignments[slotNum];
-                if (oldChar) {
-                    let oldCard = document.getElementById('card-' + oldChar);
-                    if (oldCard) oldCard.classList.remove('used');
-                }
-
-                assignments[slotNum] = selectedCharName;
-                document.getElementById('val-' + slotNum).innerText = selectedCharName;
-
-                let charCard = document.getElementById('card-' + selectedCharName);
-                if (charCard) {
-                    charCard.classList.remove('selected');
-                    charCard.classList.add('used');
-                }
-
-                selectedCharName = null;
-
-                for (let i = 1; i <= 6; i++) {
-                    document.getElementById('slot-' + i).classList.remove('active');
-                }
-                for (let i = 1; i <= 6; i++) {
-                    if (!assignments[i]) {
-                        document.getElementById('slot-' + i).classList.add('active');
-                        break;
-                    }
-                }
-            } else {
-                playClickSound();
-                for (let i = 1; i <= 6; i++) {
-                    document.getElementById('slot-' + i).classList.remove('active');
-                }
-                document.getElementById('slot-' + slotNum).classList.add('active');
-            }
-        }
-
-        async function executeSequence() {
-            let filledCount = 0;
-            for (let i = 1; i <= 6; i++) {
-                if (assignments[i] !== null) filledCount++;
-            }
-
-            if (filledCount < 6) {
-                playClickSound();
-                alert("Please assign characters to all 6 positions before launching!");
-                return;
-            }
-
-            playLaunchSound();
-
-            let randomImg = REACTION_PHOTOS[Math.floor(Math.random() * REACTION_PHOTOS.length)];
-            document.getElementById("reactionImg").src = randomImg;
-
-            if (!hasSubmitted) {
-                hasSubmitted = true;
-                await db.ref('submissions').push({
-                    assignments: assignments,
-                    timestamp: Date.now()
-                }).catch(err => console.error("Error:", err));
-            }
-
-            let total = 0;
-            let counts = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {} };
-
-            if (allSubmissionsData) {
-                Object.values(allSubmissionsData).forEach(sub => {
-                    if (sub.assignments) {
-                        total++;
-                        for (let pos = 1; pos <= 6; pos++) {
-                            let ch = sub.assignments[pos];
-                            if (ch) {
-                                counts[pos][ch] = (counts[pos][ch] || 0) + 1;
-                            }
-                        }
-                    }
-                });
-            }
-
-            document.getElementById("globalStatsTitle").innerText = `REAL COMMUNITY STATISTICS (${total} Total Players):`;
-
-            let statsHtml = "";
-            for (let i = 1; i <= 6; i++) {
-                let userChosenChar = assignments[i];
-                let countForThisChar = counts[i][userChosenChar] || 0;
-                let pct = total > 0 ? Math.round((countForThisChar / total) * 100) : 100;
-
-                statsHtml += '<div class="stat-row">' +
-                    '<span>Pos ' + i + ': <b>' + userChosenChar + '</b> chosen by <b>' + pct + '%</b> of players (' + countForThisChar + '/' + total + ')</span>' +
-                    '<div class="stat-bar-container"><div class="stat-bar" style="width: ' + pct + '%;"></div></div>' +
-                    '</div>';
-            }
-
-            document.getElementById("stats-list").innerHTML = statsHtml;
-            document.getElementById("results-area").style.display = "block";
-        }
-
-        function shareResults() {
-            playClickSound();
-            let text = "My Epspicy Selection Matrix:\n";
-            for (let i = 1; i <= 6; i++) {
-                text += "Pos " + i + ": " + assignments[i] + "\n";
-            }
-            text += "Play at: https://epspicy.github.io/Goon-games/matrix/";
-            
-            navigator.clipboard.writeText(text).then(function() {
-                let toast = document.getElementById("toast");
-                toast.style.display = "block";
-                setTimeout(function() { toast.style.display = "none"; }, 2500);
-            });
-        }
-
-        function resetSelection() {
-            playClickSound();
-            assignments = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
-            selectedCharName = null;
-            hasSubmitted = false;
-            for (let i = 1; i <= 6; i++) {
-                document.getElementById('val-' + i).innerText = "-";
-            }
-            document.querySelectorAll('.char-card').forEach(c => {
-                c.classList.remove('used');
-                c.classList.remove('selected');
-            });
-            document.getElementById("results-area").style.display = "none";
-            document.querySelectorAll('.position-slot').forEach(s => s.classList.remove('active'));
-            document.getElementById('slot-1').classList.add('active');
-        }
-
-        initUI();
-    </script>
 
 </body>
 </html>
