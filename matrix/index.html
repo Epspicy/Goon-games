@@ -1,75 +1,140 @@
 <!DOCTYPE html>
-<html lang="el">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Goon Games - Arcade Matrix</title>
+    <title>Character Matrix - Epspicy Arcade</title>
+    <!-- Monimo Custom Favicon -->
+    <link rel="icon" type="image/png" href="../logo.png">
     <style>
         body {
-            background-color: #0d0d0d;
-            color: #00ff66;
-            font-family: monospace;
+            background-color: #0f0f13;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
             text-align: center;
-            padding-top: 50px;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            border: 1px solid #00ff66;
+            margin: 0;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .game-container {
+            max-width: 700px;
+            width: 100%;
+            background: #1a1a24;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+            border: 2px solid #00ffcc;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #00ffcc;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #8888a0;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        .launch-btn {
+            background-color: #ff007f;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            font-size: 16px;
+            font-weight: bold;
             border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .launch-btn:hover {
+            background-color: #e00070;
+        }
+        .launch-btn:active {
+            transform: scale(0.95);
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #00ffcc;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>🕹 Arcade Games Matrix</h1>
-        <p>To paixnidi τρέχει κανονικά...</p>
-        <!-- Edw mpainei to kyrio paixnidi sou i to canvas -->
+    <div class="game-container">
+        <h1>Character Matrix</h1>
+        <p>Assign characters to target GIF positions and launch your results to the community!</p>
+        
+        <button class="launch-btn" onclick="executeSequence()">Launch Sequence</button>
+        <br>
+        <a href="../" class="back-link">← Back to Arcade Hub</a>
     </div>
 
-    <!-- Firebase App (Compat) SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <!-- Firebase Realtime Database SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
     <script>
-        // 1. Firebase Configuration (Vale tis dikes sou rythmiseis an xreiazetai)
-        const firebaseConfig = {
-            databaseURL: "EDW_TO_DATABASE_URL_THS_FIREBASE_SOU"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        // Clean URL feature for mini-game: Initialize session and room parameters automatically
+        if (!window.location.search.includes('session')) {
+            const randomSession = Math.floor(1000 + Math.random() * 9000);
+            const newUrl = window.location.pathname + '?session=' + randomSession + '&room=matrix-01';
+            window.history.replaceState({}, '', newUrl);
+        }
 
-        // 2. To Discord Webhook URL pou exoume gia to kanali #🕹 | arcade-games
-        const webhookURL = "https://discord.com/api/webhooks/1560690246893568180/RdJzCmVN_6M34J8wgQAHNlAfEpgCdKxSSp4HkHR7kumWcyvaz46YrRMpV2brDatKwGDi";
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1560690246893568180/RdJzCmVN_6M34J8wgQAHNlAfEpgCdKxSSp4HkHR7kumWcyvaz46YrRMpV2brDatKwGDi";
 
-        // 3. Synartisi gia tin apostoli tou skor sto Discord meso Webhook
-        function sendScoreToDiscord(playerName, score) {
-            const payload = {
-                content: `🕹 O paiktis **${playerName}** termatise to paixnidi me skor: **${score}**!`
+        function executeSequence() {
+            // Pairnoume ton syndedemeno xristi apo to localStorage (an exei kanei login)
+            let savedUser = localStorage.getItem('discord_user');
+            let playerName = "Anonymous Player";
+            
+            if (savedUser) {
+                try {
+                    let userObj = JSON.parse(savedUser);
+                    if (userObj.username) playerName = userObj.username;
+                } catch(e) {}
+            }
+
+            // To trexonta URL tou paixnidiou gia na to exoyn oi ypoloipoi
+            const currentGameUrl = window.location.href;
+
+            // To minima pou tha fygei sto Discord Webhook
+            const discordPayload = {
+                content: `🎮 **New Game Result!**\n> **Player:** ${playerName} just completed a run in **Character Matrix**!\n> 🔗 **Play here:** ${currentGameUrl}`
             };
 
-            fetch(webhookURL, {
-                method: "POST",
+            // Apostoli sto Discord Webhook mesw fetch
+            fetch(DISCORD_WEBHOOK_URL, {
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json"
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(discordPayload)
             })
             .then(response => {
                 if (response.ok) {
-                    console.log("To apotelesma stalthike epitihos sto Discord!");
+                    alert('Launch Successful! Your results have been posted to the Discord arcade channel!');
                 } else {
-                    console.error("Apetyxe i apostoli sto Discord.");
+                    alert('Sequence launched, but webhook notification failed.');
                 }
             })
-            .catch(error => console.error("Error sending to Discord:", error));
+            .catch(error => {
+                console.error('Webhook Error:', error);
+                alert('Launch Sequence completed!');
+            });
         }
-
-        // Paradeigma xrisis: Otan o paiktis kanei save i teleionei to game, kaleis tin synartisi:
-        // sendScoreToDiscord("Epspicy", 2500);
     </script>
+
 </body>
 </html>
