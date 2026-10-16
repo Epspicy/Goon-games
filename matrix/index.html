@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Character Matrix - Epspicy Arcade</title>
+    <!-- Favicon link -->
+    <link rel="icon" type="image/png" href="../logo.png">
     <style>
         body {
             background-color: #0f0f13;
@@ -14,7 +16,7 @@
             padding: 20px;
         }
         .container {
-            max-width: 650px;
+            max-width: 720px;
             margin: 20px auto;
             background: #1a1a24;
             padding: 25px;
@@ -104,18 +106,18 @@
             pointer-events: none;
         }
 
-        /* Positions Grid */
+        /* Positions Grid (Megalytēra GIFs - 80px) */
         .positions-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
+            gap: 10px;
             margin-bottom: 25px;
         }
         .position-slot {
             background: #121218;
             border: 2px dashed #44445c;
-            border-radius: 8px;
-            padding: 10px 5px;
+            border-radius: 10px;
+            padding: 12px 6px;
             cursor: pointer;
             transition: all 0.2s;
             user-select: none;
@@ -125,27 +127,27 @@
             background: #251221;
         }
         .pos-title {
-            font-size: 11px;
+            font-size: 12px;
             color: #8888a0;
             font-weight: bold;
             text-transform: uppercase;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             pointer-events: none;
         }
         .pos-assigned {
-            font-size: 12px;
+            font-size: 13px;
             color: #00ffcc;
             font-weight: bold;
-            margin-bottom: 6px;
-            min-height: 16px;
+            margin-bottom: 8px;
+            min-height: 18px;
             pointer-events: none;
         }
         .pos-gif {
-            width: 45px;
-            height: 45px;
-            border-radius: 6px;
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
             object-fit: cover;
-            border: 1px solid #00ffcc;
+            border: 2px solid #00ffcc;
             pointer-events: none;
         }
 
@@ -204,6 +206,18 @@
             padding: 20px;
             text-align: left;
         }
+        
+        /* Spicy Reaction Photo Style */
+        .reaction-photo {
+            width: 100%;
+            max-width: 320px;
+            border-radius: 10px;
+            border: 3px solid #ff007f;
+            margin: 0 auto 20px auto;
+            display: block;
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.5);
+        }
+
         .stat-row {
             margin-bottom: 12px;
             font-size: 13px;
@@ -251,6 +265,9 @@
         
         <!-- Results Area -->
         <div id="results-area">
+            <!-- RANDOM SPYCY MODEL REACTION PHOTO/GIF -->
+            <img id="reactionImg" src="" class="reaction-photo" alt="Sequence Reaction">
+
             <div class="section-label" style="margin-bottom: 15px; color: #00ffcc;" id="globalStatsTitle">REAL COMMUNITY STATISTICS:</div>
             
             <div id="stats-list"></div>
@@ -269,7 +286,7 @@
 
     <script>
         // =========================================================
-        // ⚙️ CONFIGURATION: ALLAZEIS EDW TYXON NEAS PHOTOS / GIFS
+        // ⚙️ CONFIGURATION: PHOTOS / GIFS / REACTION POOL
         // =========================================================
         const CHARACTERS = [
             { name: "Elena",  img: "../PMVheaven THUB.jpg" },
@@ -285,6 +302,13 @@
             "../man-shaking-head-shakes-head.gif",
             "../aj-brown-drake-maye-aj-brown.gif",
             "../annoyed.gif"
+        ];
+
+        // Spicy Model / Scene Reactions Pool gia to end screen
+        const REACTION_PHOTOS = [
+            "../spicy-model-1.gif",
+            "../spicy-model-2.gif",
+            "../spicy-model-3.gif"
         ];
 
         // =========================================================
@@ -359,7 +383,6 @@
         let hasSubmitted = false;
         let allSubmissionsData = null;
 
-        // Render UI dynamically from Config
         function initUI() {
             const rosterGrid = document.getElementById('rosterGrid');
             rosterGrid.innerHTML = CHARACTERS.map(c => `
@@ -453,6 +476,10 @@
 
             playLaunchSound();
 
+            // Random Spicy Reaction Image/GIF Pick
+            let randomImg = REACTION_PHOTOS[Math.floor(Math.random() * REACTION_PHOTOS.length)];
+            document.getElementById("reactionImg").src = randomImg;
+
             if (!hasSubmitted) {
                 hasSubmitted = true;
                 await db.ref('submissions').push({
@@ -528,7 +555,6 @@
             document.getElementById('slot-1').classList.add('active');
         }
 
-        // Initialize on Load
         initUI();
     </script>
 
