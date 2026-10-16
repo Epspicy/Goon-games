@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Character Matrix - Epspicy Arcade</title>
+    <title>Spicy Sequence Matrix - Epspicy Arcade</title>
     <!-- Custom Favicon -->
     <link rel="icon" type="image/png" href="../logo.png">
     <style>
@@ -134,7 +134,7 @@
             pointer-events: none;
         }
         .char-name {
-            font-size: 14px;
+            font-size: 13px;
             color: #ffffff;
             font-weight: bold;
             pointer-events: none;
@@ -149,9 +149,12 @@
             background: #121218;
             border: 2px solid #2a2a3a;
             border-radius: 12px;
-            padding: 12px 6px;
+            padding: 10px 8px;
             transition: all 0.2s;
             user-select: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .position-slot.active {
             border-color: #ff007f;
@@ -159,27 +162,20 @@
             box-shadow: 0 0 20px rgba(255,0,127,0.6);
             transform: scale(1.03);
         }
-        .pos-title {
-            font-size: 13px;
-            color: #8888a0;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-            pointer-events: none;
-        }
         .pos-assigned {
-            font-size: 14px;
+            font-size: 13px;
             color: #00ffcc;
             font-weight: bold;
             margin-bottom: 8px;
-            min-height: 20px;
+            min-height: 18px;
             pointer-events: none;
             overflow: hidden;
             text-overflow: ellipsis;
+            max-width: 100%;
         }
         .pos-gif {
-            width: 95px;
-            height: 95px;
+            width: 105px;
+            height: 105px;
             border-radius: 10px;
             object-fit: cover;
             border: 2px solid #00ffcc;
@@ -265,7 +261,6 @@
             transition: width 0.4s ease;
         }
 
-        /* Recent Activity Stream - Upgraded Sizes */
         .activity-feed {
             margin-top: 25px;
             padding-top: 20px;
@@ -356,15 +351,15 @@
             <div id="userProfileArea"></div>
         </div>
 
-        <div class="header-title">Character Matrix</div>
+        <div class="header-title">Spicy Sequence Matrix</div>
         <div class="subtitle">Epspicy Mini-Games</div>
 
-        <div class="instruction-banner" id="instructionBanner">Select character for: POSITION 1</div>
+        <div class="instruction-banner" id="instructionBanner">Select Model for Position 1</div>
 
         <div class="section-label">Target Positions (Fill in order):</div>
         <div class="positions-grid" id="positionsGrid"></div>
 
-        <div class="section-label">1. Click Character to Assign:</div>
+        <div class="section-label">1. Click Model to Assign:</div>
         <div class="roster-grid" id="rosterGrid"></div>
 
         <button class="action-btn" id="launchBtn" onclick="executeSequence()">Launch Sequence & Compare</button>
@@ -375,7 +370,6 @@
             <div class="section-label" style="margin-bottom: 15px; color: #00ffcc;" id="globalStatsTitle">REAL COMMUNITY STATISTICS:</div>
             <div id="stats-list"></div>
 
-            <!-- Recent Discord Players Feed with Upgraded Sizes -->
             <div class="activity-feed">
                 <div class="section-label" style="color: #ff007f; margin-bottom: 12px;">RECENT DISCORD PLAYERS:</div>
                 <div id="recentFeed"></div>
@@ -404,27 +398,27 @@
         }
 
         const CHARACTERS = [
-            { name: "Elena",  img: "../PMVheaven THUB.jpg" },
-            { name: "Maria",  img: "../PMVheaven THUB.jpg" },
-            { name: "Kostas", img: "../PMVheaven THUB.jpg" },
-            { name: "Niki",   img: "../PMVheaven THUB.jpg" },
-            { name: "Alex",   img: "../PMVheaven THUB.jpg" },
-            { name: "Spiros", img: "../PMVheaven THUB.jpg" }
+            { name: "Rissa May",       img: "../rissa may.png" },
+            { name: "Scarlett Alexis", img: "../scarlett alexis.png" },
+            { name: "Aria Lee",        img: "../aria lee.png" },
+            { name: "Eliza Ibarra",    img: "../eliza ibarra.png" },
+            { name: "Jewelz Blu",      img: "../jewelz blu.png" },
+            { name: "Liz Jordan",      img: "../liz jordan.png" }
         ];
 
-        const TARGET_GIFS = [
-            "../hey-cat.gif",
-            "../hug-bros.gif",
-            "../man-shaking-head-shakes-head.gif",
-            "../aj-brown-drake-maye-aj-brown.gif",
-            "../annoyed.gif",
-            "../hey-cat.gif"
+        const TARGET_POSITIONS = [
+            { title: "Position 1", gif: "../air.gif" },
+            { title: "Position 2", gif: "../rimjob.gif" },
+            { title: "Position 3", gif: "../strapon.gif" },
+            { title: "Position 4", gif: "../gangbang.gif" },
+            { title: "Position 5", gif: "../deepthroat.gif" },
+            { title: "Position 6", gif: "../anal.gif" }
         ];
 
         const REACTION_PHOTOS = [
-            "../hey-cat.gif",
-            "../hug-bros.gif",
-            "../annoyed.gif"
+            "../air.gif",
+            "../gangbang.gif",
+            "../anal.gif"
         ];
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -536,14 +530,13 @@
 
         function renderPositions() {
             const posGrid = document.getElementById('positionsGrid');
-            posGrid.innerHTML = TARGET_GIFS.map(function(gif, idx) {
+            posGrid.innerHTML = TARGET_POSITIONS.map(function(p, idx) {
                 const pos = idx + 1;
                 let isActive = (pos === currentActiveSlot && !assignments[pos]);
                 let assignedChar = assignments[pos] || '-';
                 return '<div class="position-slot ' + (isActive ? 'active' : '') + '" id="slot-' + pos + '">' +
-                    '<div class="pos-title">Pos ' + pos + '</div>' +
                     '<div class="pos-assigned" id="val-' + pos + '">' + assignedChar + '</div>' +
-                    '<img src="' + gif + '" class="pos-gif" alt="GIF ' + pos + '">' +
+                    '<img src="' + p.gif + '" class="pos-gif" alt="Position ' + pos + '">' +
                     '</div>';
             }).join('');
         }
@@ -551,7 +544,7 @@
         function updateBanner() {
             let banner = document.getElementById('instructionBanner');
             if (currentActiveSlot <= 6) {
-                banner.innerText = 'Select character for: POSITION ' + currentActiveSlot;
+                banner.innerText = 'Select Model for Position ' + currentActiveSlot;
                 banner.style.color = "#ff007f";
                 banner.style.borderColor = "#ff007f";
             } else {
@@ -589,7 +582,7 @@
 
             if (filledCount < 6) {
                 playClickSound();
-                alert("Please assign characters to all 6 positions before launching!");
+                alert("Please assign models to all 6 positions before launching!");
                 return;
             }
 
@@ -651,7 +644,7 @@
                 let pct = total > 0 ? Math.round((countForThisChar / total) * 100) : 100;
 
                 statsHtml += '<div class="stat-row">' +
-                    '<span>Pos ' + i + ': <b>' + userChosenChar + '</b> chosen by <b>' + pct + '%</b> of players (' + countForThisChar + '/' + total + ')</span>' +
+                    '<span>Position ' + i + ': <b>' + userChosenChar + '</b> chosen by <b>' + pct + '%</b> of players (' + countForThisChar + '/' + total + ')</span>' +
                     '<div class="stat-bar-container"><div class="stat-bar" style="width: ' + pct + '%;"></div></div>' +
                     '</div>';
             }
@@ -667,10 +660,10 @@
                 if (item.assignments) {
                     for (let p = 1; p <= 6; p++) {
                         let charName = item.assignments[p];
-                        let posGif = TARGET_GIFS[p - 1];
+                        let posObj = TARGET_POSITIONS[p - 1];
                         
                         picksHtml += '<div class="mini-pick">' +
-                            '<img src="' + posGif + '" class="mini-gif" title="Position ' + p + '">' +
+                            '<img src="' + posObj.gif + '" class="mini-gif" title="Position ' + p + '">' +
                             '<span class="mini-char">' + charName + '</span>' +
                             '</div>';
                     }
@@ -692,9 +685,9 @@
         function shareResults() {
             playClickSound();
             let playerGreeting = currentUser ? 'Player: ' + currentUser.username + '\n' : "";
-            let text = playerGreeting + 'My Epspicy Selection Matrix:\n';
+            let text = playerGreeting + 'My Spicy Sequence Matrix:\n';
             for (let i = 1; i <= 6; i++) {
-                text += "Pos " + i + ": " + assignments[i] + "\n";
+                text += "Position " + i + ": " + assignments[i] + "\n";
             }
             text += "Play at: https://epspicy.github.io/Goon-games/matrix/";
             
