@@ -504,7 +504,7 @@
             const rosterGrid = document.getElementById('rosterGrid');
             rosterGrid.innerHTML = CHARACTERS.map(function(c) {
                 let isUsed = Object.values(assignments).includes(c.name);
-                return '<div class="char-card ' + (isUsed ? 'used' : '') + '" id="card-' + c.name + '" onclick="assignCharacter(\'' + c.name + \'\')">' +
+                return '<div class="char-card ' + (isUsed ? 'used' : '') + '" id="card-' + c.name + '" onclick="assignCharacter(\'' + c.name + '\')">' +
                     '<img src="' + c.img + '" class="char-img">' +
                     '<div class="char-name">' + c.name + '</div>' +
                     '</div>';
