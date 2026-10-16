@@ -337,7 +337,7 @@
         <div class="section-label">1. Click Character to Assign:</div>
         <div class="roster-grid" id="rosterGrid"></div>
 
-        <button class="action-btn" onclick="executeSequence()">Launch Sequence & Compare</button>
+        <button class="action-btn" id="launchBtn" onclick="executeSequence()">Launch Sequence & Compare</button>
         
         <div id="results-area">
             <img id="reactionImg" src="" class="reaction-photo" alt="Sequence Reaction">
@@ -396,7 +396,6 @@
             "../hey-cat.gif"
         ];
 
-        // Sosta GIFs apo to repository
         const REACTION_PHOTOS = [
             "../hey-cat.gif",
             "../hug-bros.gif",
@@ -471,9 +470,33 @@
 
         function initUI() {
             checkStoredUser();
+            
+            // Orio xronou: 365 meres gia Discord xristes, 1 ora gia Guests
+            const expirationLimitMs = currentUser ? (365 * 24 * 60 * 60 * 1000) : (60 * 60 * 1000);
+
+            let savedMatrixState = localStorage.getItem('matrix_completed_state');
+            if (savedMatrixState) {
+                let parsedState = JSON.parse(savedMatrixState);
+                let now = Date.now();
+                if (now - parsedState.time < expirationLimitMs) {
+                    assignments = parsedState.assignments;
+                    hasSubmitted = true;
+                    currentActiveSlot = 7; // Completed
+                } else {
+                    localStorage.removeItem('matrix_completed_state');
+                }
+            }
+
             renderRoster();
             renderPositions();
             updateBanner();
+
+            db.ref('submissions').on('value', (snapshot) => {
+                allSubmissionsData = snapshot.val();
+                if (hasSubmitted) {
+                    renderResultsUI();
+                }
+            });
         }
 
         function renderRoster() {
@@ -517,10 +540,6 @@
                 banner.style.borderColor = "#00ffcc";
             }
         }
-
-        db.ref('submissions').on('value', (snapshot) => {
-            allSubmissionsData = snapshot.val();
-        });
 
         function assignCharacter(charName) {
             if (currentActiveSlot > 6) return;
@@ -567,7 +586,21 @@
                     user: currentUser ? currentUser : { username: "Guest/Anonymous", avatar: "https://cdn.discordapp.com/embed/avatars/0.png" }
                 };
 
+                localStorage.setItem('matrix_completed_state', JSON.stringify({
+                    assignments: assignments,
+                    time: Date.now()
+                }));
+
                 await db.ref('submissions').push(submissionPayload).catch(err => console.error("Error:", err));
+            }
+
+            renderResultsUI();
+        }
+
+        function renderResultsUI() {
+            if (!document.getElementById("reactionImg").src || document.getElementById("reactionImg").src.endsWith('/matrix/')) {
+                let randomImg = REACTION_PHOTOS[Math.floor(Math.random() * REACTION_PHOTOS.length)];
+                document.getElementById("reactionImg").src = randomImg;
             }
 
             let total = 0;
@@ -586,7 +619,6 @@
                     }
                 });
 
-                // Get last 5 players
                 recentList = subsArray.slice(-5).reverse();
             }
 
@@ -606,7 +638,6 @@
 
             document.getElementById("stats-list").innerHTML = statsHtml;
 
-            // Render Recent Players Feed
             let feedHtml = "";
             recentList.forEach(item => {
                 let username = item.user ? item.user.username : "Guest";
@@ -646,6 +677,7 @@
 
         function resetSelection() {
             playClickSound();
+            localStorage.removeItem('matrix_completed_state');
             assignments = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
             currentActiveSlot = 1;
             hasSubmitted = false;
