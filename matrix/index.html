@@ -61,6 +61,24 @@
             color: #ffffff;
             font-weight: bold;
         }
+        .discord-btn {
+            background-color: #5865F2;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+            text-decoration: none;
+        }
+        .discord-btn:hover {
+            background-color: #4752C4;
+        }
         .header-title {
             color: #00ffcc;
             font-size: 30px;
@@ -332,7 +350,11 @@
     <div class="container">
         <div class="top-bar">
             <a href="../" class="back-link" onclick="playClickSound()">← Back to Arcade</a>
-            <div id="userProfileArea"></div>
+            <div id="userProfileArea">
+                <button class="discord-btn" onclick="loginWithDiscord()">
+                    <span>Login with Discord</span>
+                </button>
+            </div>
         </div>
 
         <div class="header-title">Spicy Sequence Matrix</div>
@@ -374,14 +396,58 @@
             window.history.replaceState({}, '', newUrl);
         }
 
+        const DISCORD_CLIENT_ID = "1560589530136838194";
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1560690246893568180/RdJzCmVN_6M34J8wgQAHNlAfEpgCdKxSSp4HkHR7kumWcyvaz46YrRMpV2brDatKwGDi";
+
         let currentUser = null;
 
-        function checkStoredUser() {
+        function loginWithDiscord() {
+            const redirectUri = window.location.origin + window.location.pathname;
+            const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=identify`;
+            window.location.href = discordUrl;
+        }
+
+        function checkDiscordAuth() {
             let savedUser = localStorage.getItem('discord_user');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
-                document.getElementById('userProfileArea').innerHTML = '<div class="user-profile"><img src="' + currentUser.avatar + '" class="user-avatar" alt="Avatar"><span class="user-name">' + currentUser.username + '</span></div>';
+                renderUserProfile(currentUser);
+                return;
             }
+
+            const fragment = new URLSearchParams(window.location.hash.slice(1));
+            const accessToken = fragment.get('access_token');
+
+            if (accessToken) {
+                window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+                
+                fetch('https://discord.com/api/users/@me', {
+                    headers: { authorization: `Bearer ${accessToken}` }
+                })
+                .then(res => res.json())
+                .then(user => {
+                    if (user && user.id) {
+                        const userData = {
+                            id: user.id,
+                            username: user.global_name || user.username,
+                            avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png'
+                        };
+                        localStorage.setItem('discord_user', JSON.stringify(userData));
+                        currentUser = userData;
+                        renderUserProfile(userData);
+                    }
+                })
+                .catch(err => console.error("Auth Error:", err));
+            }
+        }
+
+        function renderUserProfile(user) {
+            document.getElementById('userProfileArea').innerHTML = `
+                <div class="user-profile">
+                    <img src="${user.avatar}" class="user-avatar" alt="Avatar">
+                    <span class="user-name">${user.username}</span>
+                </div>
+            `;
         }
 
         const CHARACTERS = [
@@ -463,15 +529,13 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1560690246893568180/RdJzCmVN_6M34J8wgQAHNlAfEpgCdKxSSp4HkHR7kumWcyvaz46YrRMpV2brDatKwGDi";
-
         let assignments = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
         let currentActiveSlot = 1;
         let hasSubmitted = false;
         let allSubmissionsData = null;
 
         function initUI() {
-            checkStoredUser();
+            checkDiscordAuth();
             
             const expirationLimitMs = currentUser ? (365 * 24 * 60 * 60 * 1000) : (60 * 60 * 1000);
 
@@ -589,9 +653,13 @@
                 await db.ref('submissions').push(submissionPayload).catch(function(err) { console.error("Error:", err); });
             }
 
-            const currentGameUrl = window.location.href;
+            let resultsText = `🎮 **New Spicy Sequence Completed by ${playerName}!**\n`;
+            for (let i = 1; i <= 6; i++) {
+                resultsText += `> **Position ${i}:** ${assignments[i]}\n`;
+            }
+
             const discordPayload = {
-                content: `🎮 **New Spicy Sequence Completed!**\n> **Player:** ${playerName}\n> 🔗 **Play & Compare:** ${currentGameUrl}`
+                content: resultsText
             };
 
             fetch(DISCORD_WEBHOOK_URL, {
