@@ -16,7 +16,7 @@
             padding: 15px;
         }
         .container {
-            max-width: 950px; /* Megalytero platos gia na min einai stenoxoro */
+            max-width: 950px;
             margin: 20px auto;
             background: #1a1a24;
             padding: 30px;
@@ -54,7 +54,21 @@
             color: #00ffcc;
         }
 
-        /* Characters Roster (Megalytera avatars) */
+        /* Instructions Banner */
+        .instruction-banner {
+            background: #121218;
+            border: 1px solid #ff007f;
+            color: #ff007f;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px rgba(255,0,127,0.2);
+        }
+
+        /* Characters Roster */
         .section-label {
             font-size: 14px;
             color: #00ffcc;
@@ -80,13 +94,9 @@
             text-align: center;
             user-select: none;
         }
-        .char-card.hover:not(.used), .char-card:hover:not(.used) {
-            border-color: #ff007f;
-            transform: translateY(-4px);
-        }
-        .char-card.selected {
+        .char-card:hover:not(.used) {
             border-color: #00ffcc;
-            background: #122825;
+            transform: translateY(-4px);
             box-shadow: 0 0 15px rgba(0,255,204,0.3);
         }
         .char-card.used {
@@ -96,8 +106,8 @@
             border-color: #1a1a24;
         }
         .char-img {
-            width: 75px;  /* Afksithike apo 50px se 75px */
-            height: 75px; /* Afksithike apo 50px se 75px */
+            width: 75px;
+            height: 75px;
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid #00ffcc;
@@ -111,7 +121,7 @@
             pointer-events: none;
         }
 
-        /* Positions Grid (Megalytera GIF slots) */
+        /* Positions Grid (Active slot has Neon Light) */
         .positions-grid {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
@@ -120,17 +130,17 @@
         }
         .position-slot {
             background: #121218;
-            border: 2px dashed #44445c;
+            border: 2px solid #2a2a3a;
             border-radius: 12px;
             padding: 12px 6px;
-            cursor: pointer;
             transition: all 0.2s;
             user-select: none;
         }
         .position-slot.active {
             border-color: #ff007f;
             background: #251221;
-            box-shadow: 0 0 15px rgba(255,0,127,0.3);
+            box-shadow: 0 0 20px rgba(255,0,127,0.6);
+            transform: scale(1.03);
         }
         .pos-title {
             font-size: 12px;
@@ -151,8 +161,8 @@
             text-overflow: ellipsis;
         }
         .pos-gif {
-            width: 85px;  /* Afksithike apo 55px se 85px */
-            height: 85px; /* Afksithike apo 55px se 85px */
+            width: 85px;
+            height: 85px;
             border-radius: 10px;
             object-fit: cover;
             border: 2px solid #00ffcc;
@@ -253,7 +263,6 @@
             font-weight: bold;
         }
 
-        /* 📱 RESPONSIVE GIA KINITA */
         @media (max-width: 800px) {
             body {
                 padding: 5px;
@@ -285,13 +294,16 @@
         <div class="header-title">Character Matrix</div>
         <div class="subtitle">Epspicy Mini-Games</div>
 
-        <!-- 1. Characters Roster -->
-        <div class="section-label">1. Select Character:</div>
-        <div class="roster-grid" id="rosterGrid"></div>
+        <!-- Dynamic Instruction Banner -->
+        <div class="instruction-banner" id="instructionBanner">Select character for: POSITION 1</div>
 
-        <!-- 2. Target Positions -->
-        <div class="section-label">2. Target Positions (Click slot to assign selected character):</div>
+        <!-- 2. Target Positions (Visual Indicator) -->
+        <div class="section-label">Target Positions (Fill in order):</div>
         <div class="positions-grid" id="positionsGrid"></div>
+
+        <!-- 1. Characters Roster (Click here to assign to current active slot) -->
+        <div class="section-label">1. Click Character to Assign:</div>
+        <div class="roster-grid" id="rosterGrid"></div>
 
         <!-- Confirm Action Button -->
         <button class="action-btn" onclick="executeSequence()">Launch Sequence & Compare</button>
@@ -402,88 +414,86 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let selectedCharName = null;
         let assignments = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
+        let currentActiveSlot = 1;
         let hasSubmitted = false;
         let allSubmissionsData = null;
 
         function initUI() {
-            const rosterGrid = document.getElementById('rosterGrid');
-            rosterGrid.innerHTML = CHARACTERS.map(c => `
-                <div class="char-card" id="card-${c.name}" onclick="selectChar('${c.name}')">
-                    <img src="${c.img}" class="char-img">
-                    <div class="char-name">${c.name}</div>
-                </div>
-            `).join('');
+            renderRoster();
+            renderPositions();
+            updateBanner();
+        }
 
+        function renderRoster() {
+            const rosterGrid = document.getElementById('rosterGrid');
+            rosterGrid.innerHTML = CHARACTERS.map(c => {
+                let isUsed = Object.values(assignments).includes(c.name);
+                return `
+                    <div class="char-card ${isUsed ? 'used' : ''}" id="card-${c.name}" onclick="assignCharacter('${c.name}')">
+                        <img src="${c.img}" class="char-img">
+                        <div class="char-name">${c.name}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderPositions() {
             const posGrid = document.getElementById('positionsGrid');
             posGrid.innerHTML = TARGET_GIFS.map((gif, idx) => {
                 const pos = idx + 1;
+                let isActive = (pos === currentActiveSlot && !assignments[pos]);
+                let assignedChar = assignments[pos] || '-';
                 return `
-                    <div class="position-slot ${pos === 1 ? 'active' : ''}" id="slot-${pos}" onclick="assignToSlot(${pos})">
+                    <div class="position-slot ${isActive ? 'active' : ''}" id="slot-${pos}">
                         <div class="pos-title">Pos ${pos}</div>
-                        <div class="pos-assigned" id="val-${pos}">-</div>
+                        <div class="pos-assigned" id="val-${pos}">${assignedChar}</div>
                         <img src="${gif}" class="pos-gif" alt="GIF ${pos}">
                     </div>
                 `;
             }).join('');
         }
 
+        function updateBanner() {
+            let banner = document.getElementById('instructionBanner');
+            if (currentActiveSlot <= 6) {
+                banner.innerText = `Select character for: POSITION ${currentActiveSlot}`;
+                banner.style.color = "#ff007f";
+                banner.style.borderColor = "#ff007f";
+            } else {
+                banner.innerText = `All positions filled! Ready to launch sequence.`;
+                banner.style.color = "#00ffcc";
+                banner.style.borderColor = "#00ffcc";
+            }
+        }
+
         db.ref('submissions').on('value', (snapshot) => {
             allSubmissionsData = snapshot.val();
         });
 
-        function selectChar(charName) {
-            playClickSound();
+        function assignCharacter(charName) {
+            // An to slot exei idi xaraktiras h exoume teleiosei, min kaneis tipota
+            if (currentActiveSlot > 6) return;
+            
+            // Elegxoume an o xaraktiras exei hdi xrisimopoiithei se alli thesi
             for (let s = 1; s <= 6; s++) {
                 if (assignments[s] === charName) {
-                    alert(charName + " is already assigned to Position " + s + "!");
-                    return;
+                    return; // Den afinoume dipli epilogi
                 }
             }
 
-            document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
-            selectedCharName = charName;
-            let card = document.getElementById('card-' + charName);
-            if (card) card.classList.add('selected');
-        }
+            playAssignSound();
+            assignments[currentActiveSlot] = charName;
 
-        function assignToSlot(slotNum) {
-            if (selectedCharName) {
-                playAssignSound();
-                let oldChar = assignments[slotNum];
-                if (oldChar) {
-                    let oldCard = document.getElementById('card-' + oldChar);
-                    if (oldCard) oldCard.classList.remove('used');
-                }
-
-                assignments[slotNum] = selectedCharName;
-                document.getElementById('val-' + slotNum).innerText = selectedCharName;
-
-                let charCard = document.getElementById('card-' + selectedCharName);
-                if (charCard) {
-                    charCard.classList.remove('selected');
-                    charCard.classList.add('used');
-                }
-
-                selectedCharName = null;
-
-                for (let i = 1; i <= 6; i++) {
-                    document.getElementById('slot-' + i).classList.remove('active');
-                }
-                for (let i = 1; i <= 6; i++) {
-                    if (!assignments[i]) {
-                        document.getElementById('slot-' + i).classList.add('active');
-                        break;
-                    }
-                }
-            } else {
-                playClickSound();
-                for (let i = 1; i <= 6; i++) {
-                    document.getElementById('slot-' + i).classList.remove('active');
-                }
-                document.getElementById('slot-' + slotNum).classList.add('active');
+            // Vriskoume to epomeno keno slot automata
+            currentActiveSlot++;
+            while (currentActiveSlot <= 6 && assignments[currentActiveSlot] !== null) {
+                currentActiveSlot++;
             }
+
+            renderRoster();
+            renderPositions();
+            updateBanner();
         }
 
         async function executeSequence() {
@@ -564,18 +574,13 @@
         function resetSelection() {
             playClickSound();
             assignments = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
-            selectedCharName = null;
+            currentActiveSlot = 1;
             hasSubmitted = false;
-            for (let i = 1; i <= 6; i++) {
-                document.getElementById('val-' + i).innerText = "-";
-            }
-            document.querySelectorAll('.char-card').forEach(c => {
-                c.classList.remove('used');
-                c.classList.remove('selected');
-            });
+            
             document.getElementById("results-area").style.display = "none";
-            document.querySelectorAll('.position-slot').forEach(s => s.classList.remove('active'));
-            document.getElementById('slot-1').classList.add('active');
+            renderRoster();
+            renderPositions();
+            updateBanner();
         }
 
         initUI();
