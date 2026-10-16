@@ -233,15 +233,6 @@
             padding: 20px;
             text-align: left;
         }
-        .reaction-photo {
-            width: 100%;
-            max-width: 360px;
-            border-radius: 12px;
-            border: 3px solid #ff007f;
-            margin: 0 auto 20px auto;
-            display: block;
-            box-shadow: 0 0 20px rgba(255, 0, 127, 0.5);
-        }
         .stat-row {
             margin-bottom: 15px;
             font-size: 15px;
@@ -365,8 +356,6 @@
         <button class="action-btn" id="launchBtn" onclick="executeSequence()">Launch Sequence & Compare</button>
         
         <div id="results-area">
-            <img id="reactionImg" src="" class="reaction-photo" alt="Sequence Reaction">
-            
             <div class="section-label" style="margin-bottom: 15px; color: #00ffcc;" id="globalStatsTitle">REAL COMMUNITY STATISTICS:</div>
             <div id="stats-list"></div>
 
@@ -413,12 +402,6 @@
             { title: "Position 4", gif: "../gangbang.gif" },
             { title: "Position 5", gif: "../deepthroat.gif" },
             { title: "Position 6", gif: "../anal.gif" }
-        ];
-
-        const REACTION_PHOTOS = [
-            "../air.gif",
-            "../gangbang.gif",
-            "../anal.gif"
         ];
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -521,7 +504,7 @@
             const rosterGrid = document.getElementById('rosterGrid');
             rosterGrid.innerHTML = CHARACTERS.map(function(c) {
                 let isUsed = Object.values(assignments).includes(c.name);
-                return '<div class="char-card ' + (isUsed ? 'used' : '') + '" id="card-' + c.name + '" onclick="assignCharacter(\'' + c.name + '\')">' +
+                return '<div class="char-card ' + (isUsed ? 'used' : '') + '" id="card-' + c.name + '" onclick="assignCharacter(\'' + c.name + \'\')">' +
                     '<img src="' + c.img + '" class="char-img">' +
                     '<div class="char-name">' + c.name + '</div>' +
                     '</div>';
@@ -588,9 +571,6 @@
 
             playLaunchSound();
 
-            let randomImg = REACTION_PHOTOS[Math.floor(Math.random() * REACTION_PHOTOS.length)];
-            document.getElementById("reactionImg").src = randomImg;
-
             if (!hasSubmitted) {
                 hasSubmitted = true;
                 let submissionPayload = {
@@ -611,11 +591,6 @@
         }
 
         function renderResultsUI() {
-            if (!document.getElementById("reactionImg").src || document.getElementById("reactionImg").src.endsWith('/matrix/')) {
-                let randomImg = REACTION_PHOTOS[Math.floor(Math.random() * REACTION_PHOTOS.length)];
-                document.getElementById("reactionImg").src = randomImg;
-            }
-
             let total = 0;
             let counts = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {} };
             let recentList = [];
