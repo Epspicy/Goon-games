@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Epspicy Mini Games Arcade</title>
-    <!-- Monimo Custom Favicon gia tin Kentriki Selida -->
+    <!-- Monimo Custom Favicon -->
     <link rel="icon" type="image/png" href="./logo.png">
     <style>
         body {
@@ -30,7 +30,52 @@
             box-shadow: 0 8px 30px rgba(0,0,0,0.7);
             border: 2px solid #2a2a3a;
             box-sizing: border-box;
+            position: relative;
         }
+        /* Top Bar gia to Discord Login stin kentriki selida */
+        .top-bar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .discord-btn {
+            background-color: #5865F2;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+            text-decoration: none;
+        }
+        .discord-btn:hover {
+            background-color: #4752C4;
+        }
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #121218;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid #5865F2;
+        }
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+        }
+        .user-name {
+            font-size: 13px;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
         .arcade-title {
             color: #00ffcc;
             font-size: 36px;
@@ -39,6 +84,7 @@
             letter-spacing: 2px;
             font-weight: bold;
             text-shadow: 0 0 15px rgba(0,255,204,0.4);
+            margin-top: 15px;
         }
         .arcade-subtitle {
             color: #8888a0;
@@ -123,21 +169,23 @@
         }
 
         @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-            .arcade-container {
-                padding: 20px 10px;
-            }
-            .arcade-title {
-                font-size: 26px;
-            }
+            body { padding: 10px; }
+            .arcade-container { padding: 20px 10px; }
+            .arcade-title { font-size: 26px; }
+            .top-bar { position: relative; top: 0; right: 0; margin-bottom: 15px; display: flex; justify-content: center; }
         }
     </style>
 </head>
 <body>
 
     <div class="arcade-container">
+        <!-- Top Bar me Discord Login sto main -->
+        <div class="top-bar" id="discordAuth">
+            <button class="discord-btn" onclick="loginWithDiscord()">
+                <span>Login with Discord</span>
+            </button>
+        </div>
+
         <div class="arcade-title">Epspicy Arcade</div>
         <div class="arcade-subtitle">Select a mini-game to play</div>
 
@@ -167,6 +215,68 @@
             </div>
         </div>
     </div>
+
+    <script>
+        const DISCORD_CLIENT_ID = "1560589530136838194";
+        const REDIRECT_URI = "https://epspicy.github.io/Goon-games/";
+
+        function loginWithDiscord() {
+            const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
+            window.location.href = discordUrl;
+        }
+
+        function checkDiscordAuth() {
+            const fragment = new URLSearchParams(window.location.hash.slice(1));
+            const accessToken = fragment.get('access_token');
+
+            if (accessToken) {
+                localStorage.setItem('discord_token', accessToken);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            const token = accessToken || localStorage.getItem('discord_token');
+
+            if (token) {
+                fetch('https://discord.com/api/users/@me', {
+                    headers: { authorization: `Bearer ${token}` }
+                })
+                .then(res => res.json())
+                .then(user => {
+                    if (user && user.id) {
+                        const userData = {
+                            id: user.id,
+                            username: user.global_name || user.username,
+                            avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png'
+                        };
+                        localStorage.setItem('discord_user', JSON.stringify(userData));
+                        renderUserProfile(userData);
+                    } else {
+                        localStorage.removeItem('discord_token');
+                        localStorage.removeItem('discord_user');
+                    }
+                })
+                .catch(err => {
+                    console.error("Auth Error:", err);
+                    let savedUser = localStorage.getItem('discord_user');
+                    if (savedUser) renderUserProfile(JSON.parse(savedUser));
+                });
+            } else {
+                let savedUser = localStorage.getItem('discord_user');
+                if (savedUser) renderUserProfile(JSON.parse(savedUser));
+            }
+        }
+
+        function renderUserProfile(user) {
+            document.getElementById('discordAuth').innerHTML = `
+                <div class="user-profile">
+                    <img src="${user.avatar}" class="user-avatar" alt="Avatar">
+                    <span class="user-name">${user.username}</span>
+                </div>
+            `;
+        }
+
+        checkDiscordAuth();
+    </script>
 
 </body>
 </html>
