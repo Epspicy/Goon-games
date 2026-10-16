@@ -16,7 +16,7 @@
             padding: 10px;
         }
         .container {
-            max-width: 720px;
+            max-width: 780px;
             margin: 10px auto;
             background: #1a1a24;
             padding: 20px;
@@ -51,7 +51,7 @@
             color: #00ffcc;
         }
 
-        /* Characters Roster */
+        /* Characters Roster (6 items) */
         .section-label {
             font-size: 13px;
             color: #00ffcc;
@@ -63,7 +63,7 @@
         }
         .roster-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 8px;
             margin-bottom: 20px;
         }
@@ -107,10 +107,10 @@
             pointer-events: none;
         }
 
-        /* Positions Grid */
+        /* Positions Grid (6 items) */
         .positions-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 8px;
             margin-bottom: 20px;
         }
@@ -146,8 +146,8 @@
             text-overflow: ellipsis;
         }
         .pos-gif {
-            width: 65px;
-            height: 65px;
+            width: 55px;
+            height: 55px;
             border-radius: 8px;
             object-fit: cover;
             border: 2px solid #00ffcc;
@@ -246,8 +246,8 @@
             text-align: center;
         }
 
-        /* 📱 RESPONSIVE GIA KINITA (Screen width < 650px) */
-        @media (max-width: 650px) {
+        /* 📱 RESPONSIVE GIA KINITA (Screen width < 700px) */
+        @media (max-width: 700px) {
             body {
                 padding: 5px;
             }
@@ -255,18 +255,18 @@
                 padding: 12px;
             }
             .roster-grid {
-                grid-template-columns: repeat(3, 1fr); /* 3 stiles pano, 2 kato sta kinitia */
+                grid-template-columns: repeat(3, 1fr); /* 3 stiles pano, 3 kato sta kinitia */
             }
             .positions-grid {
-                grid-template-columns: repeat(3, 1fr); /* 3 stiles pano, 2 kato sta kinitia */
+                grid-template-columns: repeat(3, 1fr); /* 3 stiles pano, 3 kato sta kinitia */
             }
             .char-img {
                 width: 45px;
                 height: 45px;
             }
             .pos-gif {
-                width: 55px;
-                height: 55px;
+                width: 50px;
+                height: 50px;
             }
         }
     </style>
@@ -311,12 +311,16 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
     <script>
+        // =========================================================
+        // ⚙️ 6 CHARACTERS & 6 TARGET GIFS CONFIGURATION
+        // =========================================================
         const CHARACTERS = [
             { name: "Elena",  img: "../PMVheaven THUB.jpg" },
             { name: "Maria",  img: "../PMVheaven THUB.jpg" },
             { name: "Kostas", img: "../PMVheaven THUB.jpg" },
             { name: "Niki",   img: "../PMVheaven THUB.jpg" },
-            { name: "Alex",   img: "../PMVheaven THUB.jpg" }
+            { name: "Alex",   img: "../PMVheaven THUB.jpg" },
+            { name: "Spiros", img: "../PMVheaven THUB.jpg" } // 6os xaraktiras
         ];
 
         const TARGET_GIFS = [
@@ -324,7 +328,8 @@
             "../hug-bros.gif",
             "../man-shaking-head-shakes-head.gif",
             "../aj-brown-drake-maye-aj-brown.gif",
-            "../annoyed.gif"
+            "../annoyed.gif",
+            "../hey-cat.gif" // 6o GIF (paromio me to proto)
         ];
 
         const REACTION_PHOTOS = [
@@ -333,6 +338,9 @@
             "../spicy-model-3.gif"
         ];
 
+        // =========================================================
+        // 🔊 MINIMAL SFX SYNTHESIZER (Web Audio API)
+        // =========================================================
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function playClickSound() {
@@ -380,6 +388,9 @@
             osc.stop(audioCtx.currentTime + 0.15);
         }
 
+        // =========================================================
+        // 🎮 GAME LOGIC & FIREBASE (6 POSITIONS)
+        // =========================================================
         const firebaseConfig = {
             apiKey: "AIzaSyAyT85gjbKMf0RtttyECLHv2hiv1mREJtU",
             authDomain: "epspicygames.firebaseapp.com",
@@ -395,7 +406,7 @@
         const db = firebase.database();
 
         let selectedCharName = null;
-        let assignments = { 1: null, 2: null, 3: null, 4: null, 5: null };
+        let assignments = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
         let hasSubmitted = false;
         let allSubmissionsData = null;
 
@@ -427,7 +438,7 @@
 
         function selectChar(charName) {
             playClickSound();
-            for (let s = 1; s <= 5; s++) {
+            for (let s = 1; s <= 6; s++) {
                 if (assignments[s] === charName) {
                     alert(charName + " is already assigned to Position " + s + "!");
                     return;
@@ -460,10 +471,10 @@
 
                 selectedCharName = null;
 
-                for (let i = 1; i <= 5; i++) {
+                for (let i = 1; i <= 6; i++) {
                     document.getElementById('slot-' + i).classList.remove('active');
                 }
-                for (let i = 1; i <= 5; i++) {
+                for (let i = 1; i <= 6; i++) {
                     if (!assignments[i]) {
                         document.getElementById('slot-' + i).classList.add('active');
                         break;
@@ -471,7 +482,7 @@
                 }
             } else {
                 playClickSound();
-                for (let i = 1; i <= 5; i++) {
+                for (let i = 1; i <= 6; i++) {
                     document.getElementById('slot-' + i).classList.remove('active');
                 }
                 document.getElementById('slot-' + slotNum).classList.add('active');
@@ -480,13 +491,13 @@
 
         async function executeSequence() {
             let filledCount = 0;
-            for (let i = 1; i <= 5; i++) {
+            for (let i = 1; i <= 6; i++) {
                 if (assignments[i] !== null) filledCount++;
             }
 
-            if (filledCount < 5) {
+            if (filledCount < 6) {
                 playClickSound();
-                alert("Please assign characters to all 5 positions before launching!");
+                alert("Please assign characters to all 6 positions before launching!");
                 return;
             }
 
@@ -504,13 +515,13 @@
             }
 
             let total = 0;
-            let counts = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
+            let counts = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {} };
 
             if (allSubmissionsData) {
                 Object.values(allSubmissionsData).forEach(sub => {
                     if (sub.assignments) {
                         total++;
-                        for (let pos = 1; pos <= 5; pos++) {
+                        for (let pos = 1; pos <= 6; pos++) {
                             let ch = sub.assignments[pos];
                             if (ch) {
                                 counts[pos][ch] = (counts[pos][ch] || 0) + 1;
@@ -523,7 +534,7 @@
             document.getElementById("globalStatsTitle").innerText = `REAL COMMUNITY STATISTICS (${total} Total Players):`;
 
             let statsHtml = "";
-            for (let i = 1; i <= 5; i++) {
+            for (let i = 1; i <= 6; i++) {
                 let userChosenChar = assignments[i];
                 let countForThisChar = counts[i][userChosenChar] || 0;
                 let pct = total > 0 ? Math.round((countForThisChar / total) * 100) : 100;
@@ -541,7 +552,7 @@
         function shareResults() {
             playClickSound();
             let text = "My Epspicy Selection Matrix:\n";
-            for (let i = 1; i <= 5; i++) {
+            for (let i = 1; i <= 6; i++) {
                 text += "Pos " + i + ": " + assignments[i] + "\n";
             }
             text += "Play at: https://epspicy.github.io/Goon-games/matrix/";
@@ -555,10 +566,10 @@
 
         function resetSelection() {
             playClickSound();
-            assignments = { 1: null, 2: null, 3: null, 4: null, 5: null };
+            assignments = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
             selectedCharName = null;
             hasSubmitted = false;
-            for (let i = 1; i <= 5; i++) {
+            for (let i = 1; i <= 6; i++) {
                 document.getElementById('val-' + i).innerText = "-";
             }
             document.querySelectorAll('.char-card').forEach(c => {
