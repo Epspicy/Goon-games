@@ -265,7 +265,7 @@
             transition: width 0.4s ease;
         }
 
-        /* Recent Activity Stream */
+        /* Recent Activity Stream with Visual Mini-Avatars */
         .activity-feed {
             margin-top: 25px;
             padding-top: 20px;
@@ -278,7 +278,7 @@
             background: #1a1a24;
             padding: 10px 14px;
             border-radius: 8px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             border: 1px solid #2a2a3a;
             font-size: 13px;
         }
@@ -288,15 +288,34 @@
             gap: 10px;
             font-weight: bold;
             color: #00ffcc;
+            min-width: 150px;
         }
         .feed-avatar {
-            width: 24px;
-            height: 24px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
         }
-        .feed-choices {
+        .feed-picks {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .mini-pick {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .mini-img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #00ffcc;
+        }
+        .mini-name {
+            font-size: 9px;
             color: #8888a0;
-            font-size: 12px;
+            margin-top: 2px;
         }
 
         #toast {
@@ -314,7 +333,7 @@
             .positions-grid { grid-template-columns: repeat(3, 1fr); }
             .char-img { width: 60px; height: 60px; }
             .pos-gif { width: 70px; height: 70px; }
-            .feed-item { flex-direction: column; align-items: flex-start; gap: 5px; }
+            .feed-item { flex-direction: column; align-items: flex-start; gap: 8px; }
         }
     </style>
 </head>
@@ -345,7 +364,7 @@
             <div class="section-label" style="margin-bottom: 15px; color: #00ffcc;" id="globalStatsTitle">REAL COMMUNITY STATISTICS:</div>
             <div id="stats-list"></div>
 
-            <!-- Recent Discord Players Feed -->
+            <!-- Recent Discord Players Feed with Images -->
             <div class="activity-feed">
                 <div class="section-label" style="color: #ff007f; margin-bottom: 12px;">RECENT DISCORD PLAYERS:</div>
                 <div id="recentFeed"></div>
@@ -471,7 +490,6 @@
         function initUI() {
             checkStoredUser();
             
-            // Orio xronou: 365 meres gia Discord xristes, 1 ora gia Guests
             const expirationLimitMs = currentUser ? (365 * 24 * 60 * 60 * 1000) : (60 * 60 * 1000);
 
             let savedMatrixState = localStorage.getItem('matrix_completed_state');
@@ -481,7 +499,7 @@
                 if (now - parsedState.time < expirationLimitMs) {
                     assignments = parsedState.assignments;
                     hasSubmitted = true;
-                    currentActiveSlot = 7; // Completed
+                    currentActiveSlot = 7;
                 } else {
                     localStorage.removeItem('matrix_completed_state');
                 }
@@ -642,7 +660,22 @@
             recentList.forEach(item => {
                 let username = item.user ? item.user.username : "Guest";
                 let avatar = item.user ? item.user.avatar : "https://cdn.discordapp.com/embed/avatars/0.png";
-                let seq = item.assignments ? Object.values(item.assignments).join(', ') : '';
+                
+                let picksHtml = '';
+                if (item.assignments) {
+                    for (let p = 1; p <= 6; p++) {
+                        let charName = item.assignments[p];
+                        let charObj = CHARACTERS.find(c => c.name === charName);
+                        let charImg = charObj ? charObj.img : '../PMVheaven THUB.jpg';
+                        
+                        picksHtml += `
+                            <div class="mini-pick">
+                                <img src="${charImg}" class="mini-img" title="${charName}">
+                                <span class="mini-name">${charName}</span>
+                            </div>
+                        `;
+                    }
+                }
 
                 feedHtml += `
                     <div class="feed-item">
@@ -650,7 +683,7 @@
                             <img src="${avatar}" class="feed-avatar">
                             <span>${username}</span>
                         </div>
-                        <div class="feed-choices">Picks: ${seq}</div>
+                        <div class="feed-picks">${picksHtml}</div>
                     </div>
                 `;
             });
