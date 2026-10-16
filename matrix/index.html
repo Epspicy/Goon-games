@@ -444,4 +444,111 @@
                         const userData = {
                             id: user.id,
                             username: user.global_name || user.username,
-                            avatar: user.avatar ? `
+                            avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png'
+                        };
+                        localStorage.setItem('discord_user', JSON.stringify(userData));
+                        currentUser = userData;
+                        renderUserProfile(userData);
+                    }
+                })
+                .catch(err => console.error("Auth Error:", err));
+            }
+        }
+
+        function renderUserProfile(user) {
+            document.getElementById('userProfileArea').innerHTML = `
+                <div class="user-profile">
+                    <img src="${user.avatar}" class="user-avatar" alt="Avatar">
+                    <span class="user-name">${user.username}</span>
+                </div>
+            `;
+        }
+
+        const CHARACTERS = [
+            { name: "Rissa May",        img: "../rissa may.png" },
+            { name: "Scarlett Alexis", img: "../scarlett alexis.png" },
+            { name: "Aria Lee",         img: "../aria lee.png" },
+            { name: "Eliza Ibarra",     img: "../eliza ibarra.png" },
+            { name: "Jewelz Blu",       img: "../jewelz blu.png" },
+            { name: "Liz Jordan",       img: "../liz jordan.png" }
+        ];
+
+        const TARGET_POSITIONS = [
+            { title: "Standing Carry", gif: "../air.gif" },
+            { title: "Rimjob",         gif: "../rimjob.gif" },
+            { title: "Strapon",        gif: "../strapon.gif" },
+            { title: "Gangbang",       gif: "../gangbang.gif" },
+            { title: "Deepthroat",     gif: "../deepthroat.gif" },
+            { title: "Anal",           gif: "../anal.gif" }
+        ];
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playClickSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.04);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.04);
+        }
+
+        function playAssignSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.06);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.06);
+        }
+
+        function playLaunchSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(900, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAyT85gjbKMf0RtttyECLHv2hiv1mREJtU",
+            authDomain: "epspicygames.firebaseapp.com",
+            databaseURL: "https://epspicygames-default-rtdb.firebaseio.com",
+            projectId: "epspicygames",
+            storageBucket: "epspicygames.firebasestorage.app",
+            messagingSenderId: "813495756093",
+            appId: "1:813495756093:web:9d0a93c37c457c653e1154",
+            measurementId: "G-WHG3N8WML4"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let assignments = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
+        let currentActiveSlot = 1;
+        let hasSubmitted = false;
+        let allSubmissionsData = null;
+
+        function initUI() {
+            checkDiscordAuth();
+            
+            const expirationLimitMs = currentUser ? (365 * 24 * 60 * 60 * 1000) : (
