@@ -233,19 +233,22 @@
         }
 
         function checkDiscordAuth() {
+            // 1. Elegxoume an yparxei idi apothikevmenos xristis sti mnimi tou browser
+            let savedUser = localStorage.getItem('discord_user');
+            if (savedUser) {
+                renderUserProfile(JSON.parse(savedUser));
+                return; // Menei monima syndemenos xoris na xriazetai neo login!
+            }
+
+            // 2. An den yparxei, koitame an molis epeistrepse apo to Discord me neo token
             const fragment = new URLSearchParams(window.location.hash.slice(1));
             const accessToken = fragment.get('access_token');
 
             if (accessToken) {
-                localStorage.setItem('discord_token', accessToken);
                 window.history.replaceState({}, document.title, window.location.pathname);
-            }
-
-            const token = accessToken || localStorage.getItem('discord_token');
-
-            if (token) {
+                
                 fetch('https://discord.com/api/users/@me', {
-                    headers: { authorization: `Bearer ${token}` }
+                    headers: { authorization: `Bearer ${accessToken}` }
                 })
                 .then(res => res.json())
                 .then(user => {
@@ -255,21 +258,12 @@
                             username: user.global_name || user.username,
                             avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png'
                         };
+                        // Apothikevoume ta stoixia monima ston browser
                         localStorage.setItem('discord_user', JSON.stringify(userData));
                         renderUserProfile(userData);
-                    } else {
-                        localStorage.removeItem('discord_token');
-                        localStorage.removeItem('discord_user');
                     }
                 })
-                .catch(err => {
-                    console.error("Auth Error:", err);
-                    let savedUser = localStorage.getItem('discord_user');
-                    if (savedUser) renderUserProfile(JSON.parse(savedUser));
-                });
-            } else {
-                let savedUser = localStorage.getItem('discord_user');
-                if (savedUser) renderUserProfile(JSON.parse(savedUser));
+                .catch(err => console.error("Auth Error:", err));
             }
         }
 
