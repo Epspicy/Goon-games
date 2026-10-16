@@ -331,4 +331,395 @@
             color: #ffcc00;
             font-size: 14px;
             margin-top: 10px;
-            text-align:
+            text-align: center;
+            font-weight: bold;
+        }
+        @media (max-width: 800px) {
+            body { padding: 5px; }
+            .container { padding: 15px; }
+            .roster-grid { grid-template-columns: repeat(3, 1fr); }
+            .positions-grid { grid-template-columns: repeat(3, 1fr); }
+            .char-img { width: 65px; height: 65px; }
+            .pos-gif { width: 75px; height: 75px; }
+            .feed-item { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .feed-picks { width: 100%; justify-content: space-between; }
+            .mini-gif { width: 46px; height: 46px; }
+            .mini-char { font-size: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="top-bar">
+            <a href="../" class="back-link" onclick="playClickSound()">← Back to Arcade</a>
+            <div id="userProfileArea"></div>
+        </div>
+
+        <div class="header-title">Character Matrix</div>
+        <div class="subtitle">Epspicy Mini-Games</div>
+
+        <div class="instruction-banner" id="instructionBanner">Select character for: POSITION 1</div>
+
+        <div class="section-label">Target Positions (Fill in order):</div>
+        <div class="positions-grid" id="positionsGrid"></div>
+
+        <div class="section-label">1. Click Character to Assign:</div>
+        <div class="roster-grid" id="rosterGrid"></div>
+
+        <button class="action-btn" id="launchBtn" onclick="executeSequence()">Launch Sequence & Compare</button>
+        
+        <div id="results-area">
+            <img id="reactionImg" src="" class="reaction-photo" alt="Sequence Reaction">
+            
+            <div class="section-label" style="margin-bottom: 15px; color: #00ffcc;" id="globalStatsTitle">REAL COMMUNITY STATISTICS:</div>
+            <div id="stats-list"></div>
+
+            <!-- Recent Discord Players Feed with Upgraded Sizes -->
+            <div class="activity-feed">
+                <div class="section-label" style="color: #ff007f; margin-bottom: 12px;">RECENT DISCORD PLAYERS:</div>
+                <div id="recentFeed"></div>
+            </div>
+
+            <div class="btn-group">
+                <button class="secondary-btn" onclick="shareResults()">Share Results</button>
+                <button class="secondary-btn" style="border-color: #ff007f; color: #ff007f;" onclick="resetSelection()">Reset Selection</button>
+            </div>
+            <div id="toast">Results copied to clipboard!</div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+    <script>
+        let currentUser = null;
+
+        function checkStoredUser() {
+            let savedUser = localStorage.getItem('discord_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('userProfileArea').innerHTML = '<div class="user-profile"><img src="' + currentUser.avatar + '" class="user-avatar" alt="Avatar"><span class="user-name">' + currentUser.username + '</span></div>';
+            }
+        }
+
+        const CHARACTERS = [
+            { name: "Elena",  img: "../PMVheaven THUB.jpg" },
+            { name: "Maria",  img: "../PMVheaven THUB.jpg" },
+            { name: "Kostas", img: "../PMVheaven THUB.jpg" },
+            { name: "Niki",   img: "../PMVheaven THUB.jpg" },
+            { name: "Alex",   img: "../PMVheaven THUB.jpg" },
+            { name: "Spiros", img: "../PMVheaven THUB.jpg" }
+        ];
+
+        const TARGET_GIFS = [
+            "../hey-cat.gif",
+            "../hug-bros.gif",
+            "../man-shaking-head-shakes-head.gif",
+            "../aj-brown-drake-maye-aj-brown.gif",
+            "../annoyed.gif",
+            "../hey-cat.gif"
+        ];
+
+        const REACTION_PHOTOS = [
+            "../hey-cat.gif",
+            "../hug-bros.gif",
+            "../annoyed.gif"
+        ];
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playClickSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.04);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.04);
+        }
+
+        function playAssignSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.06);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.06);
+        }
+
+        function playLaunchSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(900, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAyT85gjbKMf0RtttyECLHv2hiv1mREJtU",
+            authDomain: "epspicygames.firebaseapp.com",
+            databaseURL: "https://epspicygames-default-rtdb.firebaseio.com",
+            projectId: "epspicygames",
+            storageBucket: "epspicygames.firebasestorage.app",
+            messagingSenderId: "813495756093",
+            appId: "1:813495756093:web:9d0a93c37c457c653e1154",
+            measurementId: "G-WHG3N8WML4"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let assignments = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
+        let currentActiveSlot = 1;
+        let hasSubmitted = false;
+        let allSubmissionsData = null;
+
+        function initUI() {
+            checkStoredUser();
+            
+            const expirationLimitMs = currentUser ? (365 * 24 * 60 * 60 * 1000) : (60 * 60 * 1000);
+
+            let savedMatrixState = localStorage.getItem('matrix_completed_state');
+            if (savedMatrixState) {
+                let parsedState = JSON.parse(savedMatrixState);
+                let now = Date.now();
+                if (now - parsedState.time < expirationLimitMs) {
+                    assignments = parsedState.assignments;
+                    hasSubmitted = true;
+                    currentActiveSlot = 7;
+                } else {
+                    localStorage.removeItem('matrix_completed_state');
+                }
+            }
+
+            renderRoster();
+            renderPositions();
+            updateBanner();
+
+            db.ref('submissions').on('value', function(snapshot) {
+                allSubmissionsData = snapshot.val();
+                if (hasSubmitted) {
+                    renderResultsUI();
+                }
+            });
+        }
+
+        function renderRoster() {
+            const rosterGrid = document.getElementById('rosterGrid');
+            rosterGrid.innerHTML = CHARACTERS.map(function(c) {
+                let isUsed = Object.values(assignments).includes(c.name);
+                return '<div class="char-card ' + (isUsed ? 'used' : '') + '" id="card-' + c.name + '" onclick="assignCharacter(\'' + c.name + '\')">' +
+                    '<img src="' + c.img + '" class="char-img">' +
+                    '<div class="char-name">' + c.name + '</div>' +
+                    '</div>';
+            }).join('');
+        }
+
+        function renderPositions() {
+            const posGrid = document.getElementById('positionsGrid');
+            posGrid.innerHTML = TARGET_GIFS.map(function(gif, idx) {
+                const pos = idx + 1;
+                let isActive = (pos === currentActiveSlot && !assignments[pos]);
+                let assignedChar = assignments[pos] || '-';
+                return '<div class="position-slot ' + (isActive ? 'active' : '') + '" id="slot-' + pos + '">' +
+                    '<div class="pos-title">Pos ' + pos + '</div>' +
+                    '<div class="pos-assigned" id="val-' + pos + '">' + assignedChar + '</div>' +
+                    '<img src="' + gif + '" class="pos-gif" alt="GIF ' + pos + '">' +
+                    '</div>';
+            }).join('');
+        }
+
+        function updateBanner() {
+            let banner = document.getElementById('instructionBanner');
+            if (currentActiveSlot <= 6) {
+                banner.innerText = 'Select character for: POSITION ' + currentActiveSlot;
+                banner.style.color = "#ff007f";
+                banner.style.borderColor = "#ff007f";
+            } else {
+                banner.innerText = 'All positions filled! Ready to launch sequence.';
+                banner.style.color = "#00ffcc";
+                banner.style.borderColor = "#00ffcc";
+            }
+        }
+
+        function assignCharacter(charName) {
+            if (currentActiveSlot > 6) return;
+            
+            for (let s = 1; s <= 6; s++) {
+                if (assignments[s] === charName) return;
+            }
+
+            playAssignSound();
+            assignments[currentActiveSlot] = charName;
+
+            currentActiveSlot++;
+            while (currentActiveSlot <= 6 && assignments[currentActiveSlot] !== null) {
+                currentActiveSlot++;
+            }
+
+            renderRoster();
+            renderPositions();
+            updateBanner();
+        }
+
+        async function executeSequence() {
+            let filledCount = 0;
+            for (let i = 1; i <= 6; i++) {
+                if (assignments[i] !== null) filledCount++;
+            }
+
+            if (filledCount < 6) {
+                playClickSound();
+                alert("Please assign characters to all 6 positions before launching!");
+                return;
+            }
+
+            playLaunchSound();
+
+            let randomImg = REACTION_PHOTOS[Math.floor(Math.random() * REACTION_PHOTOS.length)];
+            document.getElementById("reactionImg").src = randomImg;
+
+            if (!hasSubmitted) {
+                hasSubmitted = true;
+                let submissionPayload = {
+                    assignments: assignments,
+                    timestamp: Date.now(),
+                    user: currentUser ? currentUser : { username: "Guest/Anonymous", avatar: "https://cdn.discordapp.com/embed/avatars/0.png" }
+                };
+
+                localStorage.setItem('matrix_completed_state', JSON.stringify({
+                    assignments: assignments,
+                    time: Date.now()
+                }));
+
+                await db.ref('submissions').push(submissionPayload).catch(function(err) { console.error("Error:", err); });
+            }
+
+            renderResultsUI();
+        }
+
+        function renderResultsUI() {
+            if (!document.getElementById("reactionImg").src || document.getElementById("reactionImg").src.endsWith('/matrix/')) {
+                let randomImg = REACTION_PHOTOS[Math.floor(Math.random() * REACTION_PHOTOS.length)];
+                document.getElementById("reactionImg").src = randomImg;
+            }
+
+            let total = 0;
+            let counts = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {} };
+            let recentList = [];
+
+            if (allSubmissionsData) {
+                let subsArray = Object.values(allSubmissionsData);
+                subsArray.forEach(function(sub) {
+                    if (sub.assignments) {
+                        total++;
+                        for (let pos = 1; pos <= 6; pos++) {
+                            let ch = sub.assignments[pos];
+                            if (ch) counts[pos][ch] = (counts[pos][ch] || 0) + 1;
+                        }
+                    }
+                });
+
+                recentList = subsArray.slice(-5).reverse();
+            }
+
+            document.getElementById("globalStatsTitle").innerText = 'REAL COMMUNITY STATISTICS (' + total + ' Total Players):';
+
+            let statsHtml = "";
+            for (let i = 1; i <= 6; i++) {
+                let userChosenChar = assignments[i];
+                let countForThisChar = counts[i][userChosenChar] || 0;
+                let pct = total > 0 ? Math.round((countForThisChar / total) * 100) : 100;
+
+                statsHtml += '<div class="stat-row">' +
+                    '<span>Pos ' + i + ': <b>' + userChosenChar + '</b> chosen by <b>' + pct + '%</b> of players (' + countForThisChar + '/' + total + ')</span>' +
+                    '<div class="stat-bar-container"><div class="stat-bar" style="width: ' + pct + '%;"></div></div>' +
+                    '</div>';
+            }
+
+            document.getElementById("stats-list").innerHTML = statsHtml;
+
+            let feedHtml = "";
+            recentList.forEach(function(item) {
+                let username = item.user ? item.user.username : "Guest";
+                let avatar = item.user ? item.user.avatar : "https://cdn.discordapp.com/embed/avatars/0.png";
+                
+                let picksHtml = '';
+                if (item.assignments) {
+                    for (let p = 1; p <= 6; p++) {
+                        let charName = item.assignments[p];
+                        let posGif = TARGET_GIFS[p - 1];
+                        
+                        picksHtml += '<div class="mini-pick">' +
+                            '<img src="' + posGif + '" class="mini-gif" title="Position ' + p + '">' +
+                            '<span class="mini-char">' + charName + '</span>' +
+                            '</div>';
+                    }
+                }
+
+                feedHtml += '<div class="feed-item">' +
+                    '<div class="feed-user">' +
+                    '<img src="' + avatar + '" class="feed-avatar">' +
+                    '<span>' + username + '</span>' +
+                    '</div>' +
+                    '<div class="feed-picks">' + picksHtml + '</div>' +
+                    '</div>';
+            });
+
+            document.getElementById("recentFeed").innerHTML = feedHtml;
+            document.getElementById("results-area").style.display = "block";
+        }
+
+        function shareResults() {
+            playClickSound();
+            let playerGreeting = currentUser ? 'Player: ' + currentUser.username + '\n' : "";
+            let text = playerGreeting + 'My Epspicy Selection Matrix:\n';
+            for (let i = 1; i <= 6; i++) {
+                text += "Pos " + i + ": " + assignments[i] + "\n";
+            }
+            text += "Play at: https://epspicy.github.io/Goon-games/matrix/";
+            
+            navigator.clipboard.writeText(text).then(function() {
+                let toast = document.getElementById("toast");
+                toast.style.display = "block";
+                setTimeout(function() { toast.style.display = "none"; }, 2500);
+            });
+        }
+
+        function resetSelection() {
+            playClickSound();
+            localStorage.removeItem('matrix_completed_state');
+            assignments = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
+            currentActiveSlot = 1;
+            hasSubmitted = false;
+            
+            document.getElementById("results-area").style.display = "none";
+            renderRoster();
+            renderPositions();
+            updateBanner();
+        }
+
+        initUI();
+    </script>
+
+</body>
+</html>
