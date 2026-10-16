@@ -42,24 +42,6 @@
         .back-link:hover {
             color: #00ffcc;
         }
-        .discord-btn {
-            background-color: #5865F2;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.2s;
-            text-decoration: none;
-        }
-        .discord-btn:hover {
-            background-color: #4752C4;
-        }
         .user-profile {
             display: flex;
             align-items: center;
@@ -282,6 +264,41 @@
             border-radius: 6px;
             transition: width 0.4s ease;
         }
+
+        /* Recent Activity Stream */
+        .activity-feed {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #2a2a3a;
+        }
+        .feed-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #1a1a24;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #2a2a3a;
+            font-size: 13px;
+        }
+        .feed-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            color: #00ffcc;
+        }
+        .feed-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+        .feed-choices {
+            color: #8888a0;
+            font-size: 12px;
+        }
+
         #toast {
             display: none;
             color: #ffcc00;
@@ -297,6 +314,7 @@
             .positions-grid { grid-template-columns: repeat(3, 1fr); }
             .char-img { width: 60px; height: 60px; }
             .pos-gif { width: 70px; height: 70px; }
+            .feed-item { flex-direction: column; align-items: flex-start; gap: 5px; }
         }
     </style>
 </head>
@@ -305,11 +323,7 @@
     <div class="container">
         <div class="top-bar">
             <a href="../" class="back-link" onclick="playClickSound()">← Back to Arcade</a>
-            <div id="discordAuth">
-                <button class="discord-btn" onclick="loginWithDiscord()">
-                    <span>Login with Discord</span>
-                </button>
-            </div>
+            <div id="userProfileArea"></div>
         </div>
 
         <div class="header-title">Character Matrix</div>
@@ -327,8 +341,16 @@
         
         <div id="results-area">
             <img id="reactionImg" src="" class="reaction-photo" alt="Sequence Reaction">
+            
             <div class="section-label" style="margin-bottom: 15px; color: #00ffcc;" id="globalStatsTitle">REAL COMMUNITY STATISTICS:</div>
             <div id="stats-list"></div>
+
+            <!-- Recent Discord Players Feed -->
+            <div class="activity-feed">
+                <div class="section-label" style="color: #ff007f; margin-bottom: 12px;">RECENT DISCORD PLAYERS:</div>
+                <div id="recentFeed"></div>
+            </div>
+
             <div class="btn-group">
                 <button class="secondary-btn" onclick="shareResults()">Share Results</button>
                 <button class="secondary-btn" style="border-color: #ff007f; color: #ff007f;" onclick="resetSelection()">Reset Selection</button>
@@ -341,54 +363,13 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
     <script>
-        const DISCORD_CLIENT_ID = "1560589530136838194";
-        const REDIRECT_URI = "https://epspicy.github.io/Goon-games/matrix/";
         let currentUser = null;
 
-        function loginWithDiscord() {
-            playClickSound();
-            const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
-            window.location.href = discordUrl;
-        }
-
-        function checkDiscordAuth() {
-            const fragment = new URLSearchParams(window.location.hash.slice(1));
-            const accessToken = fragment.get('access_token');
-
-            if (accessToken) {
-                localStorage.setItem('discord_token', accessToken);
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-
-            const token = accessToken || localStorage.getItem('discord_token');
-
-            if (token) {
-                fetch('https://discord.com/api/users/@me', {
-                    headers: { authorization: `Bearer ${token}` }
-                })
-                .then(res => res.json())
-                .then(user => {
-                    if (user && user.id) {
-                        currentUser = {
-                            id: user.id,
-                            username: user.global_name || user.username,
-                            avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png'
-                        };
-                        renderUserProfile();
-                    } else {
-                        localStorage.removeItem('discord_token');
-                    }
-                })
-                .catch(err => {
-                    console.error("Discord Auth Error:", err);
-                    localStorage.removeItem('discord_token');
-                });
-            }
-        }
-
-        function renderUserProfile() {
-            if (currentUser) {
-                document.getElementById('discordAuth').innerHTML = `
+        function checkStoredUser() {
+            let savedUser = localStorage.getItem('discord_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('userProfileArea').innerHTML = `
                     <div class="user-profile">
                         <img src="${currentUser.avatar}" class="user-avatar" alt="Avatar">
                         <span class="user-name">${currentUser.username}</span>
@@ -415,10 +396,11 @@
             "../hey-cat.gif"
         ];
 
+        // Sosta GIFs apo to repository
         const REACTION_PHOTOS = [
-            "../spicy-model-1.gif",
-            "../spicy-model-2.gif",
-            "../spicy-model-3.gif"
+            "../hey-cat.gif",
+            "../hug-bros.gif",
+            "../annoyed.gif"
         ];
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -488,7 +470,7 @@
         let allSubmissionsData = null;
 
         function initUI() {
-            checkDiscordAuth();
+            checkStoredUser();
             renderRoster();
             renderPositions();
             updateBanner();
@@ -582,7 +564,7 @@
                 let submissionPayload = {
                     assignments: assignments,
                     timestamp: Date.now(),
-                    user: currentUser ? currentUser : { username: "Guest/Anonymous", id: "guest" }
+                    user: currentUser ? currentUser : { username: "Guest/Anonymous", avatar: "https://cdn.discordapp.com/embed/avatars/0.png" }
                 };
 
                 await db.ref('submissions').push(submissionPayload).catch(err => console.error("Error:", err));
@@ -590,19 +572,22 @@
 
             let total = 0;
             let counts = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {} };
+            let recentList = [];
 
             if (allSubmissionsData) {
-                Object.values(allSubmissionsData).forEach(sub => {
+                let subsArray = Object.values(allSubmissionsData);
+                subsArray.forEach(sub => {
                     if (sub.assignments) {
                         total++;
                         for (let pos = 1; pos <= 6; pos++) {
                             let ch = sub.assignments[pos];
-                            if (ch) {
-                                counts[pos][ch] = (counts[pos][ch] || 0) + 1;
-                            }
+                            if (ch) counts[pos][ch] = (counts[pos][ch] || 0) + 1;
                         }
                     }
                 });
+
+                // Get last 5 players
+                recentList = subsArray.slice(-5).reverse();
             }
 
             document.getElementById("globalStatsTitle").innerText = `REAL COMMUNITY STATISTICS (${total} Total Players):`;
@@ -620,6 +605,26 @@
             }
 
             document.getElementById("stats-list").innerHTML = statsHtml;
+
+            // Render Recent Players Feed
+            let feedHtml = "";
+            recentList.forEach(item => {
+                let username = item.user ? item.user.username : "Guest";
+                let avatar = item.user ? item.user.avatar : "https://cdn.discordapp.com/embed/avatars/0.png";
+                let seq = item.assignments ? Object.values(item.assignments).join(', ') : '';
+
+                feedHtml += `
+                    <div class="feed-item">
+                        <div class="feed-user">
+                            <img src="${avatar}" class="feed-avatar">
+                            <span>${username}</span>
+                        </div>
+                        <div class="feed-choices">Picks: ${seq}</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById("recentFeed").innerHTML = feedHtml;
             document.getElementById("results-area").style.display = "block";
         }
 
