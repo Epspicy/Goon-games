@@ -653,7 +653,8 @@
                 await db.ref('submissions').push(submissionPayload).catch(function(err) { console.error("Error:", err); });
             }
 
-            let resultsText = `🎮 **New Spicy Sequence Completed by ${playerName}!**\n`;
+            // Apostoli ton apotelesmaton sto Discord Webhook me to onoma tou paikti kai tis 6 theseis
+            let resultsText = `🎮 **New Spicy Sequence Results from ${playerName}!**\n`;
             for (let i = 1; i <= 6; i++) {
                 resultsText += `> **Position ${i}:** ${assignments[i]}\n`;
             }
