@@ -368,6 +368,13 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
     <script>
+        // Clean URL feature: Initialize arcade session ID numbers in the address bar automatically
+        if (!window.location.search.includes('session')) {
+            const randomSession = Math.floor(1000 + Math.random() * 9000);
+            const newUrl = window.location.pathname + '?session=' + randomSession + '&room=matrix-01';
+            window.history.replaceState({}, '', newUrl);
+        }
+
         let currentUser = null;
 
         function checkStoredUser() {
@@ -675,4 +682,11 @@
             document.getElementById("results-area").style.display = "none";
             renderRoster();
             renderPositions();
-            update
+            updateBanner();
+        }
+
+        initUI();
+    </script>
+
+</body>
+</html>
