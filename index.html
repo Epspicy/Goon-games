@@ -32,7 +32,6 @@
             box-sizing: border-box;
             position: relative;
         }
-        /* Top Bar gia to Discord Login stin kentriki selida */
         .top-bar {
             position: absolute;
             top: 20px;
@@ -75,7 +74,6 @@
             color: #ffffff;
             font-weight: bold;
         }
-
         .arcade-title {
             color: #00ffcc;
             font-size: 36px;
@@ -167,7 +165,6 @@
             letter-spacing: 1px;
             cursor: not-allowed;
         }
-
         @media (max-width: 600px) {
             body { padding: 10px; }
             .arcade-container { padding: 20px 10px; }
@@ -179,7 +176,6 @@
 <body>
 
     <div class="arcade-container">
-        <!-- Top Bar me Discord Login sto main -->
         <div class="top-bar" id="discordAuth">
             <button class="discord-btn" onclick="loginWithDiscord()">
                 <span>Login with Discord</span>
@@ -190,7 +186,6 @@
         <div class="arcade-subtitle">Select a mini-game to play</div>
 
         <div class="games-grid">
-            <!-- Game 1: Character Matrix -->
             <div class="game-card active">
                 <div class="game-icon">🎮</div>
                 <div class="game-title">Character Matrix</div>
@@ -198,7 +193,6 @@
                 <a href="./matrix/" class="play-btn">Play Now</a>
             </div>
 
-            <!-- Game 2: Coming Soon -->
             <div class="game-card">
                 <div class="game-icon">🔮</div>
                 <div class="game-title">Game #2</div>
@@ -206,7 +200,6 @@
                 <div class="coming-soon-btn">Coming Soon</div>
             </div>
 
-            <!-- Game 3: Coming Soon -->
             <div class="game-card">
                 <div class="game-icon">⚡</div>
                 <div class="game-title">Game #3</div>
@@ -217,7 +210,6 @@
     </div>
 
     <script>
-        // Clean URL feature for main hub: Initialize arcade session ID numbers automatically
         if (!window.location.search.includes('session')) {
             const randomSession = Math.floor(1000 + Math.random() * 9000);
             const newUrl = window.location.pathname + '?session=' + randomSession + '&hub=arcade';
@@ -225,27 +217,25 @@
         }
 
         const DISCORD_CLIENT_ID = "1560589530136838194";
-        const REDIRECT_URI = "https://epspicy.github.io/Goon-games/";
 
         function loginWithDiscord() {
-            const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
+            const redirectUri = window.location.origin + window.location.pathname;
+            const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=identify`;
             window.location.href = discordUrl;
         }
 
         function checkDiscordAuth() {
-            // 1. Elegxoume an yparxei idi apothikevmenos xristis sti mnimi tou browser
             let savedUser = localStorage.getItem('discord_user');
             if (savedUser) {
                 renderUserProfile(JSON.parse(savedUser));
-                return; // Menei monima syndemenos xoris na xriazetai neo login!
+                return;
             }
 
-            // 2. An den yparxei, koitame an molis epeistrepse apo to Discord me neo token
             const fragment = new URLSearchParams(window.location.hash.slice(1));
             const accessToken = fragment.get('access_token');
 
             if (accessToken) {
-                window.history.replaceState({}, document.title, window.location.pathname);
+                window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
                 
                 fetch('https://discord.com/api/users/@me', {
                     headers: { authorization: `Bearer ${accessToken}` }
@@ -258,7 +248,6 @@
                             username: user.global_name || user.username,
                             avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png'
                         };
-                        // Apothikevoume ta stoixia monima ston browser
                         localStorage.setItem('discord_user', JSON.stringify(userData));
                         renderUserProfile(userData);
                     }
