@@ -64,17 +64,10 @@
         .header-title {
             color: #00ffcc;
             font-size: 30px;
-            margin-bottom: 5px;
+            margin-bottom: 25px;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             font-weight: bold;
-        }
-        .subtitle {
-            color: #8888a0;
-            font-size: 15px;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
         .instruction-banner {
             background: #121218;
@@ -343,7 +336,6 @@
         </div>
 
         <div class="header-title">Spicy Sequence Matrix</div>
-        <div class="subtitle">Epspicy Mini-Games</div>
 
         <div class="instruction-banner" id="instructionBanner">Select Model for Position 1</div>
 
@@ -365,8 +357,8 @@
             </div>
 
             <div class="btn-group">
-                <button class="secondary-btn" onclick="shareResults()">Share Results</button>
-                <button class="secondary-btn" style="border-color: #ff007f; color: #ff007f;" onclick="resetSelection()">Reset Selection</button>
+                <button class="secondary-btn" onclick="shareResults()">ΚΟΙΝΟΠΟΙΗΣΗ ΑΠΟΤΕΛΕΣΜΑΤΩΝ</button>
+                <button class="secondary-btn" style="border-color: #ff007f; color: #ff007f;" onclick="resetSelection()">ΕΠΑΝΑΦΟΡΑ ΕΠΙΛΟΓΩΝ</button>
             </div>
             <div id="toast">Results copied to clipboard!</div>
         </div>
@@ -683,11 +675,4 @@
             document.getElementById("results-area").style.display = "none";
             renderRoster();
             renderPositions();
-            updateBanner();
-        }
-
-        initUI();
-    </script>
-
-</body>
-</html>
+            update
