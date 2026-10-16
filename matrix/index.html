@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spicy Sequence Matrix - Epspicy Arcade</title>
-    <!-- Custom Favicon -->
+    <title>Character Matrix - Epspicy Arcade</title>
+    <!-- Monimo Custom Favicon -->
     <link rel="icon" type="image/png" href="../logo.png">
     <style>
         body {
@@ -13,679 +13,127 @@
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 0;
-            padding: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
-        .container {
-            max-width: 980px;
-            margin: 20px auto;
+        .game-container {
+            max-width: 700px;
+            width: 100%;
             background: #1a1a24;
             padding: 30px;
             border-radius: 16px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+            border: 2px solid #00ffcc;
             box-sizing: border-box;
-            border: 2px solid #2a2a3a;
         }
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+        h1 {
+            color: #00ffcc;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
         }
-        .back-link {
+        p {
             color: #8888a0;
             font-size: 14px;
-            text-decoration: none;
-            text-transform: uppercase;
-            transition: color 0.2s;
-            font-weight: bold;
-        }
-        .back-link:hover {
-            color: #00ffcc;
-        }
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #121218;
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid #5865F2;
-        }
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-        }
-        .user-name {
-            font-size: 14px;
-            color: #ffffff;
-            font-weight: bold;
-        }
-        .header-title {
-            color: #00ffcc;
-            font-size: 30px;
             margin-bottom: 25px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: bold;
         }
-        .instruction-banner {
-            background: #121218;
-            border: 1px solid #ff007f;
-            color: #ff007f;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            box-shadow: 0 0 10px rgba(255,0,127,0.2);
-        }
-        .section-label {
-            font-size: 15px;
-            color: #00ffcc;
-            text-align: left;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-        .roster-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 12px;
-            margin-bottom: 30px;
-        }
-        .char-card {
-            background: #121218;
-            border: 2px solid #2a2a3a;
-            border-radius: 12px;
-            padding: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-            user-select: none;
-        }
-        .char-card:hover:not(.used) {
-            border-color: #00ffcc;
-            transform: translateY(-4px);
-            box-shadow: 0 0 15px rgba(0,255,204,0.3);
-        }
-        .char-card.used {
-            opacity: 0.25;
-            cursor: not-allowed;
-            filter: grayscale(100%);
-            border-color: #1a1a24;
-        }
-        .char-img {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #00ffcc;
-            margin-bottom: 8px;
-            pointer-events: none;
-        }
-        .char-name {
-            font-size: 13px;
-            color: #ffffff;
-            font-weight: bold;
-            pointer-events: none;
-        }
-        .positions-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 12px;
-            margin-bottom: 30px;
-        }
-        .position-slot {
-            background: #121218;
-            border: 2px solid #2a2a3a;
-            border-radius: 12px;
-            padding: 10px 8px;
-            transition: all 0.2s;
-            user-select: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .position-slot.active {
-            border-color: #ff007f;
-            background: #251221;
-            box-shadow: 0 0 20px rgba(255,0,127,0.6);
-            transform: scale(1.03);
-        }
-        .pos-assigned {
-            font-size: 13px;
-            color: #00ffcc;
-            font-weight: bold;
-            margin-bottom: 8px;
-            min-height: 18px;
-            pointer-events: none;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
-        }
-        .pos-gif {
-            width: 105px;
-            height: 105px;
-            border-radius: 10px;
-            object-fit: cover;
-            border: 2px solid #00ffcc;
-            pointer-events: none;
-        }
-        .action-btn {
+        .launch-btn {
             background-color: #ff007f;
             color: white;
             border: none;
-            width: 100%;
-            padding: 16px;
-            font-size: 18px;
+            padding: 12px 28px;
+            font-size: 16px;
             font-weight: bold;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            box-shadow: 0 4px 15px rgba(255,0,127,0.4);
+            letter-spacing: 1px;
+            transition: background 0.2s, transform 0.1s;
         }
-        .action-btn:hover {
+        .launch-btn:hover {
             background-color: #e00070;
         }
-        .action-btn:active {
-            transform: scale(0.98);
+        .launch-btn:active {
+            transform: scale(0.95);
         }
-        .btn-group {
-            display: flex;
-            gap: 12px;
+        .back-link {
+            display: inline-block;
             margin-top: 20px;
-        }
-        .secondary-btn {
-            flex: 1;
-            background: #2a2a3a;
             color: #00ffcc;
-            border: 1px solid #00ffcc;
-            padding: 14px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        .secondary-btn:hover {
-            background: #00ffcc;
-            color: #0f0f13;
-        }
-        #results-area {
-            margin-top: 30px;
-            display: none;
-            background: #121218;
-            border: 1px solid #2a2a3a;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: left;
-        }
-        .stat-row {
-            margin-bottom: 15px;
-            font-size: 15px;
-        }
-        .stat-bar-container {
-            background: #2a2a3a;
-            border-radius: 6px;
-            height: 12px;
-            width: 100%;
-            margin-top: 6px;
-            overflow: hidden;
-        }
-        .stat-bar {
-            background: #ff007f;
-            height: 100%;
-            border-radius: 6px;
-            transition: width 0.4s ease;
-        }
-
-        .activity-feed {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid #2a2a3a;
-        }
-        .feed-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #1a1a24;
-            padding: 14px 16px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            border: 1px solid #2a2a3a;
+            text-decoration: none;
             font-size: 14px;
         }
-        .feed-user {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: bold;
-            color: #00ffcc;
-            font-size: 15px;
-            min-width: 160px;
-        }
-        .feed-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 1px solid #5865F2;
-        }
-        .feed-picks {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .mini-pick {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: #121218;
-            padding: 6px 8px;
-            border-radius: 8px;
-            border: 1px solid #2a2a3a;
-        }
-        .mini-gif {
-            width: 58px;
-            height: 58px;
-            border-radius: 6px;
-            object-fit: cover;
-            border: 2px solid #00ffcc;
-        }
-        .mini-char {
-            font-size: 12px;
-            color: #ff007f;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-
-        #toast {
-            display: none;
-            color: #ffcc00;
-            font-size: 14px;
-            margin-top: 10px;
-            text-align: center;
-            font-weight: bold;
-        }
-        @media (max-width: 800px) {
-            body { padding: 5px; }
-            .container { padding: 15px; }
-            .roster-grid { grid-template-columns: repeat(3, 1fr); }
-            .positions-grid { grid-template-columns: repeat(3, 1fr); }
-            .char-img { width: 65px; height: 65px; }
-            .pos-gif { width: 75px; height: 75px; }
-            .feed-item { flex-direction: column; align-items: flex-start; gap: 12px; }
-            .feed-picks { width: 100%; justify-content: space-between; }
-            .mini-gif { width: 46px; height: 46px; }
-            .mini-char { font-size: 10px; }
+        .back-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="top-bar">
-            <a href="../" class="back-link" onclick="playClickSound()">← Back to Arcade</a>
-            <div id="userProfileArea"></div>
-        </div>
-
-        <div class="header-title">Spicy Sequence Matrix</div>
-
-        <div class="instruction-banner" id="instructionBanner">Select Model for Position 1</div>
-
-        <div class="section-label">Target Positions (Fill in order):</div>
-        <div class="positions-grid" id="positionsGrid"></div>
-
-        <div class="section-label">1. Click Model to Assign:</div>
-        <div class="roster-grid" id="rosterGrid"></div>
-
-        <button class="action-btn" id="launchBtn" onclick="executeSequence()">Launch Sequence & Compare</button>
+    <div class="game-container">
+        <h1>Character Matrix</h1>
+        <p>Assign characters to target GIF positions and launch your results to the community!</p>
         
-        <div id="results-area">
-            <div class="section-label" style="margin-bottom: 15px; color: #00ffcc;" id="globalStatsTitle">REAL COMMUNITY STATISTICS:</div>
-            <div id="stats-list"></div>
-
-            <div class="activity-feed">
-                <div class="section-label" style="color: #ff007f; margin-bottom: 12px;">RECENT DISCORD PLAYERS:</div>
-                <div id="recentFeed"></div>
-            </div>
-
-            <div class="btn-group">
-                <button class="secondary-btn" onclick="shareResults()">ΚΟΙΝΟΠΟΙΗΣΗ ΑΠΟΤΕΛΕΣΜΑΤΩΝ</button>
-                <button class="secondary-btn" style="border-color: #ff007f; color: #ff007f;" onclick="resetSelection()">ΕΠΑΝΑΦΟΡΑ ΕΠΙΛΟΓΩΝ</button>
-            </div>
-            <div id="toast">Results copied to clipboard!</div>
-        </div>
+        <button class="launch-btn" onclick="executeSequence()">Launch Sequence</button>
+        <br>
+        <a href="../" class="back-link">← Back to Arcade Hub</a>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-
     <script>
-        // Clean URL feature: Initialize arcade session ID numbers in the address bar automatically
+        // Clean URL feature for mini-game: Initialize session and room parameters automatically
         if (!window.location.search.includes('session')) {
             const randomSession = Math.floor(1000 + Math.random() * 9000);
             const newUrl = window.location.pathname + '?session=' + randomSession + '&room=matrix-01';
             window.history.replaceState({}, '', newUrl);
         }
 
-        let currentUser = null;
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1560690246893568180/RdJzCmVN_6M34J8wgQAHNlAfEpgCdKxSSp4HkHR7kumWcyvaz46YrRMpV2brDatKwGDi";
 
-        function checkStoredUser() {
+        function executeSequence() {
+            // Pairnoume ton syndedemeno xristi apo to localStorage (an exei kanei login)
             let savedUser = localStorage.getItem('discord_user');
+            let playerName = "Anonymous Player";
+            
             if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                document.getElementById('userProfileArea').innerHTML = '<div class="user-profile"><img src="' + currentUser.avatar + '" class="user-avatar" alt="Avatar"><span class="user-name">' + currentUser.username + '</span></div>';
+                try {
+                    let userObj = JSON.parse(savedUser);
+                    if (userObj.username) playerName = userObj.username;
+                } catch(e) {}
             }
-        }
 
-        const CHARACTERS = [
-            { name: "Rissa May",       img: "../rissa may.png" },
-            { name: "Scarlett Alexis", img: "../scarlett alexis.png" },
-            { name: "Aria Lee",        img: "../aria lee.png" },
-            { name: "Eliza Ibarra",    img: "../eliza ibarra.png" },
-            { name: "Jewelz Blu",      img: "../jewelz blu.png" },
-            { name: "Liz Jordan",      img: "../liz jordan.png" }
-        ];
+            // To trexonta URL tou paixnidiou gia na to exoyn oi ypoloipoi
+            const currentGameUrl = window.location.href;
 
-        const TARGET_POSITIONS = [
-            { title: "Position 1", gif: "../air.gif" },
-            { title: "Position 2", gif: "../rimjob.gif" },
-            { title: "Position 3", gif: "../strapon.gif" },
-            { title: "Position 4", gif: "../gangbang.gif" },
-            { title: "Position 5", gif: "../deepthroat.gif" },
-            { title: "Position 6", gif: "../anal.gif" }
-        ];
+            // To minima pou tha fygei sto Discord Webhook
+            const discordPayload = {
+                content: `🎮 **New Game Result!**\n> **Player:** ${playerName} just completed a run in **Character Matrix**!\n> 🔗 **Play here:** ${currentGameUrl}`
+            };
 
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        function playClickSound() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.04);
-            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.04);
-        }
-
-        function playAssignSound() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.06);
-            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.06);
-        }
-
-        function playLaunchSound() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(900, audioCtx.currentTime + 0.15);
-            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.15);
-        }
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAyT85gjbKMf0RtttyECLHv2hiv1mREJtU",
-            authDomain: "epspicygames.firebaseapp.com",
-            databaseURL: "https://epspicygames-default-rtdb.firebaseio.com",
-            projectId: "epspicygames",
-            storageBucket: "epspicygames.firebasestorage.app",
-            messagingSenderId: "813495756093",
-            appId: "1:813495756093:web:9d0a93c37c457c653e1154",
-            measurementId: "G-WHG3N8WML4"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        let assignments = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
-        let currentActiveSlot = 1;
-        let hasSubmitted = false;
-        let allSubmissionsData = null;
-
-        function initUI() {
-            checkStoredUser();
-            
-            const expirationLimitMs = currentUser ? (365 * 24 * 60 * 60 * 1000) : (60 * 60 * 1000);
-
-            let savedMatrixState = localStorage.getItem('matrix_completed_state');
-            if (savedMatrixState) {
-                let parsedState = JSON.parse(savedMatrixState);
-                let now = Date.now();
-                if (now - parsedState.time < expirationLimitMs) {
-                    assignments = parsedState.assignments;
-                    hasSubmitted = true;
-                    currentActiveSlot = 7;
+            // Apostoli sto Discord Webhook mesw fetch
+            fetch(DISCORD_WEBHOOK_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(discordPayload)
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Launch Successful! Your results have been posted to the Discord arcade channel!');
                 } else {
-                    localStorage.removeItem('matrix_completed_state');
+                    alert('Sequence launched, but webhook notification failed.');
                 }
-            }
-
-            renderRoster();
-            renderPositions();
-            updateBanner();
-
-            db.ref('submissions').on('value', function(snapshot) {
-                allSubmissionsData = snapshot.val();
-                if (hasSubmitted) {
-                    renderResultsUI();
-                }
+            })
+            .catch(error => {
+                console.error('Webhook Error:', error);
+                alert('Launch Sequence completed!');
             });
         }
-
-        function renderRoster() {
-            const rosterGrid = document.getElementById('rosterGrid');
-            rosterGrid.innerHTML = CHARACTERS.map(function(c) {
-                let isUsed = Object.values(assignments).includes(c.name);
-                return '<div class="char-card ' + (isUsed ? 'used' : '') + '" id="card-' + c.name + '" onclick="assignCharacter(\'' + c.name + '\')">' +
-                    '<img src="' + c.img + '" class="char-img">' +
-                    '<div class="char-name">' + c.name + '</div>' +
-                    '</div>';
-            }).join('');
-        }
-
-        function renderPositions() {
-            const posGrid = document.getElementById('positionsGrid');
-            posGrid.innerHTML = TARGET_POSITIONS.map(function(p, idx) {
-                const pos = idx + 1;
-                let isActive = (pos === currentActiveSlot && !assignments[pos]);
-                let assignedChar = assignments[pos] || '-';
-                return '<div class="position-slot ' + (isActive ? 'active' : '') + '" id="slot-' + pos + '">' +
-                    '<div class="pos-assigned" id="val-' + pos + '">' + assignedChar + '</div>' +
-                    '<img src="' + p.gif + '" class="pos-gif" alt="Position ' + pos + '">' +
-                    '</div>';
-            }).join('');
-        }
-
-        function updateBanner() {
-            let banner = document.getElementById('instructionBanner');
-            if (currentActiveSlot <= 6) {
-                banner.innerText = 'Select Model for Position ' + currentActiveSlot;
-                banner.style.color = "#ff007f";
-                banner.style.borderColor = "#ff007f";
-            } else {
-                banner.innerText = 'All positions filled! Ready to launch sequence.';
-                banner.style.color = "#00ffcc";
-                banner.style.borderColor = "#00ffcc";
-            }
-        }
-
-        function assignCharacter(charName) {
-            if (currentActiveSlot > 6) return;
-            
-            for (let s = 1; s <= 6; s++) {
-                if (assignments[s] === charName) return;
-            }
-
-            playAssignSound();
-            assignments[currentActiveSlot] = charName;
-
-            currentActiveSlot++;
-            while (currentActiveSlot <= 6 && assignments[currentActiveSlot] !== null) {
-                currentActiveSlot++;
-            }
-
-            renderRoster();
-            renderPositions();
-            updateBanner();
-        }
-
-        async function executeSequence() {
-            let filledCount = 0;
-            for (let i = 1; i <= 6; i++) {
-                if (assignments[i] !== null) filledCount++;
-            }
-
-            if (filledCount < 6) {
-                playClickSound();
-                alert("Please assign models to all 6 positions before launching!");
-                return;
-            }
-
-            playLaunchSound();
-
-            if (!hasSubmitted) {
-                hasSubmitted = true;
-                let submissionPayload = {
-                    assignments: assignments,
-                    timestamp: Date.now(),
-                    user: currentUser ? currentUser : { username: "Guest/Anonymous", avatar: "https://cdn.discordapp.com/embed/avatars/0.png" }
-                };
-
-                localStorage.setItem('matrix_completed_state', JSON.stringify({
-                    assignments: assignments,
-                    time: Date.now()
-                }));
-
-                await db.ref('submissions').push(submissionPayload).catch(function(err) { console.error("Error:", err); });
-            }
-
-            renderResultsUI();
-        }
-
-        function renderResultsUI() {
-            let total = 0;
-            let counts = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {} };
-            let recentList = [];
-
-            if (allSubmissionsData) {
-                let subsArray = Object.values(allSubmissionsData);
-                subsArray.forEach(function(sub) {
-                    if (sub.assignments) {
-                        total++;
-                        for (let pos = 1; pos <= 6; pos++) {
-                            let ch = sub.assignments[pos];
-                            if (ch) counts[pos][ch] = (counts[pos][ch] || 0) + 1;
-                        }
-                    }
-                });
-
-                recentList = subsArray.slice(-5).reverse();
-            }
-
-            document.getElementById("globalStatsTitle").innerText = 'REAL COMMUNITY STATISTICS (' + total + ' Total Players):';
-
-            let statsHtml = "";
-            for (let i = 1; i <= 6; i++) {
-                let userChosenChar = assignments[i];
-                let countForThisChar = counts[i][userChosenChar] || 0;
-                let pct = total > 0 ? Math.round((countForThisChar / total) * 100) : 100;
-
-                statsHtml += '<div class="stat-row">' +
-                    '<span>Position ' + i + ': <b>' + userChosenChar + '</b> chosen by <b>' + pct + '%</b> of players (' + countForThisChar + '/' + total + ')</span>' +
-                    '<div class="stat-bar-container"><div class="stat-bar" style="width: ' + pct + '%;"></div></div>' +
-                    '</div>';
-            }
-
-            document.getElementById("stats-list").innerHTML = statsHtml;
-
-            let feedHtml = "";
-            recentList.forEach(function(item) {
-                let username = item.user ? item.user.username : "Guest";
-                let avatar = item.user ? item.user.avatar : "https://cdn.discordapp.com/embed/avatars/0.png";
-                
-                let picksHtml = '';
-                if (item.assignments) {
-                    for (let p = 1; p <= 6; p++) {
-                        let charName = item.assignments[p];
-                        let posObj = TARGET_POSITIONS[p - 1];
-                        
-                        picksHtml += '<div class="mini-pick">' +
-                            '<img src="' + posObj.gif + '" class="mini-gif" title="Position ' + p + '">' +
-                            '<span class="mini-char">' + charName + '</span>' +
-                            '</div>';
-                    }
-                }
-
-                feedHtml += '<div class="feed-item">' +
-                    '<div class="feed-user">' +
-                    '<img src="' + avatar + '" class="feed-avatar">' +
-                    '<span>' + username + '</span>' +
-                    '</div>' +
-                    '<div class="feed-picks">' + picksHtml + '</div>' +
-                    '</div>';
-            });
-
-            document.getElementById("recentFeed").innerHTML = feedHtml;
-            document.getElementById("results-area").style.display = "block";
-        }
-
-        function shareResults() {
-            playClickSound();
-            let playerGreeting = currentUser ? 'Player: ' + currentUser.username + '\n' : "";
-            let text = playerGreeting + 'My Spicy Sequence Matrix:\n';
-            for (let i = 1; i <= 6; i++) {
-                text += "Position " + i + ": " + assignments[i] + "\n";
-            }
-            text += "Play at: https://epspicy.github.io/Goon-games/matrix/";
-            
-            navigator.clipboard.writeText(text).then(function() {
-                let toast = document.getElementById("toast");
-                toast.style.display = "block";
-                setTimeout(function() { toast.style.display = "none"; }, 2500);
-            });
-        }
-
-        function resetSelection() {
-            playClickSound();
-            localStorage.removeItem('matrix_completed_state');
-            assignments = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
-            currentActiveSlot = 1;
-            hasSubmitted = false;
-            
-            document.getElementById("results-area").style.display = "none";
-            renderRoster();
-            renderPositions();
-            updateBanner();
-        }
-
-        initUI();
     </script>
 
 </body>
