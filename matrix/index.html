@@ -42,12 +42,13 @@
             text-decoration: none;
             margin-bottom: 15px;
             text-transform: uppercase;
+            transition: color 0.2s;
         }
         .back-link:hover {
             color: #00ffcc;
         }
 
-        /* Characters Roster (Πάνω) */
+        /* Characters Roster */
         .section-label {
             font-size: 13px;
             color: #00ffcc;
@@ -103,7 +104,7 @@
             pointer-events: none;
         }
 
-        /* Positions Grid (Κάτω) */
+        /* Positions Grid */
         .positions-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -159,12 +160,15 @@
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.2s, transform 0.1s;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
         .action-btn:hover {
             background-color: #e00070;
+        }
+        .action-btn:active {
+            transform: scale(0.98);
         }
 
         .btn-group {
@@ -183,6 +187,7 @@
             cursor: pointer;
             text-transform: uppercase;
             font-size: 12px;
+            transition: all 0.2s;
         }
         .secondary-btn:hover {
             background: #00ffcc;
@@ -229,64 +234,17 @@
 <body>
 
     <div class="container">
-        <a href="../" class="back-link">← Back to Arcade</a>
+        <a href="../" class="back-link" onclick="playClickSound()">← Back to Arcade</a>
         <div class="header-title">Character Matrix</div>
         <div class="subtitle">Epspicy Mini-Games</div>
 
-        <!-- 1. Characters Roster (Πάνω) -->
+        <!-- 1. Characters Roster -->
         <div class="section-label">1. Select Character:</div>
-        <div class="roster-grid">
-            <div class="char-card" id="card-Elena" onclick="selectChar('Elena')">
-                <img src="../PMVheaven THUB.jpg" class="char-img">
-                <div class="char-name">Elena</div>
-            </div>
-            <div class="char-card" id="card-Maria" onclick="selectChar('Maria')">
-                <img src="../PMVheaven THUB.jpg" class="char-img">
-                <div class="char-name">Maria</div>
-            </div>
-            <div class="char-card" id="card-Kostas" onclick="selectChar('Kostas')">
-                <img src="../PMVheaven THUB.jpg" class="char-img">
-                <div class="char-name">Kostas</div>
-            </div>
-            <div class="char-card" id="card-Niki" onclick="selectChar('Niki')">
-                <img src="../PMVheaven THUB.jpg" class="char-img">
-                <div class="char-name">Niki</div>
-            </div>
-            <div class="char-card" id="card-Alex" onclick="selectChar('Alex')">
-                <img src="../PMVheaven THUB.jpg" class="char-img">
-                <div class="char-name">Alex</div>
-            </div>
-        </div>
+        <div class="roster-grid" id="rosterGrid"></div>
 
-        <!-- 2. Target Positions (Κάτω) -->
+        <!-- 2. Target Positions -->
         <div class="section-label">2. Target Positions (Click slot to assign selected character):</div>
-        <div class="positions-grid">
-            <div class="position-slot active" id="slot-1" onclick="assignToSlot(1)">
-                <div class="pos-title">Pos 1</div>
-                <div class="pos-assigned" id="val-1">-</div>
-                <img src="../hey-cat.gif" class="pos-gif" alt="GIF 1">
-            </div>
-            <div class="position-slot" id="slot-2" onclick="assignToSlot(2)">
-                <div class="pos-title">Pos 2</div>
-                <div class="pos-assigned" id="val-2">-</div>
-                <img src="../hug-bros.gif" class="pos-gif" alt="GIF 2">
-            </div>
-            <div class="position-slot" id="slot-3" onclick="assignToSlot(3)">
-                <div class="pos-title">Pos 3</div>
-                <div class="pos-assigned" id="val-3">-</div>
-                <img src="../man-shaking-head-shakes-head.gif" class="pos-gif" alt="GIF 3">
-            </div>
-            <div class="position-slot" id="slot-4" onclick="assignToSlot(4)">
-                <div class="pos-title">Pos 4</div>
-                <div class="pos-assigned" id="val-4">-</div>
-                <img src="../aj-brown-drake-maye-aj-brown.gif" class="pos-gif" alt="GIF 4">
-            </div>
-            <div class="position-slot" id="slot-5" onclick="assignToSlot(5)">
-                <div class="pos-title">Pos 5</div>
-                <div class="pos-assigned" id="val-5">-</div>
-                <img src="../annoyed.gif" class="pos-gif" alt="GIF 5">
-            </div>
-        </div>
+        <div class="positions-grid" id="positionsGrid"></div>
 
         <!-- Confirm Action Button -->
         <button class="action-btn" onclick="executeSequence()">Launch Sequence & Compare</button>
@@ -310,6 +268,78 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
     <script>
+        // =========================================================
+        // ⚙️ CONFIGURATION: ALLAZEIS EDW TYXON NEAS PHOTOS / GIFS
+        // =========================================================
+        const CHARACTERS = [
+            { name: "Elena",  img: "../PMVheaven THUB.jpg" },
+            { name: "Maria",  img: "../PMVheaven THUB.jpg" },
+            { name: "Kostas", img: "../PMVheaven THUB.jpg" },
+            { name: "Niki",   img: "../PMVheaven THUB.jpg" },
+            { name: "Alex",   img: "../PMVheaven THUB.jpg" }
+        ];
+
+        const TARGET_GIFS = [
+            "../hey-cat.gif",
+            "../hug-bros.gif",
+            "../man-shaking-head-shakes-head.gif",
+            "../aj-brown-drake-maye-aj-brown.gif",
+            "../annoyed.gif"
+        ];
+
+        // =========================================================
+        // 🔊 MINIMAL SFX SYNTHESIZER (Web Audio API)
+        // =========================================================
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playClickSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.04);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.04);
+        }
+
+        function playAssignSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.06);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.06);
+        }
+
+        function playLaunchSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(900, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        }
+
+        // =========================================================
+        // 🎮 GAME LOGIC & FIREBASE
+        // =========================================================
         const firebaseConfig = {
             apiKey: "AIzaSyAyT85gjbKMf0RtttyECLHv2hiv1mREJtU",
             authDomain: "epspicygames.firebaseapp.com",
@@ -329,11 +359,35 @@
         let hasSubmitted = false;
         let allSubmissionsData = null;
 
+        // Render UI dynamically from Config
+        function initUI() {
+            const rosterGrid = document.getElementById('rosterGrid');
+            rosterGrid.innerHTML = CHARACTERS.map(c => `
+                <div class="char-card" id="card-${c.name}" onclick="selectChar('${c.name}')">
+                    <img src="${c.img}" class="char-img">
+                    <div class="char-name">${c.name}</div>
+                </div>
+            `).join('');
+
+            const posGrid = document.getElementById('positionsGrid');
+            posGrid.innerHTML = TARGET_GIFS.map((gif, idx) => {
+                const pos = idx + 1;
+                return `
+                    <div class="position-slot ${pos === 1 ? 'active' : ''}" id="slot-${pos}" onclick="assignToSlot(${pos})">
+                        <div class="pos-title">Pos ${pos}</div>
+                        <div class="pos-assigned" id="val-${pos}">-</div>
+                        <img src="${gif}" class="pos-gif" alt="GIF ${pos}">
+                    </div>
+                `;
+            }).join('');
+        }
+
         db.ref('submissions').on('value', (snapshot) => {
             allSubmissionsData = snapshot.val();
         });
 
         function selectChar(charName) {
+            playClickSound();
             for (let s = 1; s <= 5; s++) {
                 if (assignments[s] === charName) {
                     alert(charName + " is already assigned to Position " + s + "!");
@@ -342,7 +396,6 @@
             }
 
             document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
-
             selectedCharName = charName;
             let card = document.getElementById('card-' + charName);
             if (card) card.classList.add('selected');
@@ -350,6 +403,7 @@
 
         function assignToSlot(slotNum) {
             if (selectedCharName) {
+                playAssignSound();
                 let oldChar = assignments[slotNum];
                 if (oldChar) {
                     let oldCard = document.getElementById('card-' + oldChar);
@@ -377,6 +431,7 @@
                     }
                 }
             } else {
+                playClickSound();
                 for (let i = 1; i <= 5; i++) {
                     document.getElementById('slot-' + i).classList.remove('active');
                 }
@@ -391,9 +446,12 @@
             }
 
             if (filledCount < 5) {
+                playClickSound();
                 alert("Please assign characters to all 5 positions before launching!");
                 return;
             }
+
+            playLaunchSound();
 
             if (!hasSubmitted) {
                 hasSubmitted = true;
@@ -404,13 +462,7 @@
             }
 
             let total = 0;
-            let counts = {
-                1: { Elena: 0, Maria: 0, Kostas: 0, Niki: 0, Alex: 0 },
-                2: { Elena: 0, Maria: 0, Kostas: 0, Niki: 0, Alex: 0 },
-                3: { Elena: 0, Maria: 0, Kostas: 0, Niki: 0, Alex: 0 },
-                4: { Elena: 0, Maria: 0, Kostas: 0, Niki: 0, Alex: 0 },
-                5: { Elena: 0, Maria: 0, Kostas: 0, Niki: 0, Alex: 0 }
-            };
+            let counts = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
 
             if (allSubmissionsData) {
                 Object.values(allSubmissionsData).forEach(sub => {
@@ -418,8 +470,8 @@
                         total++;
                         for (let pos = 1; pos <= 5; pos++) {
                             let ch = sub.assignments[pos];
-                            if (ch && counts[pos][ch] !== undefined) {
-                                counts[pos][ch]++;
+                            if (ch) {
+                                counts[pos][ch] = (counts[pos][ch] || 0) + 1;
                             }
                         }
                     }
@@ -445,6 +497,7 @@
         }
 
         function shareResults() {
+            playClickSound();
             let text = "My Epspicy Selection Matrix:\n";
             for (let i = 1; i <= 5; i++) {
                 text += "Pos " + i + ": " + assignments[i] + "\n";
@@ -459,6 +512,7 @@
         }
 
         function resetSelection() {
+            playClickSound();
             assignments = { 1: null, 2: null, 3: null, 4: null, 5: null };
             selectedCharName = null;
             hasSubmitted = false;
@@ -473,6 +527,9 @@
             document.querySelectorAll('.position-slot').forEach(s => s.classList.remove('active'));
             document.getElementById('slot-1').classList.add('active');
         }
+
+        // Initialize on Load
+        initUI();
     </script>
 
 </body>
