@@ -355,7 +355,6 @@
             .mini-char { font-size: 10px; }
         }
     </style>
-    <!-- Φόρτωση του εξωτερικού config.js -->
     <script src="../js/config.js"></script>
 </head>
 <body>
@@ -581,6 +580,7 @@
 
         function renderRoster() {
             const rosterGrid = document.getElementById('rosterGrid');
+            if (!rosterGrid) return;
             rosterGrid.innerHTML = CHARACTERS.map(function(c) {
                 let isUsed = Object.values(assignments).includes(c.name);
                 return '<div class="char-card ' + (isUsed ? 'used' : '') + '" id="card-' + c.name + '" onclick="assignCharacter(\'' + c.name + '\')">' +
@@ -592,6 +592,7 @@
 
         function renderPositions() {
             const posGrid = document.getElementById('positionsGrid');
+            if (!posGrid) return;
             posGrid.innerHTML = TARGET_POSITIONS.map(function(p, idx) {
                 const pos = idx + 1;
                 let isActive = (pos === currentActiveSlot && !assignments[pos]);
@@ -606,6 +607,7 @@
 
         function updateBanner() {
             let banner = document.getElementById('instructionBanner');
+            if (!banner) return;
             if (currentActiveSlot <= 6) {
                 let currentPosName = TARGET_POSITIONS[currentActiveSlot - 1].title;
                 banner.innerText = 'Select Model for ' + currentPosName;
@@ -712,7 +714,10 @@
                 recentList = subsArray.slice(-5).reverse();
             }
 
-            document.getElementById("globalStatsTitle").innerText = 'REAL COMMUNITY STATISTICS (' + total + ' Total Players):';
+            let statsTitleEl = document.getElementById("globalStatsTitle");
+            if (statsTitleEl) {
+                statsTitleEl.innerText = 'REAL COMMUNITY STATISTICS (' + total + ' Total Players):';
+            }
 
             let statsHtml = "";
             for (let i = 1; i <= 6; i++) {
@@ -727,7 +732,8 @@
                     '</div>';
             }
 
-            document.getElementById("stats-list").innerHTML = statsHtml;
+            let statsListEl = document.getElementById("stats-list");
+            if (statsListEl) statsListEl.innerHTML = statsHtml;
 
             let feedHtml = "";
             recentList.forEach(function(item) {
@@ -736,4 +742,68 @@
                 
                 let picksHtml = '';
                 if (item.assignments) {
-                    for (let
+                    for (let p = 1; p <= 6; p++) {
+                        let charName = item.assignments[p];
+                        let posObj = TARGET_POSITIONS[p - 1];
+                        
+                        picksHtml += '<div class="mini-pick">' +
+                            '<img src="' + posObj.gif + '" class="mini-gif" title="' + posObj.title + '">' +
+                            '<span class="mini-char">' + charName + '</span>' +
+                            '</div>';
+                    }
+                }
+
+                feedHtml += '<div class="feed-item">' +
+                    '<div class="feed-user">' +
+                    '<img src="' + avatar + '" class="feed-avatar">' +
+                    '<span>' + username + '</span>' +
+                    '</div>' +
+                    '<div class="feed-picks">' + picksHtml + '</div>' +
+                    '</div>';
+            });
+
+            let recentFeedEl = document.getElementById("recentFeed");
+            if (recentFeedEl) recentFeedEl.innerHTML = feedHtml;
+
+            let resultsAreaEl = document.getElementById("results-area");
+            if (resultsAreaEl) resultsAreaEl.style.display = "block";
+        }
+
+        function shareResults() {
+            playClickSound();
+            let playerGreeting = currentUser ? 'Player: ' + currentUser.username + '\n' : "";
+            let text = playerGreeting + 'My Spicy Sequence Matrix:\n';
+            for (let i = 1; i <= 6; i++) {
+                let posTitle = TARGET_POSITIONS[i - 1].title;
+                text += posTitle + ": " + assignments[i] + "\n";
+            }
+            text += "Play at: https://epspicy.github.io/Goon-games/matrix/";
+            
+            navigator.clipboard.writeText(text).then(function() {
+                let toast = document.getElementById("toast");
+                if (toast) {
+                    toast.style.display = "block";
+                    setTimeout(function() { toast.style.display = "none"; }, 2500);
+                }
+            });
+        }
+
+        function resetSelection() {
+            playClickSound();
+            localStorage.removeItem('matrix_completed_state');
+            assignments = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
+            currentActiveSlot = 1;
+            hasSubmitted = false;
+            
+            let resultsAreaEl = document.getElementById("results-area");
+            if (resultsAreaEl) resultsAreaEl.style.display = "none";
+            renderRoster();
+            renderPositions();
+            updateBanner();
+        }
+
+        initUI();
+    </script>
+
+</body>
+</html>
