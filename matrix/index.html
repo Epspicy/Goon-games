@@ -265,7 +265,7 @@
             transition: width 0.4s ease;
         }
 
-        /* Recent Activity Stream with Visual Mini-Avatars */
+        /* Recent Activity Stream with Position GIFs */
         .activity-feed {
             margin-top: 25px;
             padding-top: 20px;
@@ -276,9 +276,9 @@
             align-items: center;
             justify-content: space-between;
             background: #1a1a24;
-            padding: 10px 14px;
-            border-radius: 8px;
-            margin-bottom: 10px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 12px;
             border: 1px solid #2a2a3a;
             font-size: 13px;
         }
@@ -288,34 +288,40 @@
             gap: 10px;
             font-weight: bold;
             color: #00ffcc;
-            min-width: 150px;
+            min-width: 140px;
         }
         .feed-avatar {
-            width: 26px;
-            height: 26px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
         }
         .feed-picks {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             align-items: center;
+            flex-wrap: wrap;
         }
         .mini-pick {
             display: flex;
             flex-direction: column;
             align-items: center;
+            background: #121218;
+            padding: 4px;
+            border-radius: 6px;
+            border: 1px solid #2a2a3a;
         }
-        .mini-img {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+        .mini-gif {
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
             object-fit: cover;
             border: 1px solid #00ffcc;
         }
-        .mini-name {
-            font-size: 9px;
-            color: #8888a0;
-            margin-top: 2px;
+        .mini-char {
+            font-size: 10px;
+            color: #ff007f;
+            font-weight: bold;
+            margin-top: 3px;
         }
 
         #toast {
@@ -333,7 +339,7 @@
             .positions-grid { grid-template-columns: repeat(3, 1fr); }
             .char-img { width: 60px; height: 60px; }
             .pos-gif { width: 70px; height: 70px; }
-            .feed-item { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .feed-item { flex-direction: column; align-items: flex-start; gap: 10px; }
         }
     </style>
 </head>
@@ -364,7 +370,7 @@
             <div class="section-label" style="margin-bottom: 15px; color: #00ffcc;" id="globalStatsTitle">REAL COMMUNITY STATISTICS:</div>
             <div id="stats-list"></div>
 
-            <!-- Recent Discord Players Feed with Images -->
+            <!-- Recent Discord Players Feed with Target Position GIFs -->
             <div class="activity-feed">
                 <div class="section-label" style="color: #ff007f; margin-bottom: 12px;">RECENT DISCORD PLAYERS:</div>
                 <div id="recentFeed"></div>
@@ -665,13 +671,12 @@
                 if (item.assignments) {
                     for (let p = 1; p <= 6; p++) {
                         let charName = item.assignments[p];
-                        let charObj = CHARACTERS.find(c => c.name === charName);
-                        let charImg = charObj ? charObj.img : '../PMVheaven THUB.jpg';
+                        let posGif = TARGET_GIFS[p - 1]; // To GIF ths thesis
                         
                         picksHtml += `
                             <div class="mini-pick">
-                                <img src="${charImg}" class="mini-img" title="${charName}">
-                                <span class="mini-name">${charName}</span>
+                                <img src="${posGif}" class="mini-gif" title="Position ${p}">
+                                <span class="mini-char">${charName}</span>
                             </div>
                         `;
                     }
