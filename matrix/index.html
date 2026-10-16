@@ -342,6 +342,8 @@
             .mini-char { font-size: 10px; }
         }
     </style>
+    <!-- Φόρτωση του εξωτερικού config.js -->
+    <script src="../js/config.js"></script>
 </head>
 <body>
 
@@ -388,89 +390,59 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
     <script>
-        if (!window.location.search.includes('session')) {
-            const randomSession = Math.floor(1000 + Math.random() * 9000);
-            const newUrl = window.location.pathname + '?session=' + randomSession + '&room=matrix-01';
-            window.history.replaceState({}, '', newUrl);
+        // Έλεγχος αν υπάρχει επιστροφή token ΠΡΙΝ πειράξουμε το URL
+        if (!window.location.hash.includes('access_token')) {
+            if (!window.location.search.includes('session')) {
+                const randomSession = Math.floor(1000 + Math.random() * 9000);
+                const newUrl = window.location.pathname + '?session=' + randomSession + '&room=matrix-01';
+                window.history.replaceState({}, '', newUrl);
+            }
         }
-
-        const DISCORD_CLIENT_ID = "1560589530136838194";
-        const REDIRECT_URI = "https://epspicy.github.io/Goon-games/matrix/";
-        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1560690246893568180/RdJzCmVN_6M34J8wgQAHNlAfEpgCdKxSSp4HkHR7kumWcyvaz46YrRMpV2brDatKwGDi";
 
         let currentUser = null;
 
-        // --- NEW POPUP OAUTH2 LOGIN SYSTEM ---
         function loginWithDiscord() {
-            const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
+            const config = window.ARCADE_CONFIG || {};
+            const clientId = config.discordClientId || "1560589530136838194";
+            const redirectUri = "https://epspicy.github.io/Goon-games/matrix/";
             
-            const width = 500, height = 700;
-            const left = (window.innerWidth - width) / 2;
-            const top = (window.innerHeight - height) / 2;
-            
-            const authWindow = window.open(discordUrl, 'DiscordLogin', `width=${width},height=${height},top=${top},left=${left}`);
-
-            const checkInterval = setInterval(() => {
-                try {
-                    if (authWindow.closed) {
-                        clearInterval(checkInterval);
-                        checkStoredUser();
-                    }
-                    else if (authWindow.location.href.includes('access_token')) {
-                        const hash = authWindow.location.hash.substring(1);
-                        const params = new URLSearchParams(hash);
-                        const accessToken = params.get('access_token');
-                        
-                        if (accessToken) {
-                            authWindow.close();
-                            clearInterval(checkInterval);
-                            fetchDiscordUser(accessToken);
-                        }
-                    }
-                } catch (e) {
-                    // Cross-origin check bypass during redirection
-                }
-            }, 500);
+            const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=identify`;
+            window.location.href = discordUrl;
         }
 
-        function fetchDiscordUser(accessToken) {
-            fetch('https://discord.com/api/users/@me', {
-                headers: { authorization: `Bearer ${accessToken}` }
-            })
-            .then(res => res.json())
-            .then(user => {
-                if (user && user.id) {
-                    const userData = {
-                        id: user.id,
-                        username: user.global_name || user.username,
-                        avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png'
-                    };
-                    localStorage.setItem('discord_user', JSON.stringify(userData));
-                    currentUser = userData;
-                    renderUserProfile(userData);
-                }
-            })
-            .catch(err => console.error("Auth Error:", err));
-        }
-
-        function checkStoredUser() {
+        function checkDiscordAuth() {
             let savedUser = localStorage.getItem('discord_user');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
                 renderUserProfile(currentUser);
-            }
-        }
-
-        function checkDiscordAuth() {
-            // Check direct redirect fragment if popup was somehow bypassed
-            const fragment = new URLSearchParams(window.location.hash.slice(1));
-            const accessToken = fragment.get('access_token');
-            if (accessToken) {
-                window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-                fetchDiscordUser(accessToken);
                 return;
             }
-            checkStoredUser();
+
+            const fragment = new URLSearchParams(window.location.hash.slice(1));
+            const accessToken = fragment.get('access_token');
+
+            if (accessToken) {
+                // Καθαρισμός του hash από τη διεύθυνση με ασφάλεια
+                window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+                
+                fetch('https://discord.com/api/users/@me', {
+                    headers: { authorization: `Bearer ${accessToken}` }
+                })
+                .then(res => res.json())
+                .then(user => {
+                    if (user && user.id) {
+                        const userData = {
+                            id: user.id,
+                            username: user.global_name || user.username,
+                            avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png'
+                        };
+                        localStorage.setItem('discord_user', JSON.stringify(userData));
+                        currentUser = userData;
+                        renderUserProfile(userData);
+                    }
+                })
+                .catch(err => console.error("Auth Error:", err));
+            }
         }
 
         function renderUserProfile(user) {
@@ -694,11 +666,15 @@
                 content: resultsText
             };
 
-            fetch(DISCORD_WEBHOOK_URL, {
+            // Χρήση του Cloudflare Worker URL από το config.js (αποφυγή CORS errors)
+            const config = window.ARCADE_CONFIG || {};
+            const scoreApiUrl = config.scoreApiUrl || "https://dawn-tree-7636.kostasdown.workers.dev";
+
+            fetch(scoreApiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(discordPayload)
-            }).catch(err => console.error("Discord Webhook Error:", err));
+            }).catch(err => console.error("Score Worker Error:", err));
 
             renderResultsUI();
         }
