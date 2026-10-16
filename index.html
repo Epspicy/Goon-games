@@ -217,6 +217,13 @@
     </div>
 
     <script>
+        // Clean URL feature for main hub: Initialize arcade session ID numbers automatically
+        if (!window.location.search.includes('session')) {
+            const randomSession = Math.floor(1000 + Math.random() * 9000);
+            const newUrl = window.location.pathname + '?session=' + randomSession + '&hub=arcade';
+            window.history.replaceState({}, '', newUrl);
+        }
+
         const DISCORD_CLIENT_ID = "1560589530136838194";
         const REDIRECT_URI = "https://epspicy.github.io/Goon-games/";
 
