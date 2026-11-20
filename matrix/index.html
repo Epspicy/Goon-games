@@ -549,6 +549,24 @@
         let hasSubmitted = false;
         let allSubmissionsData = null;
 
+        function setLaunchBtnSubmitted() {
+            const launchBtn = document.getElementById('launchBtn');
+            if (!launchBtn) return;
+            launchBtn.disabled = true;
+            launchBtn.innerText = 'SEQUENCE LAUNCHED ✓';
+            launchBtn.style.opacity = '0.6';
+            launchBtn.style.cursor = 'not-allowed';
+        }
+
+        function setLaunchBtnReady() {
+            const launchBtn = document.getElementById('launchBtn');
+            if (!launchBtn) return;
+            launchBtn.disabled = false;
+            launchBtn.innerText = 'Launch Sequence & Compare';
+            launchBtn.style.opacity = '1';
+            launchBtn.style.cursor = 'pointer';
+        }
+
         function initUI() {
             checkDiscordAuth();
             
@@ -562,6 +580,7 @@
                     assignments = parsedState.assignments;
                     hasSubmitted = true;
                     currentActiveSlot = 7;
+                    setLaunchBtnSubmitted();
                 } else {
                     localStorage.removeItem('matrix_completed_state');
                 }
@@ -639,6 +658,12 @@
         }
 
         async function executeSequence() {
+            if (hasSubmitted) {
+                setLaunchBtnSubmitted();
+                renderResultsUI();
+                return;
+            }
+
             let filledCount = 0;
             for (let i = 1; i <= 6; i++) {
                 if (assignments[i] !== null) filledCount++;
@@ -650,25 +675,23 @@
                 return;
             }
 
+            hasSubmitted = true;
+            setLaunchBtnSubmitted();
             playLaunchSound();
 
             let playerName = currentUser ? currentUser.username : "Guest/Anonymous";
+            let submissionPayload = {
+                assignments: assignments,
+                timestamp: Date.now(),
+                user: currentUser ? currentUser : { username: "Guest/Anonymous", avatar: "https://cdn.discordapp.com/embed/avatars/0.png" }
+            };
 
-            if (!hasSubmitted) {
-                hasSubmitted = true;
-                let submissionPayload = {
-                    assignments: assignments,
-                    timestamp: Date.now(),
-                    user: currentUser ? currentUser : { username: "Guest/Anonymous", avatar: "https://cdn.discordapp.com/embed/avatars/0.png" }
-                };
+            localStorage.setItem('matrix_completed_state', JSON.stringify({
+                assignments: assignments,
+                time: Date.now()
+            }));
 
-                localStorage.setItem('matrix_completed_state', JSON.stringify({
-                    assignments: assignments,
-                    time: Date.now()
-                }));
-
-                await db.ref('submissions').push(submissionPayload).catch(function(err) { console.error("Error:", err); });
-            }
+            await db.ref('submissions').push(submissionPayload).catch(function(err) { console.error("Error:", err); });
 
             let resultsText = `🎮 **New Spicy Sequence Results from ${playerName}!**\n`;
             for (let i = 1; i <= 6; i++) {
@@ -783,6 +806,7 @@
             assignments = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
             currentActiveSlot = 1;
             hasSubmitted = false;
+            setLaunchBtnReady();
             
             document.getElementById("results-area").style.display = "none";
             renderRoster();
