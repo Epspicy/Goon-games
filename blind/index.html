@@ -121,6 +121,10 @@
             margin: 0 auto 10px;
         }
         .current-name { font-size: 20px; font-weight: bold; color: #ffffff; }
+        .ph { display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #160828; border: 2px solid #19f0d4; flex-shrink: 0; }
+        .current-ph { width: 170px; height: 170px; font-size: 70px; margin: 0 auto 10px; border-width: 3px; }
+        .slot-ph { width: 56px; height: 56px; font-size: 26px; }
+        .result-ph { width: 52px; height: 52px; font-size: 24px; }
         .slots-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -157,7 +161,7 @@
             object-fit: cover;
             border: 2px solid #19f0d4;
         }
-        .slot-name { font-size: 12px; font-weight: bold; color: #19f0d4; }
+        .slot-name { font-size: 12px; font-weight: bold; color: #19f0d4; text-align: center; }
         .slot-empty { font-size: 12px; color: #a995c9; }
         .action-btn {
             background-color: #ff2e93;
@@ -325,6 +329,7 @@
             .container { padding: 15px; }
             .slots-grid { grid-template-columns: repeat(3, 1fr); }
             .current-img { width: 130px; height: 130px; }
+            .current-ph { width: 130px; height: 130px; font-size: 54px; }
             .slot { min-height: 105px; }
             .result-img { width: 42px; height: 42px; }
             .result-rank { min-width: 34px; font-size: 18px; }
@@ -348,7 +353,7 @@
 
             <div id="currentArea"></div>
 
-            <div class="section-label">Click a spot to lock this model in:</div>
+            <div class="section-label">Click a spot to lock this moment in:</div>
             <div class="slots-grid" id="slotsGrid"></div>
         </div>
 
@@ -397,18 +402,18 @@
         const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1561290613020819539/5l4Hf_PP6CeoYO6s3sz863Xr9nyDmckTA5rWkcV7KZuazdvPKMFrkKJQ3kV_CCXBJpcS";
 
         // ============================================================
-        // MODELS POOL
-        // Add more models here (up to 10 or more). The number of slots
-        // is automatic: min(10, number of models in this list).
-        // img = path to the picture file (same style as the matrix game)
+        // MOMENTS LIST
+        // To add a new moment just add a new line below.
+        // img is OPTIONAL: use "" for no picture (a 🔥 icon shows instead),
+        // or a file name like "../mypic.gif" to show a picture/gif.
+        // The number of slots is automatic: min(10, number of moments).
         // ============================================================
         const CHARACTERS = [
-            { name: "Rissa May",        img: "../rissa may.png" },
-            { name: "Scarlett Alexis", img: "../scarlett alexis.png" },
-            { name: "Aria Lee",         img: "../aria lee.png" },
-            { name: "Eliza Ibarra",     img: "../eliza ibarra.png" },
-            { name: "Jewelz Blu",       img: "../jewelz blu.png" },
-            { name: "Liz Jordan",       img: "../liz jordan.png" }
+            { name: "PX Ass Walking",              img: "" },
+            { name: "Cum on Multiple Faces",       img: "" },
+            { name: "Cum Inside Mouth",            img: "" },
+            { name: "Gape View",                   img: "" },
+            { name: "Oral with Multiple Faces",    img: "" }
         ];
 
         const MAX_SLOTS = 10;
@@ -418,6 +423,11 @@
             return String(t == null ? '' : t).replace(/[&<>"']/g, function(c) {
                 return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
             });
+        }
+
+        function pic(m, kind) {
+            if (m && m.img) return '<img src="' + esc(m.img) + '" class="' + kind + '-img" alt="">';
+            return '<div class="ph ' + kind + '-ph">🔥</div>';
         }
 
         // ---------- Username ----------
@@ -541,10 +551,10 @@
             const currentArea = document.getElementById('currentArea');
 
             if (cur) {
-                banner.textContent = 'Model ' + (queueIndex + 1) + ' of ' + TOTAL + ' - pick a spot (1-' + TOTAL + ')';
+                banner.textContent = 'Moment ' + (queueIndex + 1) + ' of ' + TOTAL + ' - pick a spot (1-' + TOTAL + ')';
                 currentArea.innerHTML =
                     '<div class="current-card">' +
-                    '<img src="' + esc(cur.img) + '" class="current-img" alt="">' +
+                    pic(cur, 'current') +
                     '<div class="current-name">' + esc(cur.name) + '</div>' +
                     '</div>';
             }
@@ -556,7 +566,7 @@
                     const m = findModel(taken);
                     html += '<div class="slot locked">' +
                         '<div class="slot-num">#' + s + '</div>' +
-                        (m ? '<img src="' + esc(m.img) + '" class="slot-img" alt="">' : '') +
+                        pic(m, 'slot') +
                         '<div class="slot-name">' + esc(taken) + '</div>' +
                         '</div>';
                 } else {
@@ -611,7 +621,7 @@
             }
 
             // 2) Save for the community stats
-            localStorage.setItem('blind_completed_state', JSON.stringify({
+            localStorage.setItem('moments_completed_state', JSON.stringify({
                 ranking: ranking,
                 time: Date.now()
             }));
@@ -622,7 +632,7 @@
                 timestamp: Date.now(),
                 user: currentUser ? currentUser : { username: "Guest/Anonymous", avatar: "https://cdn.discordapp.com/embed/avatars/0.png" }
             };
-            await db.ref('blind_submissions').push(payload).catch(function(err) { console.error("Error:", err); });
+            await db.ref('moments_submissions').push(payload).catch(function(err) { console.error("Error:", err); });
 
             renderResultsUI();
         }
@@ -678,7 +688,7 @@
                     const firstPct = Math.round((st.first / st.count) * 100);
                     pctSame = Math.round(((st.slots[i] || 0) / st.count) * 100);
                     line1 = 'Community average: <b>#' + avg.toFixed(1) + '</b> &bull; Top 3: <b>' + top3pct + '%</b> &bull; At #1: <b>' + firstPct + '%</b><br>' +
-                        '<b>' + pctSame + '%</b> of players also put her at #' + i + ' (' + (st.slots[i] || 0) + '/' + st.count + ')';
+                        '<b>' + pctSame + '%</b> of players also put it at #' + i + ' (' + (st.slots[i] || 0) + '/' + st.count + ')';
                     if (TOTAL > 1) {
                         syncSum += 1 - Math.abs(i - avg) / (TOTAL - 1);
                         syncCount++;
@@ -689,7 +699,7 @@
 
                 rowsHtml += '<div class="result-row">' +
                     '<div class="result-rank">#' + i + '</div>' +
-                    (m ? '<img src="' + esc(m.img) + '" class="result-img" alt="">' : '') +
+                    pic(m, 'result') +
                     '<div class="result-info">' +
                     '<div class="result-name">' + esc(name) + '</div>' +
                     '<div class="result-stats">' + line1 + '</div>' +
@@ -745,7 +755,7 @@
 
         function resetGame() {
             playClickSound();
-            localStorage.removeItem('blind_completed_state');
+            localStorage.removeItem('moments_completed_state');
             startRound();
         }
 
@@ -755,7 +765,7 @@
 
             const expirationLimitMs = currentUser ? (365 * 24 * 60 * 60 * 1000) : (60 * 60 * 1000);
             let restored = false;
-            const saved = localStorage.getItem('blind_completed_state');
+            const saved = localStorage.getItem('moments_completed_state');
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
@@ -764,16 +774,16 @@
                         finished = true;
                         restored = true;
                     } else {
-                        localStorage.removeItem('blind_completed_state');
+                        localStorage.removeItem('moments_completed_state');
                     }
                 } catch (e) {
-                    localStorage.removeItem('blind_completed_state');
+                    localStorage.removeItem('moments_completed_state');
                 }
             }
 
             if (!restored) startRound();
 
-            db.ref('blind_submissions').on('value', function(snapshot) {
+            db.ref('moments_submissions').on('value', function(snapshot) {
                 allSubmissionsData = snapshot.val();
                 if (finished) renderResultsUI();
             });
