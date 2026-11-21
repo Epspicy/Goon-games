@@ -1,873 +1,310 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spicy Sequence Matrix - Epspicy Arcade</title>
-    <!-- Custom Favicon -->
-    <link rel="icon" type="image/png" href="../logo.png">
-    <style>
-        body {
-            background: radial-gradient(ellipse at 50% 0%, #3a0f66 0%, #12061f 60%) fixed;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 15px;
-        }
-        .container {
-            max-width: 980px;
-            margin: 20px auto;
-            background: #1c0b30;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
-            box-sizing: border-box;
-            border: 2px solid #3a2a65;
-        }
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .back-link {
-            color: #a995c9;
-            font-size: 14px;
-            text-decoration: none;
-            text-transform: uppercase;
-            transition: color 0.2s;
-            font-weight: bold;
-        }
-        .back-link:hover {
-            color: #19f0d4;
-        }
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #160828;
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid #7b4dff;
-        }
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-        }
-        .user-name {
-            font-size: 14px;
-            color: #ffffff;
-            font-weight: bold;
-        }
-        .discord-btn {
-            background-color: #7b4dff;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.2s;
-            text-decoration: none;
-        }
-        .discord-btn:hover {
-            background-color: #6a3de8;
-        }
-        .header-title {
-            color: #19f0d4;
-            font-size: 30px;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: bold;
-        }
-        .instruction-banner {
-            background: #160828;
-            border: 1px solid #ff2e93;
-            color: #ff2e93;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            box-shadow: 0 0 10px rgba(255,46,147,0.2);
-        }
-        .section-label {
-            font-size: 15px;
-            color: #19f0d4;
-            text-align: left;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-        .roster-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 12px;
-            margin-bottom: 30px;
-        }
-        .char-card {
-            background: #160828;
-            border: 2px solid #3a2a65;
-            border-radius: 12px;
-            padding: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-            user-select: none;
-        }
-        .char-card:hover:not(.used) {
-            border-color: #19f0d4;
-            transform: translateY(-4px);
-            box-shadow: 0 0 15px rgba(25,240,212,0.3);
-        }
-        .char-card.used {
-            opacity: 0.25;
-            cursor: not-allowed;
-            filter: grayscale(100%);
-            border-color: #1c0b30;
-        }
-        .char-img {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #19f0d4;
-            margin-bottom: 8px;
-            pointer-events: none;
-        }
-        .char-name {
-            font-size: 13px;
-            color: #ffffff;
-            font-weight: bold;
-            pointer-events: none;
-        }
-        .positions-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 12px;
-            margin-bottom: 30px;
-        }
-        .position-slot {
-            background: #160828;
-            border: 2px solid #3a2a65;
-            border-radius: 12px;
-            padding: 10px 8px;
-            transition: all 0.2s;
-            user-select: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .position-slot.active {
-            border-color: #ff2e93;
-            background: #3a1040;
-            box-shadow: 0 0 20px rgba(255,46,147,0.6);
-            transform: scale(1.03);
-        }
-        .pos-assigned {
-            font-size: 13px;
-            color: #19f0d4;
-            font-weight: bold;
-            margin-bottom: 8px;
-            min-height: 18px;
-            pointer-events: none;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
-        }
-        .pos-gif {
-            width: 105px;
-            height: 105px;
-            border-radius: 10px;
-            object-fit: cover;
-            border: 2px solid #19f0d4;
-            pointer-events: none;
-        }
-        .action-btn {
-            background-color: #ff2e93;
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 16px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            box-shadow: 0 4px 15px rgba(255,46,147,0.4);
-        }
-        .action-btn:hover {
-            background-color: #e0267f;
-        }
-        .action-btn:active {
-            transform: scale(0.98);
-        }
-        .btn-group {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
-        .secondary-btn {
-            flex: 1;
-            background: #3a2a65;
-            color: #19f0d4;
-            border: 1px solid #19f0d4;
-            padding: 14px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        .secondary-btn:hover {
-            background: #19f0d4;
-            color: #12061f;
-        }
-        #results-area {
-            margin-top: 30px;
-            display: none;
-            background: #160828;
-            border: 1px solid #3a2a65;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: left;
-        }
-        .stat-row {
-            margin-bottom: 15px;
-            font-size: 15px;
-        }
-        .stat-bar-container {
-            background: #3a2a65;
-            border-radius: 6px;
-            height: 12px;
-            width: 100%;
-            margin-top: 6px;
-            overflow: hidden;
-        }
-        .stat-bar {
-            background: #ff2e93;
-            height: 100%;
-            border-radius: 6px;
-            transition: width 0.4s ease;
-        }
-        .activity-feed {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid #3a2a65;
-        }
-        .feed-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #1c0b30;
-            padding: 14px 16px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            border: 1px solid #3a2a65;
-            font-size: 14px;
-        }
-        .feed-user {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: bold;
-            color: #19f0d4;
-            font-size: 15px;
-            min-width: 160px;
-        }
-        .feed-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 1px solid #7b4dff;
-        }
-        .feed-picks {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .mini-pick {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: #160828;
-            padding: 6px 8px;
-            border-radius: 8px;
-            border: 1px solid #3a2a65;
-        }
-        .mini-gif {
-            width: 58px;
-            height: 58px;
-            border-radius: 6px;
-            object-fit: cover;
-            border: 2px solid #19f0d4;
-        }
-        .mini-char {
-            font-size: 12px;
-            color: #ff2e93;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-        #toast {
-            display: none;
-            color: #ffd23f;
-            font-size: 14px;
-            margin-top: 10px;
-            text-align: center;
-            font-weight: bold;
-        }
-        .logout-btn {
-            background: transparent;
-            border: none;
-            color: #a995c9;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 0 2px;
-            line-height: 1;
-        }
-        .logout-btn:hover { color: #ff2e93; }
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.8);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 15px;
-        }
-        .modal-box {
-            background: #1c0b30;
-            border: 2px solid #19f0d4;
-            border-radius: 14px;
-            padding: 25px 20px;
-            max-width: 360px;
-            width: 100%;
-            box-shadow: 0 0 25px rgba(25,240,212,0.25);
-        }
-        .modal-title { color: #19f0d4; font-size: 18px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; }
-        .modal-desc { color: #a995c9; font-size: 13px; margin-bottom: 16px; }
-        .modal-input {
-            width: 100%;
-            box-sizing: border-box;
-            background: #160828;
-            border: 1px solid #3a2a65;
-            color: #ffffff;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 15px;
-            margin-bottom: 16px;
-            outline: none;
-            text-align: center;
-        }
-        .modal-input:focus { border-color: #ff2e93; }
-        .modal-actions { display: flex; gap: 10px; }
-        .modal-save { flex: 1; background: #ff2e93; color: #fff; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        .modal-cancel { flex: 1; background: #3a2a65; color: #a995c9; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        .action-btn:disabled {
-            background-color: #3a2a65;
-            color: #a995c9;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
-        @media (max-width: 800px) {
-            body { padding: 5px; }
-            .container { padding: 15px; }
-            .roster-grid { grid-template-columns: repeat(3, 1fr); }
-            .positions-grid { grid-template-columns: repeat(3, 1fr); }
-            .char-img { width: 65px; height: 65px; }
-            .pos-gif { width: 75px; height: 75px; }
-            .feed-item { flex-direction: column; align-items: flex-start; gap: 12px; }
-            .feed-picks { width: 100%; justify-content: space-between; }
-            .mini-gif { width: 46px; height: 46px; }
-            .mini-char { font-size: 10px; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Epspicy Mini Games Arcade</title>
+<link rel="icon" type="image/png" href="./logo.png">
+<style>
+:root{
+  --bg:#12061f; --panel:#1c0b30; --pink:#ff2e93; --cyan:#19f0d4; --yellow:#ffd23f; --violet:#7b4dff; --text:#fff; --muted:#a995c9;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  background:radial-gradient(ellipse at 50% 0%,#3a0f66 0%,var(--bg) 60%);
+  color:var(--text);
+  font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  min-height:100vh; overflow-x:hidden; position:relative;
+}
+/* 3D retro grid floor */
+.floor{position:fixed;left:-50%;right:-50%;bottom:0;height:55vh;z-index:0;pointer-events:none;
+  background:
+   linear-gradient(var(--pink) 1px,transparent 1px) 0 0/80px 80px,
+   linear-gradient(90deg,var(--pink) 1px,transparent 1px) 0 0/80px 80px;
+  opacity:.28; transform:perspective(420px) rotateX(62deg); transform-origin:bottom;
+  animation:grid 2.4s linear infinite;
+  -webkit-mask-image:linear-gradient(to top,#000 20%,transparent 95%);mask-image:linear-gradient(to top,#000 20%,transparent 95%);
+}
+@keyframes grid{to{background-position:0 80px,0 0}}
+.blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.35;z-index:0;pointer-events:none;animation:drift 14s ease-in-out infinite alternate}
+.b1{width:420px;height:420px;background:var(--pink);top:-120px;left:-100px}
+.b2{width:380px;height:380px;background:var(--cyan);top:30%;right:-120px;animation-delay:-5s}
+.b3{width:340px;height:340px;background:var(--violet);bottom:-100px;left:25%;animation-delay:-9s}
+@keyframes drift{to{transform:translate(60px,40px) scale(1.15)}}
+.spark{position:fixed;z-index:0;pointer-events:none;opacity:.7;animation:rise linear infinite}
+@keyframes rise{from{transform:translateY(105vh) rotate(0)}to{transform:translateY(-15vh) rotate(360deg)}}
+
+.page{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:22px 16px 60px}
+.top-bar{display:flex;justify-content:flex-end;align-items:center;gap:10px;min-height:46px}
+
+/* 3D pressable buttons */
+.btn{
+  --c:var(--pink); --d:#a8005f;
+  border:0;border-radius:12px;padding:11px 20px;font:inherit;font-weight:900;letter-spacing:.5px;
+  color:#fff;background:var(--c);cursor:pointer;text-decoration:none;display:inline-block;
+  box-shadow:0 6px 0 var(--d),0 10px 18px rgba(0,0,0,.45);
+  transition:transform .08s,box-shadow .08s,filter .15s;position:relative;top:0;
+}
+.btn:hover{filter:brightness(1.12);transform:translateY(-2px)}
+.btn:active{transform:translateY(5px);box-shadow:0 1px 0 var(--d),0 3px 6px rgba(0,0,0,.45)}
+.btn.cyan{--c:var(--cyan);--d:#0a9a86;color:#06231f}
+.btn.violet{--c:var(--violet);--d:#4a2bb8}
+.btn.grey{--c:#3a2a55;--d:#241638;color:var(--muted)}
+.btn:focus-visible,.card:focus-visible,.modal-input:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
+.mute{padding:9px 13px}
+.btn.mute{--c:#2a1448;--d:#0a9a86;color:#fff;border:2px solid var(--cyan);font-size:18px;line-height:1}
+
+.user-profile{display:flex;align-items:center;gap:10px;background:var(--panel);padding:6px 8px 6px 6px;border-radius:30px;
+  border:2px solid var(--cyan);box-shadow:0 0 18px rgba(25,240,212,.35)}
+.user-avatar{width:32px;height:32px;border-radius:50%;border:2px solid var(--pink)}
+.user-name{font-weight:900;font-size:14px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.logout-btn{background:var(--pink);color:#fff;border:0;border-radius:50%;width:24px;height:24px;font-weight:900;cursor:pointer;line-height:1}
+.logout-btn:hover{filter:brightness(1.2)}
+
+/* Title: static, bold, layered 3D */
+.hero{text-align:center;margin:26px 0 44px}
+.title{
+  position:relative;display:inline-block;margin:0;padding:0 14px 14px 0;
+  font-family:Impact,"Arial Black","Segoe UI Black",sans-serif;font-weight:900;text-transform:uppercase;
+  font-size:clamp(46px,11vw,112px);line-height:.95;letter-spacing:3px;
+}
+.title::before{
+  content:attr(data-text);position:absolute;left:0;top:0;padding:0 14px 14px 0;z-index:0;color:#5a0a45;
+  -webkit-text-stroke:10px #3a0630;
+  text-shadow:2px 2px 0 #7a0e5c,4px 4px 0 #7a0e5c,6px 6px 0 #5a0a45,8px 8px 0 #5a0a45,10px 10px 0 #3a0630,12px 12px 0 #3a0630,0 0 50px rgba(255,46,147,.8),0 0 90px rgba(123,77,255,.5);
+}
+.title .face{
+  position:relative;z-index:1;display:block;
+  background:linear-gradient(180deg,#fff7a8 0%,var(--yellow) 28%,var(--pink) 62%,var(--violet) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+  -webkit-text-stroke:3px #fff;paint-order:stroke fill;
+}
+.sub{display:inline-block;margin:26px 0 0;padding:10px 20px;border-radius:30px;background:rgba(18,6,31,.78);border:2px solid var(--cyan);color:#fff;font-weight:700;font-size:15px;line-height:1.4;box-shadow:0 0 18px rgba(25,240,212,.35)}
+
+/* Cards */
+.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:26px}
+.card{
+  --c:var(--cyan); --rx:0deg; --ry:0deg; --gx:50%; --gy:50%;
+  position:relative;border-radius:20px;padding:28px 20px 24px;text-align:center;
+  background:linear-gradient(160deg,#2b1250,var(--panel));
+  border:3px solid var(--c);
+  box-shadow:0 0 0 1px rgba(255,255,255,.06) inset,0 18px 40px rgba(0,0,0,.55),0 0 28px color-mix(in srgb,var(--c) 45%,transparent);
+  transform:perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style:preserve-3d;transition:transform .18s ease-out,box-shadow .2s;will-change:transform;
+  display:flex;flex-direction:column;align-items:center;
+}
+.card::after{content:"";position:absolute;inset:0;border-radius:17px;pointer-events:none;opacity:0;transition:opacity .2s;
+  background:radial-gradient(circle at var(--gx) var(--gy),rgba(255,255,255,.28),transparent 55%)}
+.card:hover::after{opacity:1}
+.card.pink{--c:var(--pink)} .card.yellow{--c:var(--yellow)} .card.locked{--c:#6b5a8c;filter:saturate(.5)}
+.icon{font-size:62px;line-height:1;margin-bottom:12px;transform:translateZ(60px);filter:drop-shadow(0 12px 8px rgba(0,0,0,.5));animation:bob 2.6s ease-in-out infinite}
+.card:nth-child(2) .icon{animation-delay:-.9s}.card:nth-child(3) .icon{animation-delay:-1.7s}
+@keyframes bob{50%{margin-top:-8px;margin-bottom:20px}}
+.gtitle{font-size:21px;font-weight:900;margin:0 0 10px;transform:translateZ(38px);text-shadow:2px 2px 0 rgba(0,0,0,.5)}
+.gdesc{color:var(--muted);font-size:14px;line-height:1.45;margin:0 0 22px;transform:translateZ(22px)}
+.card .btn{transform:translateZ(45px);margin-top:auto}
+.card .btn:hover{transform:translateZ(45px) translateY(-2px)}
+.card .btn:active{transform:translateZ(45px) translateY(5px)}
+.card .btn.grey{cursor:not-allowed}
+.badge{position:absolute;top:-12px;right:-8px;background:var(--yellow);color:#2a1a00;font-weight:900;font-size:12px;
+  padding:5px 10px;border-radius:20px;transform:translateZ(70px) rotate(8deg);box-shadow:0 4px 0 #b88a00}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(10,2,20,.85);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;z-index:1000;padding:15px}
+.modal-box{background:linear-gradient(160deg,#2b1250,var(--panel));border:3px solid var(--cyan);border-radius:20px;padding:26px 22px;
+  max-width:380px;width:100%;box-shadow:0 0 40px rgba(25,240,212,.35);animation:pop .25s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{from{transform:scale(.6) rotate(-4deg);opacity:0}}
+.modal-title{font-size:22px;font-weight:900;color:var(--cyan);margin-bottom:8px}
+.modal-desc{color:var(--muted);font-size:14px;margin-bottom:16px;line-height:1.4}
+.modal-input{width:100%;background:#12061f;border:2px solid #4a2bb8;color:#fff;padding:13px;border-radius:12px;font:inherit;font-size:16px;text-align:center;margin-bottom:18px}
+.modal-input:focus{border-color:var(--pink)}
+.modal-actions{display:flex;gap:12px}.modal-actions .btn{flex:1}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,120px);background:var(--cyan);color:#06231f;font-weight:900;
+  padding:12px 22px;border-radius:30px;box-shadow:0 6px 0 #0a9a86;transition:transform .35s cubic-bezier(.3,1.6,.5,1);z-index:2000}
+.toast.show{transform:translate(-50%,0)}
+
+@media (max-width:600px){.top-bar{justify-content:center}.blob{opacity:.18}.b1{width:240px;height:240px;top:-90px;left:-90px}.b2{width:220px;height:220px}.b3{width:200px;height:200px}.floor{opacity:.18}.spark{opacity:.4}.page{padding-top:16px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+<script src="./js/config.js"></script>
 </head>
 <body>
+<div class="floor"></div>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
 
-    <div class="container">
-        <div class="top-bar">
-            <a href="../" class="back-link" onclick="playClickSound()">← Back to Arcade</a>
-            <div id="userProfileArea">
-                <button class="discord-btn" onclick="openUsernameModal()">
-                    <span>Set Username</span>
-                </button>
-            </div>
-        </div>
+<main class="page">
+  <div class="top-bar">
+    <button class="btn grey mute" id="muteBtn" title="Sound on/off" aria-label="Toggle sound">🔊</button>
+    <div id="discordAuth"></div>
+  </div>
 
-        <div class="header-title">Spicy Sequence Matrix</div>
+  <header class="hero">
+    <h1 class="title" data-text="Epspicy Arcade"><span class="face">Epspicy Arcade</span></h1>
+    <p class="sub">Pick a game. Climb the stats. Show off in Discord.</p>
+  </header>
 
-        <div class="instruction-banner" id="instructionBanner">Select Model for Position 1</div>
+  <section class="games">
+    <article class="card" tabindex="0">
+      <div class="icon">🎮</div>
+      <h2 class="gtitle">Character Matrix</h2>
+      <p class="gdesc">Assign characters to target GIF positions and compare live stats with the community!</p>
+      <a class="btn" href="./matrix/">Play now</a>
+    </article>
 
-        <div class="section-label">Target Positions (Fill in order):</div>
-        <div class="positions-grid" id="positionsGrid"></div>
+    <article class="card pink" tabindex="0">
+      <span class="badge">NEW</span>
+      <div class="icon">🔮</div>
+      <h2 class="gtitle">Blind Ranking</h2>
+      <p class="gdesc">Rank 10 random models blindly from #1 to #10 without knowing who comes next!</p>
+      <a class="btn cyan" href="./blind/">Play now</a>
+    </article>
 
-        <div class="section-label">1. Click Model to Assign:</div>
-        <div class="roster-grid" id="rosterGrid"></div>
+    <article class="card locked" tabindex="0">
+      <div class="icon">⚡</div>
+      <h2 class="gtitle">Game #3</h2>
+      <p class="gdesc">Stay tuned for future releases and community challenges.</p>
+      <span class="btn grey">Coming soon</span>
+    </article>
+  </section>
+</main>
 
-        <button class="action-btn" id="launchBtn" onclick="executeSequence()">Launch Sequence & Compare</button>
-        
-        <div id="results-area">
-            <div class="section-label" style="margin-bottom: 15px; color: #19f0d4;" id="globalStatsTitle">REAL COMMUNITY STATISTICS:</div>
-            <div id="stats-list"></div>
-
-            <div class="activity-feed">
-                <div class="section-label" style="color: #ff2e93; margin-bottom: 12px;">RECENT DISCORD PLAYERS:</div>
-                <div id="recentFeed"></div>
-            </div>
-
-            <div class="btn-group">
-                <button class="secondary-btn" onclick="shareResults()">SHARE RESULTS</button>
-                <button class="secondary-btn" style="border-color: #ff2e93; color: #ff2e93;" onclick="resetSelection()">RESTART</button>
-            </div>
-            <div id="toast">Results copied to clipboard!</div>
-        </div>
+<div class="modal-overlay" id="usernameModal">
+  <div class="modal-box">
+    <div class="modal-title">Set your username</div>
+    <div class="modal-desc">Enter your Discord or display name. It is saved across all games and stats.</div>
+    <input type="text" id="customUsernameInput" class="modal-input" maxlength="24" placeholder="Your name...">
+    <div class="modal-actions">
+      <button class="btn grey" id="cancelBtn">Cancel</button>
+      <button class="btn cyan" id="saveBtn">Save</button>
     </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
 
-    <!-- Username Modal -->
-    <div class="modal-overlay" id="usernameModal">
-        <div class="modal-box">
-            <div class="modal-title">Set Username</div>
-            <div class="modal-desc">Enter your Discord or display name — it stays saved across all games & stats.</div>
-            <input type="text" id="customUsernameInput" class="modal-input" maxlength="24" placeholder="Enter your username..." onkeydown="if(event.key==='Enter') saveCustomUsername()">
-            <div class="modal-actions">
-                <button class="modal-cancel" onclick="closeUsernameModal()">Cancel</button>
-                <button class="modal-save" onclick="saveCustomUsername()">Save</button>
-            </div>
-        </div>
-    </div>
+<script>
+/* keep the ?session= behaviour */
+if (!window.location.search.includes('session')) {
+  const s = Math.floor(1000 + Math.random() * 9000);
+  window.history.replaceState({}, '', window.location.pathname + '?session=' + s + '&hub=arcade');
+}
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+/* ---------- Sound (WebAudio, no files needed) ---------- */
+let muted = false, ctx = null, unlocked = false;
+try { muted = localStorage.getItem('arcade_muted') === '1'; } catch (e) {}
+function tone(f, d, type, vol, to, delay) {
+  if (muted || !unlocked) return;
+  try {
+    ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    const t = ctx.currentTime + (delay || 0);
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type || 'square';
+    o.frequency.setValueAtTime(f, t);
+    if (to) o.frequency.exponentialRampToValueAtTime(to, t + d);
+    g.gain.setValueAtTime((vol || 0.05) * 0.45, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    o.connect(g).connect(ctx.destination);
+    o.start(t); o.stop(t + d);
+  } catch (e) {}
+}
+const sfx = {
+  click: () => tone(300, .12, 'square', .06, 120),
+  play:  () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .12, 'square', .05, null, i * .07)),
+  ok:    () => [659, 880].forEach((f, i) => tone(f, .14, 'triangle', .08, null, i * .09)),
+  back:  () => tone(400, .12, 'triangle', .06, 200)
+};
+['pointerdown', 'keydown'].forEach(ev => addEventListener(ev, () => { unlocked = true; }, { once: true, capture: true }));
 
-    <script>
-        if (!window.location.search.includes('session')) {
-            const randomSession = Math.floor(1000 + Math.random() * 9000);
-            const newUrl = window.location.pathname + '?session=' + randomSession + '&room=matrix-01';
-            window.history.replaceState({}, '', newUrl);
-        }
+const muteBtn = document.getElementById('muteBtn');
+function paintMute() { muteBtn.textContent = muted ? '🔇' : '🔊'; }
+muteBtn.onclick = () => {
+  muted = !muted; paintMute();
+  try { localStorage.setItem('arcade_muted', muted ? '1' : '0'); } catch (e) {}
+  unlocked = true; sfx.click();
+};
+paintMute();
 
-        // Discord webhook (posts the results to #arcade-games)
-        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1561290613020819539/5l4Hf_PP6CeoYO6s3sz863Xr9nyDmckTA5rWkcV7KZuazdvPKMFrkKJQ3kV_CCXBJpcS";
+/* ---------- Sparks ---------- */
+['✦', '♥', '⚡', '★', '✧'].forEach((ch, k) => {
+  for (let i = 0; i < 3; i++) {
+    const s = document.createElement('div');
+    s.className = 'spark'; s.textContent = ch;
+    s.style.left = Math.random() * 100 + 'vw';
+    s.style.fontSize = 12 + Math.random() * 22 + 'px';
+    s.style.color = ['#ff2e93', '#19f0d4', '#ffd23f', '#7b4dff'][(k + i) % 4];
+    s.style.animationDuration = 14 + Math.random() * 16 + 's';
+    s.style.animationDelay = -Math.random() * 20 + 's';
+    document.body.appendChild(s);
+  }
+});
 
-        function esc(t) {
-            return String(t == null ? '' : t).replace(/[&<>"']/g, function(c) {
-                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-            });
-        }
+/* ---------- 3D tilt cards ---------- */
+document.querySelectorAll('.card').forEach(card => {
+  card.addEventListener('pointermove', e => {
+    if (e.pointerType === 'touch') return;
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    card.style.setProperty('--rx', ((0.5 - y) * 18).toFixed(1) + 'deg');
+    card.style.setProperty('--ry', ((x - 0.5) * 22).toFixed(1) + 'deg');
+    card.style.setProperty('--gx', (x * 100) + '%');
+    card.style.setProperty('--gy', (y * 100) + '%');
+  });
+  card.addEventListener('pointerleave', () => { card.style.setProperty('--rx', '0deg'); card.style.setProperty('--ry', '0deg'); });
+});
+document.querySelectorAll('a.btn').forEach(a => a.addEventListener('click', () => sfx.play()));
+document.querySelectorAll('.btn.grey:not(.mute)').forEach(b => b.addEventListener('click', () => tone(220, .08, 'triangle', .04, 160)));
 
-        let currentUser = null;
+/* ---------- Username (same localStorage key as the games) ---------- */
+const authBox = document.getElementById('discordAuth');
+const modal = document.getElementById('usernameModal');
+const input = document.getElementById('customUsernameInput');
 
-        function openUsernameModal() {
-            document.getElementById('usernameModal').style.display = 'flex';
-            const input = document.getElementById('customUsernameInput');
-            input.value = '';
-            setTimeout(function() { input.focus(); }, 50);
-        }
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+function renderLoggedOut() {
+  authBox.replaceChildren();
+  const b = document.createElement('button');
+  b.className = 'btn cyan'; b.textContent = 'Set username';
+  b.onclick = () => { sfx.click(); openModal(); };
+  authBox.appendChild(b);
+}
+function renderUserProfile(user) {
+  authBox.replaceChildren();
+  const wrap = document.createElement('div'); wrap.className = 'user-profile';
+  const img = document.createElement('img'); img.className = 'user-avatar'; img.alt = ''; img.src = user.avatar;
+  const name = document.createElement('span'); name.className = 'user-name'; name.textContent = user.username; /* textContent = no XSS */
+  const x = document.createElement('button'); x.className = 'logout-btn'; x.title = 'Change username'; x.textContent = '×';
+  x.onclick = () => { sfx.back(); localStorage.removeItem('discord_user'); renderLoggedOut(); };
+  wrap.append(img, name, x); authBox.appendChild(wrap);
+}
+function openModal() { modal.style.display = 'flex'; input.value = ''; setTimeout(() => input.focus(), 50); }
+function closeModal() { modal.style.display = 'none'; }
+function saveCustomUsername() {
+  const clean = input.value.trim().replace(/[<>]/g, '');
+  if (!clean) { tone(220, .08, 'triangle', .04, 160); input.focus(); return; }
+  const userData = {
+    id: 'player_' + Date.now(),
+    username: clean,
+    avatar: 'https://cdn.discordapp.com/embed/avatars/' + Math.floor(Math.random() * 5) + '.png',
+    isCustom: true
+  };
+  localStorage.setItem('discord_user', JSON.stringify(userData));
+  sfx.ok(); closeModal(); renderUserProfile(userData); toast('Welcome, ' + clean + '!');
+}
+document.getElementById('saveBtn').onclick = saveCustomUsername;
+document.getElementById('cancelBtn').onclick = () => { sfx.back(); closeModal(); };
+input.addEventListener('keydown', e => { if (e.key === 'Enter') saveCustomUsername(); if (e.key === 'Escape') closeModal(); });
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
 
-        function closeUsernameModal() {
-            document.getElementById('usernameModal').style.display = 'none';
-        }
-
-        function saveCustomUsername() {
-            const rawName = document.getElementById('customUsernameInput').value.trim();
-            if (!rawName) return;
-
-            const cleanName = rawName.replace(/[<>]/g, '');
-            const userData = {
-                id: 'player_' + Date.now(),
-                username: cleanName,
-                avatar: 'https://cdn.discordapp.com/embed/avatars/1.png',
-                isCustom: true
-            };
-            localStorage.setItem('discord_user', JSON.stringify(userData));
-            currentUser = userData;
-            closeUsernameModal();
-            renderUserProfile(userData);
-        }
-
-        function logoutUser() {
-            localStorage.removeItem('discord_user');
-            currentUser = null;
-            document.getElementById('userProfileArea').innerHTML = `
-                <button class="discord-btn" onclick="openUsernameModal()">
-                    <span>Set Username</span>
-                </button>
-            `;
-        }
-
-        function checkDiscordAuth() {
-            let savedUser = localStorage.getItem('discord_user');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                renderUserProfile(currentUser);
-            }
-        }
-
-        function renderUserProfile(user) {
-            document.getElementById('userProfileArea').innerHTML = `
-                <div class="user-profile">
-                    <img src="${esc(user.avatar)}" class="user-avatar" alt="Avatar">
-                    <span class="user-name">${esc(user.username)}</span>
-                    <button class="logout-btn" title="Change username" onclick="logoutUser()">×</button>
-                </div>
-            `;
-        }
-
-        const CHARACTERS = [
-            { name: "Rissa May",        img: "../rissa may.png" },
-            { name: "Scarlett Alexis", img: "../scarlett alexis.png" },
-            { name: "Aria Lee",         img: "../aria lee.png" },
-            { name: "Eliza Ibarra",     img: "../eliza ibarra.png" },
-            { name: "Jewelz Blu",       img: "../jewelz blu.png" },
-            { name: "Liz Jordan",       img: "../liz jordan.png" }
-        ];
-
-        const TARGET_POSITIONS = [
-            { title: "Position 1", label: "Standing Carry", gif: "../air.gif" },
-            { title: "Position 2", label: "Rimjob", gif: "../rimjob.gif" },
-            { title: "Position 3", label: "Strapon", gif: "../strapon.gif" },
-            { title: "Position 4", label: "Gangbang", gif: "../gangbang.gif" },
-            { title: "Position 5", label: "Deepthroat", gif: "../deepthroat.gif" },
-            { title: "Position 6", label: "Anal", gif: "../anal.gif" }
-        ];
-
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        function playClickSound() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.04);
-            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.04);
-        }
-
-        function playAssignSound() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.06);
-            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.06);
-        }
-
-        function playLaunchSound() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(900, audioCtx.currentTime + 0.15);
-            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.15);
-        }
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAyT85gjbKMf0RtttyECLHv2hiv1mREJtU",
-            authDomain: "epspicygames.firebaseapp.com",
-            databaseURL: "https://epspicygames-default-rtdb.firebaseio.com",
-            projectId: "epspicygames",
-            storageBucket: "epspicygames.firebasestorage.app",
-            messagingSenderId: "813495756093",
-            appId: "1:813495756093:web:9d0a93c37c457c653e1154",
-            measurementId: "G-WHG3N8WML4"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        let assignments = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
-        let currentActiveSlot = 1;
-        let hasSubmitted = false;
-        let allSubmissionsData = null;
-
-        const LAUNCH_LABEL = 'Launch Sequence & Compare';
-        function lockLaunch(locked) {
-            const b = document.getElementById('launchBtn');
-            b.disabled = locked;
-            b.textContent = locked ? 'Locked - press Restart to play again' : LAUNCH_LABEL;
-        }
-
-        function initUI() {
-            checkDiscordAuth();
-            
-            const expirationLimitMs = currentUser ? (365 * 24 * 60 * 60 * 1000) : (60 * 60 * 1000);
-
-            let savedMatrixState = localStorage.getItem('matrix_completed_state');
-            if (savedMatrixState) {
-                let parsedState = JSON.parse(savedMatrixState);
-                let now = Date.now();
-                if (now - parsedState.time < expirationLimitMs) {
-                    assignments = parsedState.assignments;
-                    hasSubmitted = true;
-                    currentActiveSlot = 7;
-                } else {
-                    localStorage.removeItem('matrix_completed_state');
-                }
-            }
-
-            renderRoster();
-            renderPositions();
-            updateBanner();
-            lockLaunch(hasSubmitted);
-
-            db.ref('submissions').on('value', function(snapshot) {
-                allSubmissionsData = snapshot.val();
-                if (hasSubmitted) {
-                    renderResultsUI();
-                }
-            });
-        }
-
-        function renderRoster() {
-            const rosterGrid = document.getElementById('rosterGrid');
-            rosterGrid.innerHTML = CHARACTERS.map(function(c) {
-                let isUsed = Object.values(assignments).includes(c.name);
-                return '<div class="char-card ' + (isUsed ? 'used' : '') + '" id="card-' + c.name + '" onclick="assignCharacter(\'' + c.name + '\')">' +
-                    '<img src="' + c.img + '" class="char-img">' +
-                    '<div class="char-name">' + c.name + '</div>' +
-                    '</div>';
-            }).join('');
-        }
-
-        function renderPositions() {
-            const posGrid = document.getElementById('positionsGrid');
-            posGrid.innerHTML = TARGET_POSITIONS.map(function(p, idx) {
-                const pos = idx + 1;
-                let isActive = (pos === currentActiveSlot && !assignments[pos]);
-                let assignedChar = assignments[pos] || '-';
-                return '<div class="position-slot ' + (isActive ? 'active' : '') + '" id="slot-' + pos + '">' +
-                    '<div class="pos-assigned" id="val-' + pos + '">' + assignedChar + '</div>' +
-                    '<img src="' + p.gif + '" class="pos-gif" alt="Position ' + pos + '">' +
-                    '</div>';
-            }).join('');
-        }
-
-        function updateBanner() {
-            let banner = document.getElementById('instructionBanner');
-            if (currentActiveSlot <= 6) {
-                banner.innerText = 'Select Model for Position ' + currentActiveSlot;
-                banner.style.color = "#ff2e93";
-                banner.style.borderColor = "#ff2e93";
-            } else {
-                banner.innerText = 'All positions filled! Ready to launch sequence.';
-                banner.style.color = "#19f0d4";
-                banner.style.borderColor = "#19f0d4";
-            }
-        }
-
-        function assignCharacter(charName) {
-            if (currentActiveSlot > 6) return;
-            
-            for (let s = 1; s <= 6; s++) {
-                if (assignments[s] === charName) return;
-            }
-
-            playAssignSound();
-            assignments[currentActiveSlot] = charName;
-
-            currentActiveSlot++;
-            while (currentActiveSlot <= 6 && assignments[currentActiveSlot] !== null) {
-                currentActiveSlot++;
-            }
-
-            renderRoster();
-            renderPositions();
-            updateBanner();
-        }
-
-        async function executeSequence() {
-            let filledCount = 0;
-            for (let i = 1; i <= 6; i++) {
-                if (assignments[i] !== null) filledCount++;
-            }
-
-            if (filledCount < 6) {
-                playClickSound();
-                alert("Please assign models to all 6 positions before launching!");
-                return;
-            }
-
-            if (hasSubmitted) return;
-            lockLaunch(true);
-
-            playLaunchSound();
-
-            let playerName = currentUser ? currentUser.username : "Guest/Anonymous";
-
-            // 1) Send the Discord message FIRST (does not wait for the database)
-            let resultsText = `🎮 **New Spicy Sequence Results from ${playerName}!**\n`;
-            for (let i = 1; i <= 6; i++) {
-                resultsText += `> **${TARGET_POSITIONS[i - 1].label}:** ${assignments[i]}\n`;
-            }
-
-            const discordPayload = {
-                content: resultsText
-            };
-
-            if (DISCORD_WEBHOOK_URL.indexOf('REPLACE-WITH') !== -1) {
-                console.warn("Discord hook not set: paste your Worker URL in DISCORD_WEBHOOK_URL");
-            } else {
-                fetch(DISCORD_WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(discordPayload)
-                }).then(r => { if (!r.ok) console.error("Discord hook failed, status:", r.status); })
-                  .catch(err => console.error("Discord hook error:", err));
-            }
-
-            // 2) Save for the community stats
-            if (!hasSubmitted) {
-                hasSubmitted = true;
-                let submissionPayload = {
-                    assignments: assignments,
-                    timestamp: Date.now(),
-                    user: currentUser ? currentUser : { username: "Guest/Anonymous", avatar: "https://cdn.discordapp.com/embed/avatars/0.png" }
-                };
-
-                localStorage.setItem('matrix_completed_state', JSON.stringify({
-                    assignments: assignments,
-                    time: Date.now()
-                }));
-
-                await db.ref('submissions').push(submissionPayload).catch(function(err) { console.error("Error:", err); });
-            }
-
-            renderResultsUI();
-        }
-
-        function renderResultsUI() {
-            let total = 0;
-            let counts = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {} };
-            let recentList = [];
-
-            if (allSubmissionsData) {
-                let subsArray = Object.values(allSubmissionsData);
-                subsArray.forEach(function(sub) {
-                    if (sub.assignments) {
-                        total++;
-                        for (let pos = 1; pos <= 6; pos++) {
-                            let ch = sub.assignments[pos];
-                            if (ch) counts[pos][ch] = (counts[pos][ch] || 0) + 1;
-                        }
-                    }
-                });
-
-                recentList = subsArray.slice(-5).reverse();
-            }
-
-            document.getElementById("globalStatsTitle").innerText = 'REAL COMMUNITY STATISTICS (' + total + ' Total Players):';
-
-            let statsHtml = "";
-            for (let i = 1; i <= 6; i++) {
-                let userChosenChar = assignments[i];
-                let countForThisChar = counts[i][userChosenChar] || 0;
-                let pct = total > 0 ? Math.round((countForThisChar / total) * 100) : 100;
-
-                statsHtml += '<div class="stat-row">' +
-                    '<span>Position ' + i + ': <b>' + esc(userChosenChar) + '</b> chosen by <b>' + pct + '%</b> of players (' + countForThisChar + '/' + total + ')</span>' +
-                    '<div class="stat-bar-container"><div class="stat-bar" style="width: ' + pct + '%;"></div></div>' +
-                    '</div>';
-            }
-
-            document.getElementById("stats-list").innerHTML = statsHtml;
-
-            let feedHtml = "";
-            recentList.forEach(function(item) {
-                let username = item.user ? item.user.username : "Guest";
-                let avatar = item.user ? item.user.avatar : "https://cdn.discordapp.com/embed/avatars/0.png";
-                
-                let picksHtml = '';
-                if (item.assignments) {
-                    for (let p = 1; p <= 6; p++) {
-                        let charName = item.assignments[p];
-                        let posObj = TARGET_POSITIONS[p - 1];
-                        
-                        picksHtml += '<div class="mini-pick">' +
-                            '<img src="' + posObj.gif + '" class="mini-gif" title="Position ' + p + '">' +
-                            '<span class="mini-char">' + esc(charName) + '</span>' +
-                            '</div>';
-                    }
-                }
-
-                feedHtml += '<div class="feed-item">' +
-                    '<div class="feed-user">' +
-                    '<img src="' + esc(avatar) + '" class="feed-avatar">' +
-                    '<span>' + esc(username) + '</span>' +
-                    '</div>' +
-                    '<div class="feed-picks">' + picksHtml + '</div>' +
-                    '</div>';
-            });
-
-            document.getElementById("recentFeed").innerHTML = feedHtml;
-            document.getElementById("results-area").style.display = "block";
-        }
-
-        function shareResults() {
-            playClickSound();
-            let playerGreeting = currentUser ? 'Player: ' + currentUser.username + '\n' : "";
-            let text = playerGreeting + 'My Spicy Sequence Matrix:\n';
-            for (let i = 1; i <= 6; i++) {
-                text += TARGET_POSITIONS[i - 1].label + ": " + assignments[i] + "\n";
-            }
-            text += "Play at: https://epspicy.github.io/Goon-games/matrix/";
-            
-            navigator.clipboard.writeText(text).then(function() {
-                let toast = document.getElementById("toast");
-                toast.style.display = "block";
-                setTimeout(function() { toast.style.display = "none"; }, 2500);
-            });
-        }
-
-        function resetSelection() {
-            playClickSound();
-            lockLaunch(false);
-            localStorage.removeItem('matrix_completed_state');
-            assignments = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
-            currentActiveSlot = 1;
-            hasSubmitted = false;
-            
-            document.getElementById("results-area").style.display = "none";
-            renderRoster();
-            renderPositions();
-            updateBanner();
-        }
-
-        initUI();
-    </script>
-
+try {
+  const saved = localStorage.getItem('discord_user');
+  saved ? renderUserProfile(JSON.parse(saved)) : renderLoggedOut();
+} catch (e) { renderLoggedOut(); }
+</script>
 </body>
 </html>
