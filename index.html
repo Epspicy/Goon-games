@@ -171,6 +171,8 @@
             .top-bar { position: relative; top: 0; right: 0; margin-bottom: 15px; display: flex; justify-content: center; }
         }
     </style>
+    <!-- Φόρτωση του εξωτερικού config.js -->
+    <script src="./js/config.js"></script>
 </head>
 <body>
 
@@ -209,17 +211,21 @@
     </div>
 
     <script>
-        if (!window.location.search.includes('session')) {
-            const randomSession = Math.floor(1000 + Math.random() * 9000);
-            const newUrl = window.location.pathname + '?session=' + randomSession + '&hub=arcade';
-            window.history.replaceState({}, '', newUrl);
+        // Έλεγχος αν υπάρχει επιστροφή token από το Discord ΠΡΙΝ πειράξουμε το URL
+        if (!window.location.hash.includes('access_token')) {
+            if (!window.location.search.includes('session')) {
+                const randomSession = Math.floor(1000 + Math.random() * 9000);
+                const newUrl = window.location.pathname + '?session=' + randomSession + '&hub=arcade';
+                window.history.replaceState({}, '', newUrl);
+            }
         }
 
-        const DISCORD_CLIENT_ID = "1560589530136838194";
-        const REDIRECT_URI = "https://epspicy.github.io/Goon-games/";
-
         function loginWithDiscord() {
-            const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
+            const config = window.ARCADE_CONFIG || {};
+            const clientId = config.discordClientId || "1560589530136838194";
+            const redirectUri = config.redirectUri || "https://epspicy.github.io/Goon-games/";
+            
+            const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=identify`;
             window.location.href = discordUrl;
         }
 
@@ -234,6 +240,7 @@
             const accessToken = fragment.get('access_token');
 
             if (accessToken) {
+                // Καθαρισμός του token hash από τη γραμμή διευθύνσεων με ασφάλεια
                 window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
                 
                 fetch('https://discord.com/api/users/@me', {
