@@ -39,38 +39,19 @@
             align-items: center;
             gap: 8px;
         }
-        .discord-btn {
-            background-color: #5865F2;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: background 0.2s;
-            text-decoration: none;
-        }
-        .discord-btn:hover {
-            background-color: #4752C4;
-        }
         .username-btn {
-            background-color: #121218;
-            color: #00ffcc;
-            border: 1px solid #00ffcc;
-            padding: 8px 14px;
+            background-color: #5865F2;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
             font-size: 13px;
-            transition: all 0.2s;
+            transition: background 0.2s, transform 0.1s;
         }
         .username-btn:hover {
-            background-color: #00ffcc;
-            color: #0f0f13;
+            background-color: #4752C4;
         }
         .user-profile {
             display: flex;
@@ -79,10 +60,7 @@
             background: #121218;
             padding: 6px 12px;
             border-radius: 20px;
-            border: 1px solid #5865F2;
-        }
-        .user-profile.guest-mode {
-            border-color: #00ffcc;
+            border: 1px solid #00ffcc;
         }
         .user-avatar {
             width: 28px;
@@ -108,7 +86,6 @@
         .logout-btn:hover {
             color: #ff007f;
         }
-        /* Modal gia Custom Username */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -277,7 +254,7 @@
             body { padding: 10px; }
             .arcade-container { padding: 20px 10px; }
             .arcade-title { font-size: 26px; margin-top: 10px; }
-            .top-bar { position: relative; top: 0; right: 0; margin-bottom: 15px; justify-content: center; flex-wrap: wrap; }
+            .top-bar { position: relative; top: 0; right: 0; margin-bottom: 15px; justify-content: center; }
         }
     </style>
     <script src="./js/config.js"></script>
@@ -287,9 +264,6 @@
     <div class="arcade-container">
         <div class="top-bar" id="discordAuth">
             <button class="username-btn" onclick="openUsernameModal()">Set Username</button>
-            <button class="discord-btn" onclick="loginWithDiscord()">
-                <span>Login with Discord</span>
-            </button>
         </div>
 
         <div class="arcade-title">Epspicy Arcade</div>
@@ -319,11 +293,11 @@
         </div>
     </div>
 
-    <!-- Custom Username Modal -->
+    <!-- Username Modal -->
     <div class="modal-overlay" id="usernameModal">
         <div class="modal-box">
-            <div class="modal-title">Set Player Name</div>
-            <div class="modal-desc">Play without Discord login — your name stays saved across all games & leaderboards.</div>
+            <div class="modal-title">Set Username</div>
+            <div class="modal-desc">Enter your Discord or display name — it stays saved across all games & stats.</div>
             <input type="text" id="customUsernameInput" class="modal-input" maxlength="24" placeholder="Enter your username..." onkeydown="if(event.key==='Enter') saveCustomUsername()">
             <div class="modal-actions">
                 <button class="modal-cancel" onclick="closeUsernameModal()">Cancel</button>
@@ -333,21 +307,10 @@
     </div>
 
     <script>
-        if (!window.location.hash.includes('access_token')) {
-            if (!window.location.search.includes('session')) {
-                const randomSession = Math.floor(1000 + Math.random() * 9000);
-                const newUrl = window.location.pathname + '?session=' + randomSession + '&hub=arcade';
-                window.history.replaceState({}, '', newUrl);
-            }
-        }
-
-        function loginWithDiscord() {
-            const config = window.ARCADE_CONFIG || {};
-            const clientId = config.discordClientId || "1560589530136838194";
-            const redirectUri = config.redirectUri || "https://epspicy.github.io/Goon-games/";
-            
-            const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=identify`;
-            window.location.href = discordUrl;
+        if (!window.location.search.includes('session')) {
+            const randomSession = Math.floor(1000 + Math.random() * 9000);
+            const newUrl = window.location.pathname + '?session=' + randomSession + '&hub=arcade';
+            window.history.replaceState({}, '', newUrl);
         }
 
         function openUsernameModal() {
@@ -367,7 +330,7 @@
 
             const cleanName = rawName.replace(/[<>]/g, '');
             const userData = {
-                id: 'custom_' + Date.now(),
+                id: 'player_' + Date.now(),
                 username: cleanName,
                 avatar: 'https://cdn.discordapp.com/embed/avatars/1.png',
                 isCustom: true
@@ -381,57 +344,27 @@
             localStorage.removeItem('discord_user');
             document.getElementById('discordAuth').innerHTML = `
                 <button class="username-btn" onclick="openUsernameModal()">Set Username</button>
-                <button class="discord-btn" onclick="loginWithDiscord()">
-                    <span>Login with Discord</span>
-                </button>
             `;
         }
 
-        function checkDiscordAuth() {
+        function checkSavedUser() {
             let savedUser = localStorage.getItem('discord_user');
             if (savedUser) {
                 renderUserProfile(JSON.parse(savedUser));
-                return;
-            }
-
-            const fragment = new URLSearchParams(window.location.hash.slice(1));
-            const accessToken = fragment.get('access_token');
-
-            if (accessToken) {
-                window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-                
-                fetch('https://discord.com/api/users/@me', {
-                    headers: { authorization: `Bearer ${accessToken}` }
-                })
-                .then(res => res.json())
-                .then(user => {
-                    if (user && user.id) {
-                        const userData = {
-                            id: user.id,
-                            username: user.global_name || user.username,
-                            avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png',
-                            isCustom: false
-                        };
-                        localStorage.setItem('discord_user', JSON.stringify(userData));
-                        renderUserProfile(userData);
-                    }
-                })
-                .catch(err => console.error("Auth Error:", err));
             }
         }
 
         function renderUserProfile(user) {
-            const isCustomClass = user.isCustom ? 'guest-mode' : '';
             document.getElementById('discordAuth').innerHTML = `
-                <div class="user-profile ${isCustomClass}">
+                <div class="user-profile">
                     <img src="${user.avatar}" class="user-avatar" alt="Avatar">
                     <span class="user-name">${user.username}</span>
-                    <button class="logout-btn" title="Change user / Logout" onclick="logoutUser()">×</button>
+                    <button class="logout-btn" title="Change username" onclick="logoutUser()">×</button>
                 </div>
             `;
         }
 
-        checkDiscordAuth();
+        checkSavedUser();
     </script>
 
 </body>
