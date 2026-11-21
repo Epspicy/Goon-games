@@ -8,7 +8,7 @@
     <link rel="icon" type="image/png" href="../logo.png">
     <style>
         body {
-            background-color: #0f0f13;
+            background: radial-gradient(ellipse at 50% 0%, #3a0f66 0%, #12061f 60%) fixed;
             color: #ffffff;
             font-family: Arial, sans-serif;
             text-align: center;
@@ -18,12 +18,12 @@
         .container {
             max-width: 980px;
             margin: 20px auto;
-            background: #1a1a24;
+            background: #1c0b30;
             padding: 30px;
             border-radius: 16px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.6);
             box-sizing: border-box;
-            border: 2px solid #2a2a3a;
+            border: 2px solid #3a2a65;
         }
         .top-bar {
             display: flex;
@@ -32,7 +32,7 @@
             margin-bottom: 20px;
         }
         .back-link {
-            color: #8888a0;
+            color: #a995c9;
             font-size: 14px;
             text-decoration: none;
             text-transform: uppercase;
@@ -40,16 +40,16 @@
             font-weight: bold;
         }
         .back-link:hover {
-            color: #00ffcc;
+            color: #19f0d4;
         }
         .user-profile {
             display: flex;
             align-items: center;
             gap: 10px;
-            background: #121218;
+            background: #160828;
             padding: 6px 14px;
             border-radius: 20px;
-            border: 1px solid #5865F2;
+            border: 1px solid #7b4dff;
         }
         .user-avatar {
             width: 32px;
@@ -62,7 +62,7 @@
             font-weight: bold;
         }
         .discord-btn {
-            background-color: #5865F2;
+            background-color: #7b4dff;
             color: white;
             border: none;
             padding: 8px 16px;
@@ -77,10 +77,10 @@
             text-decoration: none;
         }
         .discord-btn:hover {
-            background-color: #4752C4;
+            background-color: #6a3de8;
         }
         .header-title {
-            color: #00ffcc;
+            color: #19f0d4;
             font-size: 30px;
             margin-bottom: 25px;
             text-transform: uppercase;
@@ -88,20 +88,20 @@
             font-weight: bold;
         }
         .instruction-banner {
-            background: #121218;
-            border: 1px solid #ff007f;
-            color: #ff007f;
+            background: #160828;
+            border: 1px solid #ff2e93;
+            color: #ff2e93;
             padding: 12px;
             border-radius: 8px;
             font-size: 15px;
             font-weight: bold;
             margin-bottom: 20px;
             text-transform: uppercase;
-            box-shadow: 0 0 10px rgba(255,0,127,0.2);
+            box-shadow: 0 0 10px rgba(255,46,147,0.2);
         }
         .section-label {
             font-size: 15px;
-            color: #00ffcc;
+            color: #19f0d4;
             text-align: left;
             margin-bottom: 12px;
             text-transform: uppercase;
@@ -115,8 +115,8 @@
             margin-bottom: 30px;
         }
         .char-card {
-            background: #121218;
-            border: 2px solid #2a2a3a;
+            background: #160828;
+            border: 2px solid #3a2a65;
             border-radius: 12px;
             padding: 10px;
             cursor: pointer;
@@ -125,22 +125,22 @@
             user-select: none;
         }
         .char-card:hover:not(.used) {
-            border-color: #00ffcc;
+            border-color: #19f0d4;
             transform: translateY(-4px);
-            box-shadow: 0 0 15px rgba(0,255,204,0.3);
+            box-shadow: 0 0 15px rgba(25,240,212,0.3);
         }
         .char-card.used {
             opacity: 0.25;
             cursor: not-allowed;
             filter: grayscale(100%);
-            border-color: #1a1a24;
+            border-color: #1c0b30;
         }
         .char-img {
             width: 80px;
             height: 80px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid #00ffcc;
+            border: 2px solid #19f0d4;
             margin-bottom: 8px;
             pointer-events: none;
         }
@@ -157,8 +157,8 @@
             margin-bottom: 30px;
         }
         .position-slot {
-            background: #121218;
-            border: 2px solid #2a2a3a;
+            background: #160828;
+            border: 2px solid #3a2a65;
             border-radius: 12px;
             padding: 10px 8px;
             transition: all 0.2s;
@@ -168,45 +168,32 @@
             align-items: center;
         }
         .position-slot.active {
-            border-color: #ff007f;
-            background: #251221;
-            box-shadow: 0 0 20px rgba(255,0,127,0.6);
+            border-color: #ff2e93;
+            background: #3a1040;
+            box-shadow: 0 0 20px rgba(255,46,147,0.6);
             transform: scale(1.03);
         }
         .pos-assigned {
             font-size: 13px;
-            color: #00ffcc;
+            color: #19f0d4;
             font-weight: bold;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             min-height: 18px;
             pointer-events: none;
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 100%;
         }
-        .pos-title-label {
-            font-size: 11px;
-            color: #ff007f;
-            margin-top: 6px;
-            margin-bottom: 2px;
-            text-transform: uppercase;
-            font-weight: bold;
-            pointer-events: none;
-            max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
         .pos-gif {
             width: 105px;
             height: 105px;
             border-radius: 10px;
             object-fit: cover;
-            border: 2px solid #00ffcc;
+            border: 2px solid #19f0d4;
             pointer-events: none;
         }
         .action-btn {
-            background-color: #ff007f;
+            background-color: #ff2e93;
             color: white;
             border: none;
             width: 100%;
@@ -218,10 +205,10 @@
             transition: background 0.2s, transform 0.1s;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            box-shadow: 0 4px 15px rgba(255,0,127,0.4);
+            box-shadow: 0 4px 15px rgba(255,46,147,0.4);
         }
         .action-btn:hover {
-            background-color: #e00070;
+            background-color: #e0267f;
         }
         .action-btn:active {
             transform: scale(0.98);
@@ -233,9 +220,9 @@
         }
         .secondary-btn {
             flex: 1;
-            background: #2a2a3a;
-            color: #00ffcc;
-            border: 1px solid #00ffcc;
+            background: #3a2a65;
+            color: #19f0d4;
+            border: 1px solid #19f0d4;
             padding: 14px;
             border-radius: 8px;
             font-weight: bold;
@@ -245,14 +232,14 @@
             transition: all 0.2s;
         }
         .secondary-btn:hover {
-            background: #00ffcc;
-            color: #0f0f13;
+            background: #19f0d4;
+            color: #12061f;
         }
         #results-area {
             margin-top: 30px;
             display: none;
-            background: #121218;
-            border: 1px solid #2a2a3a;
+            background: #160828;
+            border: 1px solid #3a2a65;
             border-radius: 12px;
             padding: 20px;
             text-align: left;
@@ -262,7 +249,7 @@
             font-size: 15px;
         }
         .stat-bar-container {
-            background: #2a2a3a;
+            background: #3a2a65;
             border-radius: 6px;
             height: 12px;
             width: 100%;
@@ -270,7 +257,7 @@
             overflow: hidden;
         }
         .stat-bar {
-            background: #ff007f;
+            background: #ff2e93;
             height: 100%;
             border-radius: 6px;
             transition: width 0.4s ease;
@@ -278,17 +265,17 @@
         .activity-feed {
             margin-top: 25px;
             padding-top: 20px;
-            border-top: 1px solid #2a2a3a;
+            border-top: 1px solid #3a2a65;
         }
         .feed-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #1a1a24;
+            background: #1c0b30;
             padding: 14px 16px;
             border-radius: 12px;
             margin-bottom: 12px;
-            border: 1px solid #2a2a3a;
+            border: 1px solid #3a2a65;
             font-size: 14px;
         }
         .feed-user {
@@ -296,7 +283,7 @@
             align-items: center;
             gap: 12px;
             font-weight: bold;
-            color: #00ffcc;
+            color: #19f0d4;
             font-size: 15px;
             min-width: 160px;
         }
@@ -304,7 +291,7 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            border: 1px solid #5865F2;
+            border: 1px solid #7b4dff;
         }
         .feed-picks {
             display: flex;
@@ -316,27 +303,27 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: #121218;
+            background: #160828;
             padding: 6px 8px;
             border-radius: 8px;
-            border: 1px solid #2a2a3a;
+            border: 1px solid #3a2a65;
         }
         .mini-gif {
             width: 58px;
             height: 58px;
             border-radius: 6px;
             object-fit: cover;
-            border: 2px solid #00ffcc;
+            border: 2px solid #19f0d4;
         }
         .mini-char {
             font-size: 12px;
-            color: #ff007f;
+            color: #ff2e93;
             font-weight: bold;
             margin-top: 5px;
         }
         #toast {
             display: none;
-            color: #ffcc00;
+            color: #ffd23f;
             font-size: 14px;
             margin-top: 10px;
             text-align: center;
@@ -355,8 +342,6 @@
             .mini-char { font-size: 10px; }
         }
     </style>
-    <!-- Fórtωση του εξωτερικού config.js -->
-    <script src="../js/config.js"></script>
 </head>
 <body>
 
@@ -372,7 +357,7 @@
 
         <div class="header-title">Spicy Sequence Matrix</div>
 
-        <div class="instruction-banner" id="instructionBanner">Select Model for Standing Carry</div>
+        <div class="instruction-banner" id="instructionBanner">Select Model for Position 1</div>
 
         <div class="section-label">Target Positions (Fill in order):</div>
         <div class="positions-grid" id="positionsGrid"></div>
@@ -383,17 +368,17 @@
         <button class="action-btn" id="launchBtn" onclick="executeSequence()">Launch Sequence & Compare</button>
         
         <div id="results-area">
-            <div class="section-label" style="margin-bottom: 15px; color: #00ffcc;" id="globalStatsTitle">REAL COMMUNITY STATISTICS:</div>
+            <div class="section-label" style="margin-bottom: 15px; color: #19f0d4;" id="globalStatsTitle">REAL COMMUNITY STATISTICS:</div>
             <div id="stats-list"></div>
 
             <div class="activity-feed">
-                <div class="section-label" style="color: #ff007f; margin-bottom: 12px;">RECENT DISCORD PLAYERS:</div>
+                <div class="section-label" style="color: #ff2e93; margin-bottom: 12px;">RECENT DISCORD PLAYERS:</div>
                 <div id="recentFeed"></div>
             </div>
 
             <div class="btn-group">
-                <button class="secondary-btn" onclick="shareResults()">SHARE RESULTS</button>
-                <button class="secondary-btn" style="border-color: #ff007f; color: #ff007f;" onclick="resetSelection()">RESET SELECTION</button>
+                <button class="secondary-btn" onclick="shareResults()">ΚΟΙΝΟΠΟΙΗΣΗ ΑΠΟΤΕΛΕΣΜΑΤΩΝ</button>
+                <button class="secondary-btn" style="border-color: #ff2e93; color: #ff2e93;" onclick="resetSelection()">ΕΠΑΝΑΦΟΡΑ ΕΠΙΛΟΓΩΝ</button>
             </div>
             <div id="toast">Results copied to clipboard!</div>
         </div>
@@ -403,22 +388,20 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
     <script>
-        if (!window.location.hash.includes('access_token')) {
-            if (!window.location.search.includes('session')) {
-                const randomSession = Math.floor(1000 + Math.random() * 9000);
-                const newUrl = window.location.pathname + '?session=' + randomSession + '&room=matrix-01';
-                window.history.replaceState({}, '', newUrl);
-            }
+        if (!window.location.search.includes('session')) {
+            const randomSession = Math.floor(1000 + Math.random() * 9000);
+            const newUrl = window.location.pathname + '?session=' + randomSession + '&room=matrix-01';
+            window.history.replaceState({}, '', newUrl);
         }
+
+        const DISCORD_CLIENT_ID = "1560589530136838194";
+        const REDIRECT_URI = "https://epspicy.github.io/Goon-games/matrix/";
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1560690246893568180/RdJzCmVN_6M34J8wgQAHNlAfEpgCdKxSSp4HkHR7kumWcyvaz46YrRMpV2brDatKwGDi";
 
         let currentUser = null;
 
         function loginWithDiscord() {
-            const config = window.ARCADE_CONFIG || {};
-            const clientId = config.discordClientId || "1560589530136838194";
-            const redirectUri = "https://epspicy.github.io/Goon-games/matrix/";
-            
-            const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=identify`;
+            const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
             window.location.href = discordUrl;
         }
 
@@ -475,12 +458,12 @@
         ];
 
         const TARGET_POSITIONS = [
-            { title: "Standing Carry", gif: "../air.gif" },
-            { title: "Rimjob",         gif: "../rimjob.gif" },
-            { title: "Strapon",        gif: "../strapon.gif" },
-            { title: "Gangbang",       gif: "../gangbang.gif" },
-            { title: "Deepthroat",     gif: "../deepthroat.gif" },
-            { title: "Anal",           gif: "../anal.gif" }
+            { title: "Position 1", gif: "../air.gif" },
+            { title: "Position 2", gif: "../rimjob.gif" },
+            { title: "Position 3", gif: "../strapon.gif" },
+            { title: "Position 4", gif: "../gangbang.gif" },
+            { title: "Position 5", gif: "../deepthroat.gif" },
+            { title: "Position 6", gif: "../anal.gif" }
         ];
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -549,24 +532,6 @@
         let hasSubmitted = false;
         let allSubmissionsData = null;
 
-        function setLaunchBtnSubmitted() {
-            const launchBtn = document.getElementById('launchBtn');
-            if (!launchBtn) return;
-            launchBtn.disabled = true;
-            launchBtn.innerText = 'SEQUENCE LAUNCHED ✓';
-            launchBtn.style.opacity = '0.6';
-            launchBtn.style.cursor = 'not-allowed';
-        }
-
-        function setLaunchBtnReady() {
-            const launchBtn = document.getElementById('launchBtn');
-            if (!launchBtn) return;
-            launchBtn.disabled = false;
-            launchBtn.innerText = 'Launch Sequence & Compare';
-            launchBtn.style.opacity = '1';
-            launchBtn.style.cursor = 'pointer';
-        }
-
         function initUI() {
             checkDiscordAuth();
             
@@ -580,7 +545,6 @@
                     assignments = parsedState.assignments;
                     hasSubmitted = true;
                     currentActiveSlot = 7;
-                    setLaunchBtnSubmitted();
                 } else {
                     localStorage.removeItem('matrix_completed_state');
                 }
@@ -617,8 +581,7 @@
                 let assignedChar = assignments[pos] || '-';
                 return '<div class="position-slot ' + (isActive ? 'active' : '') + '" id="slot-' + pos + '">' +
                     '<div class="pos-assigned" id="val-' + pos + '">' + assignedChar + '</div>' +
-                    '<img src="' + p.gif + '" class="pos-gif" alt="' + p.title + '">' +
-                    '<div class="pos-title-label">' + p.title + '</div>' +
+                    '<img src="' + p.gif + '" class="pos-gif" alt="Position ' + pos + '">' +
                     '</div>';
             }).join('');
         }
@@ -626,14 +589,13 @@
         function updateBanner() {
             let banner = document.getElementById('instructionBanner');
             if (currentActiveSlot <= 6) {
-                let currentPosName = TARGET_POSITIONS[currentActiveSlot - 1].title;
-                banner.innerText = 'Select Model for ' + currentPosName;
-                banner.style.color = "#ff007f";
-                banner.style.borderColor = "#ff007f";
+                banner.innerText = 'Select Model for Position ' + currentActiveSlot;
+                banner.style.color = "#ff2e93";
+                banner.style.borderColor = "#ff2e93";
             } else {
                 banner.innerText = 'All positions filled! Ready to launch sequence.';
-                banner.style.color = "#00ffcc";
-                banner.style.borderColor = "#00ffcc";
+                banner.style.color = "#19f0d4";
+                banner.style.borderColor = "#19f0d4";
             }
         }
 
@@ -658,12 +620,6 @@
         }
 
         async function executeSequence() {
-            if (hasSubmitted) {
-                setLaunchBtnSubmitted();
-                renderResultsUI();
-                return;
-            }
-
             let filledCount = 0;
             for (let i = 1; i <= 6; i++) {
                 if (assignments[i] !== null) filledCount++;
@@ -675,42 +631,40 @@
                 return;
             }
 
-            hasSubmitted = true;
-            setLaunchBtnSubmitted();
             playLaunchSound();
 
             let playerName = currentUser ? currentUser.username : "Guest/Anonymous";
-            let submissionPayload = {
-                assignments: assignments,
-                timestamp: Date.now(),
-                user: currentUser ? currentUser : { username: "Guest/Anonymous", avatar: "https://cdn.discordapp.com/embed/avatars/0.png" }
-            };
 
-            localStorage.setItem('matrix_completed_state', JSON.stringify({
-                assignments: assignments,
-                time: Date.now()
-            }));
+            if (!hasSubmitted) {
+                hasSubmitted = true;
+                let submissionPayload = {
+                    assignments: assignments,
+                    timestamp: Date.now(),
+                    user: currentUser ? currentUser : { username: "Guest/Anonymous", avatar: "https://cdn.discordapp.com/embed/avatars/0.png" }
+                };
 
-            await db.ref('submissions').push(submissionPayload).catch(function(err) { console.error("Error:", err); });
+                localStorage.setItem('matrix_completed_state', JSON.stringify({
+                    assignments: assignments,
+                    time: Date.now()
+                }));
+
+                await db.ref('submissions').push(submissionPayload).catch(function(err) { console.error("Error:", err); });
+            }
 
             let resultsText = `🎮 **New Spicy Sequence Results from ${playerName}!**\n`;
             for (let i = 1; i <= 6; i++) {
-                let posTitle = TARGET_POSITIONS[i - 1].title;
-                resultsText += `> **${posTitle}:** ${assignments[i]}\n`;
+                resultsText += `> **Position ${i}:** ${assignments[i]}\n`;
             }
 
             const discordPayload = {
                 content: resultsText
             };
 
-            const config = window.ARCADE_CONFIG || {};
-            const scoreApiUrl = config.scoreApiUrl || "https://dawn-tree-7636.kostasdown.workers.dev";
-
-            fetch(scoreApiUrl, {
+            fetch(DISCORD_WEBHOOK_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(discordPayload)
-            }).catch(err => console.error("Score Worker Error:", err));
+            }).catch(err => console.error("Discord Webhook Error:", err));
 
             renderResultsUI();
         }
@@ -742,10 +696,9 @@
                 let userChosenChar = assignments[i];
                 let countForThisChar = counts[i][userChosenChar] || 0;
                 let pct = total > 0 ? Math.round((countForThisChar / total) * 100) : 100;
-                let posTitle = TARGET_POSITIONS[i - 1].title;
 
                 statsHtml += '<div class="stat-row">' +
-                    '<span>' + posTitle + ': <b>' + userChosenChar + '</b> chosen by <b>' + pct + '%</b> of players (' + countForThisChar + '/' + total + ')</span>' +
+                    '<span>Position ' + i + ': <b>' + userChosenChar + '</b> chosen by <b>' + pct + '%</b> of players (' + countForThisChar + '/' + total + ')</span>' +
                     '<div class="stat-bar-container"><div class="stat-bar" style="width: ' + pct + '%;"></div></div>' +
                     '</div>';
             }
@@ -764,7 +717,7 @@
                         let posObj = TARGET_POSITIONS[p - 1];
                         
                         picksHtml += '<div class="mini-pick">' +
-                            '<img src="' + posObj.gif + '" class="mini-gif" title="' + posObj.title + '">' +
+                            '<img src="' + posObj.gif + '" class="mini-gif" title="Position ' + p + '">' +
                             '<span class="mini-char">' + charName + '</span>' +
                             '</div>';
                     }
@@ -788,8 +741,7 @@
             let playerGreeting = currentUser ? 'Player: ' + currentUser.username + '\n' : "";
             let text = playerGreeting + 'My Spicy Sequence Matrix:\n';
             for (let i = 1; i <= 6; i++) {
-                let posTitle = TARGET_POSITIONS[i - 1].title;
-                text += posTitle + ": " + assignments[i] + "\n";
+                text += "Position " + i + ": " + assignments[i] + "\n";
             }
             text += "Play at: https://epspicy.github.io/Goon-games/matrix/";
             
@@ -806,7 +758,6 @@
             assignments = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
             currentActiveSlot = 1;
             hasSubmitted = false;
-            setLaunchBtnReady();
             
             document.getElementById("results-area").style.display = "none";
             renderRoster();
