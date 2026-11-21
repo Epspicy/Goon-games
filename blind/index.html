@@ -409,11 +409,15 @@
         // The number of slots is automatic: min(10, number of moments).
         // ============================================================
         const CHARACTERS = [
-            { name: "PX Ass Walking",              img: "" },
-            { name: "Cum on Multiple Faces",       img: "" },
-            { name: "Cum Inside Mouth",            img: "" },
-            { name: "Gape View",                   img: "" },
-            { name: "Oral with Multiple Faces",    img: "" }
+            { name: "Ass Walking", img: "../Walking Asses.gif" },
+            { name: "View to Gape", img: "../View to Gape.gif" },
+            { name: "BJ POV", img: "../BJ POV.gif" },
+            { name: "Multiple Faces Cum", img: "../Multiple Faces Cum.gif" },
+            { name: "Ass Stacking", img: "../Ass Stacking.gif" },
+            { name: "Cum in Mouth", img: "../Cum in Mouth.gif" },
+            { name: "Squirting Orgasm", img: "../Squirting Orgasm.gif" },
+            { name: "Premature Cum", img: "../Premature Cum.gif" },
+            { name: "Drooling", img: "../Drooling.gif" }
         ];
 
         const MAX_SLOTS = 10;
@@ -425,8 +429,14 @@
             });
         }
 
+        function phFallback(el, kind) {
+            const d = document.createElement('div');
+            d.className = 'ph ' + kind + '-ph';
+            d.textContent = '🔥';
+            el.replaceWith(d);
+        }
         function pic(m, kind) {
-            if (m && m.img) return '<img src="' + esc(m.img) + '" class="' + kind + '-img" alt="">';
+            if (m && m.img) return '<img src="' + esc(m.img) + '" class="' + kind + '-img" alt="" onerror="phFallback(this,\'' + kind + '\')">';
             return '<div class="ph ' + kind + '-ph">🔥</div>';
         }
 
