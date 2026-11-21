@@ -396,6 +396,20 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
     <script>
+        // Auto-update: if a newer version of this page exists, reload once
+        const PAGE_VERSION = '2026-11-22-a';
+        try {
+            fetch(window.location.pathname, { cache: 'no-store' })
+                .then(function(r) { return r.text(); })
+                .then(function(t) {
+                    const m = t.match(/PAGE_VERSION = '([^']+)'/);
+                    if (m && m[1] !== PAGE_VERSION && sessionStorage.getItem('pv_blind') !== m[1]) {
+                        sessionStorage.setItem('pv_blind', m[1]);
+                        window.location.reload();
+                    }
+                }).catch(function() {});
+        } catch (e) {}
+
         if (!window.location.search.includes('session')) {
             const randomSession = Math.floor(1000 + Math.random() * 9000);
             const newUrl = window.location.pathname + '?session=' + randomSession + '&room=blind-01';
