@@ -171,8 +171,6 @@
             .top-bar { position: relative; top: 0; right: 0; margin-bottom: 15px; display: flex; justify-content: center; }
         }
     </style>
-    <!-- Φόρτωση του εξωτερικού config.js -->
-    <script src="./js/config.js"></script>
 </head>
 <body>
 
@@ -194,11 +192,11 @@
                 <a href="./matrix/" class="play-btn">Play Now</a>
             </div>
 
-            <div class="game-card">
+            <div class="game-card active">
                 <div class="game-icon">🔮</div>
-                <div class="game-title">Game #2</div>
-                <div class="game-desc">New spicy mini game coming soon to the platform!</div>
-                <div class="coming-soon-btn">Coming Soon</div>
+                <div class="game-title">Blind Ranking</div>
+                <div class="game-desc">Rank 10 random models blindly from #1 to #10 without knowing who comes next!</div>
+                <a href="./blind/" class="play-btn">Play Now</a>
             </div>
 
             <div class="game-card">
@@ -211,21 +209,17 @@
     </div>
 
     <script>
-        // Έλεγχος αν υπάρχει επιστροφή token από το Discord ΠΡΙΝ πειράξουμε το URL
-        if (!window.location.hash.includes('access_token')) {
-            if (!window.location.search.includes('session')) {
-                const randomSession = Math.floor(1000 + Math.random() * 9000);
-                const newUrl = window.location.pathname + '?session=' + randomSession + '&hub=arcade';
-                window.history.replaceState({}, '', newUrl);
-            }
+        if (!window.location.search.includes('session')) {
+            const randomSession = Math.floor(1000 + Math.random() * 9000);
+            const newUrl = window.location.pathname + '?session=' + randomSession + '&hub=arcade';
+            window.history.replaceState({}, '', newUrl);
         }
 
+        const DISCORD_CLIENT_ID = "1560589530136838194";
+        const REDIRECT_URI = "https://epspicy.github.io/Goon-games/";
+
         function loginWithDiscord() {
-            const config = window.ARCADE_CONFIG || {};
-            const clientId = config.discordClientId || "1560589530136838194";
-            const redirectUri = config.redirectUri || "https://epspicy.github.io/Goon-games/";
-            
-            const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=identify`;
+            const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
             window.location.href = discordUrl;
         }
 
@@ -240,7 +234,6 @@
             const accessToken = fragment.get('access_token');
 
             if (accessToken) {
-                // Καθαρισμός του token hash από τη γραμμή διευθύνσεων με ασφάλεια
                 window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
                 
                 fetch('https://discord.com/api/users/@me', {
