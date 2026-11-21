@@ -1,1 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blind Ranking - Epspicy Arcade</title>
+    <link rel="icon" type="image/png" href="../logo.png">
+    <style>
+        body {
+            background: radial-gradient(ellipse at 50% 0%, #3a0f66 0%, #12061f 60%) fixed;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 15px;
+        }
+        .container {
+            max-width: 980px;
+            margin: 20px auto;
+            background: #1c0b30;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            box-sizing: border-box;
+            border: 2px solid #3a2a65;
+        }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .back-link {
+            color: #a995c9;
+            font-size: 14px;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: color 0.2s;
+            font-weight: bold;
+        }
+        .back-link:hover { color: #19f0d4; }
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #160828;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #7b4dff;
+        }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; }
+        .user-name { font-size: 14px; color: #ffffff; font-weight: bold; }
+        .discord-btn {
+            background-color: #7b4dff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+        .discord-btn:hover { background-color: #6a3de8; }
+        .logout-btn {
+            background: transparent;
+            border: none;
+            color: #a995c9;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0 2px;
+            line-height: 1;
+        }
+        .logout-btn:hover { color: #ff2e93; }
+        .header-title {
+            color: #19f0d4;
+            font-size: 30px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: bold;
+        }
+        .instruction-banner {
+            background: #160828;
+            border: 1px solid #ff2e93;
+            color: #ff2e93;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px rgba(255,46,147,0.2);
+        }
+        .section-label {
+            font-size: 15px;
+            color: #19f0d4;
+            text-align: left;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        #currentArea { margin-bottom: 28px; }
+        .current-card {
+            display: inline-block;
+            background: #160828;
+            border: 2px solid #ff2e93;
+            border-radius: 16px;
+            padding: 16px 22px;
+            box-shadow: 0 0 25px rgba(255,46,147,0.45);
+        }
+        .current-img {
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #19f0d4;
+            display: block;
+            margin: 0 auto 10px;
+        }
+        .current-name { font-size: 20px; font-weight: bold; color: #ffffff; }
+        .slots-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        .slot {
+            background: #160828;
+            border: 2px solid #3a2a65;
+            border-radius: 12px;
+            padding: 10px 6px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            user-select: none;
+            transition: all 0.2s;
+        }
+        .slot.open { cursor: pointer; }
+        .slot.open:hover {
+            border-color: #19f0d4;
+            transform: translateY(-4px);
+            box-shadow: 0 0 15px rgba(25,240,212,0.3);
+        }
+        .slot.locked { border-color: #19f0d4; cursor: not-allowed; }
+        .slot.dim { opacity: 0.55; cursor: not-allowed; }
+        .slot-num { font-size: 22px; font-weight: bold; color: #ff2e93; }
+        .slot-img {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #19f0d4;
+        }
+        .slot-name { font-size: 12px; font-weight: bold; color: #19f0d4; }
+        .slot-empty { font-size: 12px; color: #a995c9; }
+        .action-btn {
+            background-color: #ff2e93;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 4px 15px rgba(255,46,147,0.4);
+        }
+        .action-btn:hover { background-color: #e0267f; }
+        #results-area {
+            margin-top: 10px;
+            display: none;
+            background: #160828;
+            border: 1px solid #3a2a65;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: left;
+        }
+        .sync-box {
+            background: #1c0b30;
+            border: 1px solid #19f0d4;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 15px;
+        }
+        .sync-box b { color: #19f0d4; font-size: 22px; }
+        .result-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: #1c0b30;
+            border: 1px solid #3a2a65;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .result-rank { font-size: 22px; font-weight: bold; color: #ff2e93; min-width: 44px; text-align: center; }
+        .result-img {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #19f0d4;
+            flex-shrink: 0;
+        }
+        .result-info { flex: 1; min-width: 0; }
+        .result-name { font-weight: bold; color: #ffffff; font-size: 15px; margin-bottom: 4px; }
+        .result-stats { color: #a995c9; font-size: 13px; line-height: 1.5; }
+        .result-stats b { color: #19f0d4; }
+        .stat-bar-container {
+            background: #3a2a65;
+            border-radius: 6px;
+            height: 8px;
+            width: 100%;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+        .stat-bar { background: #ff2e93; height: 100%; border-radius: 6px; transition: width 0.4s ease; }
+        .activity-feed {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #3a2a65;
+        }
+        .feed-item {
+            background: #1c0b30;
+            padding: 12px 14px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #3a2a65;
+            font-size: 13px;
+        }
+        .feed-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            color: #19f0d4;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+        .feed-avatar { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #7b4dff; }
+        .feed-picks { display: flex; flex-wrap: wrap; gap: 6px; }
+        .feed-chip {
+            background: #160828;
+            border: 1px solid #3a2a65;
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 12px;
+            color: #ffffff;
+        }
+        .feed-chip b { color: #ff2e93; }
+        .btn-group { display: flex; gap: 12px; margin-top: 20px; }
+        .secondary-btn {
+            flex: 1;
+            background: #3a2a65;
+            color: #19f0d4;
+            border: 1px solid #19f0d4;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .secondary-btn:hover { background: #19f0d4; color: #12061f; }
+        #toast {
+            display: none;
+            color: #ffd23f;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 15px;
+        }
+        .modal-box {
+            background: #1c0b30;
+            border: 2px solid #19f0d4;
+            border-radius: 14px;
+            padding: 25px 20px;
+            max-width: 360px;
+            width: 100%;
+            box-shadow: 0 0 25px rgba(25,240,212,0.25);
+        }
+        .modal-title { color: #19f0d4; font-size: 18px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; }
+        .modal-desc { color: #a995c9; font-size: 13px; margin-bottom: 16px; }
+        .modal-input {
+            width: 100%;
+            box-sizing: border-box;
+            background: #160828;
+            border: 1px solid #3a2a65;
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            margin-bottom: 16px;
+            outline: none;
+            text-align: center;
+        }
+        .modal-input:focus { border-color: #ff2e93; }
+        .modal-actions { display: flex; gap: 10px; }
+        .modal-save { flex: 1; background: #ff2e93; color: #fff; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .modal-cancel { flex: 1; background: #3a2a65; color: #a995c9; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        @media (max-width: 800px) {
+            body { padding: 5px; }
+            .container { padding: 15px; }
+            .slots-grid { grid-template-columns: repeat(3, 1fr); }
+            .current-img { width: 130px; height: 130px; }
+            .slot { min-height: 105px; }
+            .result-img { width: 42px; height: 42px; }
+            .result-rank { min-width: 34px; font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
 
+    <div class="container">
+        <div class="top-bar">
+            <a href="../" class="back-link" onclick="playClickSound()">← Back to Arcade</a>
+            <div id="userProfileArea">
+                <button class="discord-btn" onclick="openUsernameModal()">Set Username</button>
+            </div>
+        </div>
+
+        <div class="header-title">Blind Ranking</div>
+
+        <div id="playArea">
+            <div class="instruction-banner" id="instructionBanner">Loading...</div>
+
+            <div id="currentArea"></div>
+
+            <div class="section-label">Click a spot to lock this model in:</div>
+            <div class="slots-grid" id="slotsGrid"></div>
+        </div>
+
+        <div id="results-area">
+            <div class="section-label" style="margin-bottom: 15px;" id="globalStatsTitle">YOUR FINAL RANKING:</div>
+            <div class="sync-box" id="syncBox"></div>
+            <div id="resultsList"></div>
+
+            <div class="activity-feed">
+                <div class="section-label" style="color: #ff2e93; margin-bottom: 12px;">RECENT PLAYERS:</div>
+                <div id="recentFeed"></div>
+            </div>
+
+            <div class="btn-group">
+                <button class="secondary-btn" onclick="shareResults()">SHARE RESULTS</button>
+                <button class="secondary-btn" style="border-color: #ff2e93; color: #ff2e93;" onclick="resetGame()">RESTART</button>
+            </div>
+            <div id="toast">Results copied to clipboard!</div>
+        </div>
+    </div>
+
+    <!-- Username Modal -->
+    <div class="modal-overlay" id="usernameModal">
+        <div class="modal-box">
+            <div class="modal-title">Set Username</div>
+            <div class="modal-desc">Enter your Discord or display name — it stays saved across all games & stats.</div>
+            <input type="text" id="customUsernameInput" class="modal-input" maxlength="24" placeholder="Enter your username..." onkeydown="if(event.key==='Enter') saveCustomUsername()">
+            <div class="modal-actions">
+                <button class="modal-cancel" onclick="closeUsernameModal()">Cancel</button>
+                <button class="modal-save" onclick="saveCustomUsername()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+    <script>
+        if (!window.location.search.includes('session')) {
+            const randomSession = Math.floor(1000 + Math.random() * 9000);
+            const newUrl = window.location.pathname + '?session=' + randomSession + '&room=blind-01';
+            window.history.replaceState({}, '', newUrl);
+        }
+
+        // Discord webhook (posts the results to #arcade-games)
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1561290613020819539/5l4Hf_PP6CeoYO6s3sz863Xr9nyDmckTA5rWkcV7KZuazdvPKMFrkKJQ3kV_CCXBJpcS";
+
+        // ============================================================
+        // MODELS POOL
+        // Add more models here (up to 10 or more). The number of slots
+        // is automatic: min(10, number of models in this list).
+        // img = path to the picture file (same style as the matrix game)
+        // ============================================================
+        const CHARACTERS = [
+            { name: "Rissa May",        img: "../rissa may.png" },
+            { name: "Scarlett Alexis", img: "../scarlett alexis.png" },
+            { name: "Aria Lee",         img: "../aria lee.png" },
+            { name: "Eliza Ibarra",     img: "../eliza ibarra.png" },
+            { name: "Jewelz Blu",       img: "../jewelz blu.png" },
+            { name: "Liz Jordan",       img: "../liz jordan.png" }
+        ];
+
+        const MAX_SLOTS = 10;
+        const TOTAL = Math.min(MAX_SLOTS, CHARACTERS.length);
+
+        function esc(t) {
+            return String(t == null ? '' : t).replace(/[&<>"']/g, function(c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
+        // ---------- Username ----------
+        let currentUser = null;
+
+        function openUsernameModal() {
+            document.getElementById('usernameModal').style.display = 'flex';
+            const input = document.getElementById('customUsernameInput');
+            input.value = '';
+            setTimeout(function() { input.focus(); }, 50);
+        }
+        function closeUsernameModal() {
+            document.getElementById('usernameModal').style.display = 'none';
+        }
+        function saveCustomUsername() {
+            const rawName = document.getElementById('customUsernameInput').value.trim();
+            if (!rawName) return;
+            const cleanName = rawName.replace(/[<>]/g, '');
+            const userData = {
+                id: 'player_' + Date.now(),
+                username: cleanName,
+                avatar: 'https://cdn.discordapp.com/embed/avatars/1.png',
+                isCustom: true
+            };
+            localStorage.setItem('discord_user', JSON.stringify(userData));
+            currentUser = userData;
+            closeUsernameModal();
+            renderUserProfile(userData);
+        }
+        function logoutUser() {
+            localStorage.removeItem('discord_user');
+            currentUser = null;
+            document.getElementById('userProfileArea').innerHTML =
+                '<button class="discord-btn" onclick="openUsernameModal()">Set Username</button>';
+        }
+        function checkSavedUser() {
+            let savedUser = localStorage.getItem('discord_user');
+            if (savedUser) {
+                try { currentUser = JSON.parse(savedUser); renderUserProfile(currentUser); } catch (e) {}
+            }
+        }
+        function renderUserProfile(user) {
+            document.getElementById('userProfileArea').innerHTML =
+                '<div class="user-profile">' +
+                '<img src="' + esc(user.avatar) + '" class="user-avatar" alt="Avatar">' +
+                '<span class="user-name">' + esc(user.username) + '</span>' +
+                '<button class="logout-btn" title="Change username" onclick="logoutUser()">×</button>' +
+                '</div>';
+        }
+
+        // ---------- Sounds (click only, quiet) ----------
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function beep(f1, f2, dur, type, vol) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(f1, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(f2, audioCtx.currentTime + dur);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + dur);
+        }
+        function playClickSound() { beep(600, 200, 0.04, 'sine', 0.07); }
+        function playAssignSound() { beep(400, 800, 0.06, 'sine', 0.07); }
+        function playFinishSound() { beep(300, 900, 0.15, 'triangle', 0.09); }
+
+        // ---------- Firebase ----------
+        const firebaseConfig = {
+            apiKey: "AIzaSyAyT85gjbKMf0RtttyECLHv2hiv1mREJtU",
+            authDomain: "epspicygames.firebaseapp.com",
+            databaseURL: "https://epspicygames-default-rtdb.firebaseio.com",
+            projectId: "epspicygames",
+            storageBucket: "epspicygames.firebasestorage.app",
+            messagingSenderId: "813495756093",
+            appId: "1:813495756093:web:9d0a93c37c457c653e1154",
+            measurementId: "G-WHG3N8WML4"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // ---------- Game state ----------
+        let ranking = {};          // slot number (1..TOTAL) -> model name
+        let queue = [];            // shuffled list of models to show
+        let queueIndex = 0;        // which model is on screen
+        let finished = false;
+        let allSubmissionsData = null;
+
+        function shuffle(arr) {
+            const a = arr.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const t = a[i]; a[i] = a[j]; a[j] = t;
+            }
+            return a;
+        }
+
+        function findModel(name) {
+            for (let i = 0; i < CHARACTERS.length; i++) {
+                if (CHARACTERS[i].name === name) return CHARACTERS[i];
+            }
+            return null;
+        }
+
+        function startRound() {
+            ranking = {};
+            finished = false;
+            queue = shuffle(CHARACTERS).slice(0, TOTAL);
+            queueIndex = 0;
+            document.getElementById('results-area').style.display = 'none';
+            document.getElementById('playArea').style.display = 'block';
+            renderPlay();
+        }
+
+        function renderPlay() {
+            const banner = document.getElementById('instructionBanner');
+            const cur = queue[queueIndex];
+            const currentArea = document.getElementById('currentArea');
+
+            if (cur) {
+                banner.textContent = 'Model ' + (queueIndex + 1) + ' of ' + TOTAL + ' - pick a spot (1-' + TOTAL + ')';
+                currentArea.innerHTML =
+                    '<div class="current-card">' +
+                    '<img src="' + esc(cur.img) + '" class="current-img" alt="">' +
+                    '<div class="current-name">' + esc(cur.name) + '</div>' +
+                    '</div>';
+            }
+
+            let html = '';
+            for (let s = 1; s <= TOTAL; s++) {
+                const taken = ranking[s];
+                if (taken) {
+                    const m = findModel(taken);
+                    html += '<div class="slot locked">' +
+                        '<div class="slot-num">#' + s + '</div>' +
+                        (m ? '<img src="' + esc(m.img) + '" class="slot-img" alt="">' : '') +
+                        '<div class="slot-name">' + esc(taken) + '</div>' +
+                        '</div>';
+                } else {
+                    html += '<div class="slot open" onclick="placeModel(' + s + ')">' +
+                        '<div class="slot-num">#' + s + '</div>' +
+                        '<div class="slot-empty">empty</div>' +
+                        '</div>';
+                }
+            }
+            document.getElementById('slotsGrid').innerHTML = html;
+        }
+
+        function placeModel(slot) {
+            if (finished) return;
+            if (ranking[slot]) return;
+            const cur = queue[queueIndex];
+            if (!cur) return;
+
+            playAssignSound();
+            ranking[slot] = cur.name;
+            queueIndex++;
+
+            if (queueIndex >= TOTAL) {
+                finishRound();
+            } else {
+                renderPlay();
+            }
+        }
+
+        async function finishRound() {
+            if (finished) return;
+            finished = true;
+            playFinishSound();
+            renderPlay();
+
+            const playerName = currentUser ? currentUser.username : "Guest/Anonymous";
+
+            // 1) Send the Discord message FIRST (does not wait for the database)
+            let resultsText = '🔮 **New Blind Ranking from ' + playerName + '!**\n';
+            for (let i = 1; i <= TOTAL; i++) {
+                resultsText += '> **#' + i + ':** ' + ranking[i] + '\n';
+            }
+            if (DISCORD_WEBHOOK_URL.indexOf('REPLACE-WITH') !== -1) {
+                console.warn("Discord hook not set");
+            } else {
+                fetch(DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: resultsText, allowed_mentions: { parse: [] } })
+                }).then(function(r) { if (!r.ok) console.error("Discord hook failed, status:", r.status); })
+                  .catch(function(err) { console.error("Discord hook error:", err); });
+            }
+
+            // 2) Save for the community stats
+            localStorage.setItem('blind_completed_state', JSON.stringify({
+                ranking: ranking,
+                time: Date.now()
+            }));
+
+            const payload = {
+                ranking: ranking,
+                total: TOTAL,
+                timestamp: Date.now(),
+                user: currentUser ? currentUser : { username: "Guest/Anonymous", avatar: "https://cdn.discordapp.com/embed/avatars/0.png" }
+            };
+            await db.ref('blind_submissions').push(payload).catch(function(err) { console.error("Error:", err); });
+
+            renderResultsUI();
+        }
+
+        // ---------- Community stats ----------
+        function computeStats() {
+            const stats = {};
+            let players = 0;
+            if (allSubmissionsData) {
+                Object.values(allSubmissionsData).forEach(function(sub) {
+                    if (!sub || !sub.ranking) return;
+                    players++;
+                    Object.keys(sub.ranking).forEach(function(slotKey) {
+                        const slot = parseInt(slotKey, 10);
+                        const name = sub.ranking[slotKey];
+                        if (!name || isNaN(slot)) return;
+                        if (!stats[name]) stats[name] = { count: 0, sum: 0, first: 0, top3: 0, slots: {} };
+                        const st = stats[name];
+                        st.count++;
+                        st.sum += slot;
+                        if (slot === 1) st.first++;
+                        if (slot <= 3) st.top3++;
+                        st.slots[slot] = (st.slots[slot] || 0) + 1;
+                    });
+                });
+            }
+            return { stats: stats, players: players };
+        }
+
+        function renderResultsUI() {
+            if (!finished) return;
+            const res = computeStats();
+            const stats = res.stats;
+            const players = res.players;
+
+            document.getElementById('globalStatsTitle').textContent =
+                'YOUR FINAL RANKING (' + players + ' Total Players):';
+
+            let syncSum = 0;
+            let syncCount = 0;
+            let rowsHtml = '';
+
+            for (let i = 1; i <= TOTAL; i++) {
+                const name = ranking[i];
+                const m = findModel(name);
+                const st = stats[name];
+                let line1 = '';
+                let pctSame = 0;
+
+                if (st && st.count > 0) {
+                    const avg = st.sum / st.count;
+                    const top3pct = Math.round((st.top3 / st.count) * 100);
+                    const firstPct = Math.round((st.first / st.count) * 100);
+                    pctSame = Math.round(((st.slots[i] || 0) / st.count) * 100);
+                    line1 = 'Community average: <b>#' + avg.toFixed(1) + '</b> &bull; Top 3: <b>' + top3pct + '%</b> &bull; At #1: <b>' + firstPct + '%</b><br>' +
+                        '<b>' + pctSame + '%</b> of players also put her at #' + i + ' (' + (st.slots[i] || 0) + '/' + st.count + ')';
+                    if (TOTAL > 1) {
+                        syncSum += 1 - Math.abs(i - avg) / (TOTAL - 1);
+                        syncCount++;
+                    }
+                } else {
+                    line1 = 'No community data yet - you are the first!';
+                }
+
+                rowsHtml += '<div class="result-row">' +
+                    '<div class="result-rank">#' + i + '</div>' +
+                    (m ? '<img src="' + esc(m.img) + '" class="result-img" alt="">' : '') +
+                    '<div class="result-info">' +
+                    '<div class="result-name">' + esc(name) + '</div>' +
+                    '<div class="result-stats">' + line1 + '</div>' +
+                    '<div class="stat-bar-container"><div class="stat-bar" style="width: ' + pctSame + '%;"></div></div>' +
+                    '</div></div>';
+            }
+
+            document.getElementById('resultsList').innerHTML = rowsHtml;
+
+            const sync = syncCount > 0 ? Math.round((syncSum / syncCount) * 100) : 100;
+            document.getElementById('syncBox').innerHTML =
+                'Sync score with the community: <b>' + sync + '%</b>';
+
+            // recent players
+            let subsArray = allSubmissionsData ? Object.values(allSubmissionsData) : [];
+            const recentList = subsArray.slice(-5).reverse();
+            let feedHtml = '';
+            recentList.forEach(function(item) {
+                if (!item || !item.ranking) return;
+                const username = item.user ? item.user.username : "Guest";
+                const avatar = item.user ? item.user.avatar : "https://cdn.discordapp.com/embed/avatars/0.png";
+                let chips = '';
+                const total = item.total || TOTAL;
+                for (let p = 1; p <= total; p++) {
+                    if (item.ranking[p]) {
+                        chips += '<span class="feed-chip"><b>#' + p + '</b> ' + esc(item.ranking[p]) + '</span>';
+                    }
+                }
+                feedHtml += '<div class="feed-item">' +
+                    '<div class="feed-user"><img src="' + esc(avatar) + '" class="feed-avatar" alt=""><span>' + esc(username) + '</span></div>' +
+                    '<div class="feed-picks">' + chips + '</div>' +
+                    '</div>';
+            });
+            document.getElementById('recentFeed').innerHTML = feedHtml;
+
+            document.getElementById('playArea').style.display = 'none';
+            document.getElementById('results-area').style.display = 'block';
+        }
+
+        function shareResults() {
+            playClickSound();
+            let text = (currentUser ? 'Player: ' + currentUser.username + '\n' : '') + 'My Blind Ranking:\n';
+            for (let i = 1; i <= TOTAL; i++) {
+                text += '#' + i + ': ' + ranking[i] + '\n';
+            }
+            text += 'Play at: https://epspicy.github.io/Goon-games/blind/';
+            navigator.clipboard.writeText(text).then(function() {
+                const toast = document.getElementById('toast');
+                toast.style.display = 'block';
+                setTimeout(function() { toast.style.display = 'none'; }, 2500);
+            });
+        }
+
+        function resetGame() {
+            playClickSound();
+            localStorage.removeItem('blind_completed_state');
+            startRound();
+        }
+
+        // ---------- Init ----------
+        function initUI() {
+            checkSavedUser();
+
+            const expirationLimitMs = currentUser ? (365 * 24 * 60 * 60 * 1000) : (60 * 60 * 1000);
+            let restored = false;
+            const saved = localStorage.getItem('blind_completed_state');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (Date.now() - parsed.time < expirationLimitMs && parsed.ranking) {
+                        ranking = parsed.ranking;
+                        finished = true;
+                        restored = true;
+                    } else {
+                        localStorage.removeItem('blind_completed_state');
+                    }
+                } catch (e) {
+                    localStorage.removeItem('blind_completed_state');
+                }
+            }
+
+            if (!restored) startRound();
+
+            db.ref('blind_submissions').on('value', function(snapshot) {
+                allSubmissionsData = snapshot.val();
+                if (finished) renderResultsUI();
+            });
+
+            if (restored) renderResultsUI();
+        }
+
+        initUI();
+    </script>
+
+</body>
+</html>
