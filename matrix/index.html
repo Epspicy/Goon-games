@@ -463,8 +463,8 @@
             window.history.replaceState({}, '', newUrl);
         }
 
-        // Paste your Cloudflare Worker URL here (NOT the raw Discord webhook)
-        const DISCORD_WEBHOOK_URL = "https://REPLACE-WITH-YOUR-WORKER-URL.workers.dev";
+        // Discord webhook (posts the results to #arcade-games)
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1561290613020819539/5l4Hf_PP6CeoYO6s3sz863Xr9nyDmckTA5rWkcV7KZuazdvPKMFrkKJQ3kV_CCXBJpcS";
 
         function esc(t) {
             return String(t == null ? '' : t).replace(/[&<>"']/g, function(c) {
