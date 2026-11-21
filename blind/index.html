@@ -397,7 +397,9 @@
 
     <script>
         // Auto-update: if a newer version of this page exists, reload once
-        const PAGE_VERSION = '2026-11-22-a';
+        const PAGE_VERSION = '2026-11-22-b';
+        // Bump IMG_VERSION when you replace a gif, so everyone sees the new one
+        const IMG_VERSION = '2';
         try {
             fetch(window.location.pathname, { cache: 'no-store' })
                 .then(function(r) { return r.text(); })
@@ -454,7 +456,7 @@
             el.replaceWith(d);
         }
         function pic(m, kind) {
-            if (m && m.img) return '<img src="' + esc(m.img) + '" class="' + kind + '-img" alt="" onerror="phFallback(this,\'' + kind + '\')">';
+            if (m && m.img) return '<img src="' + esc(m.img) + '?v=' + IMG_VERSION + '" class="' + kind + '-img" alt="" onerror="phFallback(this,\'' + kind + '\')">';
             return '<div class="ph ' + kind + '-ph">🔥</div>';
         }
 
