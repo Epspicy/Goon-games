@@ -61,17 +61,25 @@ body{
 .logout-btn{background:var(--pink);color:#fff;border:0;border-radius:50%;width:24px;height:24px;font-weight:900;cursor:pointer;line-height:1}
 .logout-btn:hover{filter:brightness(1.2)}
 
-/* Title */
-.hero{text-align:center;margin:22px 0 40px;perspective:700px}
+/* Title: static, bold, layered 3D */
+.hero{text-align:center;margin:26px 0 44px}
 .title{
-  display:inline-block;margin:0;font-size:clamp(38px,9vw,84px);font-weight:900;font-style:italic;letter-spacing:2px;line-height:1;
-  color:#fff;transform:rotateX(14deg) rotateY(-6deg);animation:floaty 4s ease-in-out infinite;
-  text-shadow:1px 1px 0 var(--pink),2px 2px 0 var(--pink),3px 3px 0 #d6247c,4px 4px 0 #d6247c,5px 5px 0 #a8005f,6px 6px 0 #a8005f,7px 7px 0 #7a0046,8px 8px 0 #7a0046,0 0 40px rgba(255,46,147,.75);
+  position:relative;display:inline-block;margin:0;padding:0 14px 14px 0;
+  font-family:Impact,"Arial Black","Segoe UI Black",sans-serif;font-weight:900;text-transform:uppercase;
+  font-size:clamp(46px,11vw,112px);line-height:.95;letter-spacing:3px;
 }
-.title span{display:inline-block;transition:transform .2s}
-.title span:hover{transform:translateY(-12px) rotate(-6deg) scale(1.15);color:var(--yellow)}
-@keyframes floaty{50%{transform:rotateX(10deg) rotateY(6deg) translateY(-8px)}}
-.sub{margin:22px 0 0;color:var(--cyan);font-weight:700;font-size:16px;text-shadow:0 0 12px rgba(25,240,212,.6)}
+.title::before{
+  content:attr(data-text);position:absolute;left:0;top:0;padding:0 14px 14px 0;z-index:0;color:#5a0a45;
+  -webkit-text-stroke:10px #3a0630;
+  text-shadow:2px 2px 0 #7a0e5c,4px 4px 0 #7a0e5c,6px 6px 0 #5a0a45,8px 8px 0 #5a0a45,10px 10px 0 #3a0630,12px 12px 0 #3a0630,0 0 50px rgba(255,46,147,.8),0 0 90px rgba(123,77,255,.5);
+}
+.title .face{
+  position:relative;z-index:1;display:block;
+  background:linear-gradient(180deg,#fff7a8 0%,var(--yellow) 28%,var(--pink) 62%,var(--violet) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+  -webkit-text-stroke:3px #fff;paint-order:stroke fill;
+}
+.sub{margin:26px 0 0;color:var(--cyan);font-weight:700;font-size:16px;text-shadow:0 0 12px rgba(25,240,212,.6)}
 
 /* Cards */
 .games{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:26px}
@@ -116,7 +124,7 @@ body{
   padding:12px 22px;border-radius:30px;box-shadow:0 6px 0 #0a9a86;transition:transform .35s cubic-bezier(.3,1.6,.5,1);z-index:2000}
 .toast.show{transform:translate(-50%,0)}
 
-@media (max-width:600px){.title{transform:none;animation:none}.top-bar{justify-content:center}}
+@media (max-width:600px){.top-bar{justify-content:center}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 <script src="./js/config.js"></script>
@@ -132,7 +140,7 @@ body{
   </div>
 
   <header class="hero">
-    <h1 class="title" id="title">Epspicy Arcade</h1>
+    <h1 class="title" data-text="Epspicy Arcade"><span class="face">Epspicy Arcade</span></h1>
     <p class="sub">Pick a game. Climb the stats. Show off in Discord.</p>
   </header>
 
@@ -194,14 +202,13 @@ function tone(f, d, type, vol, to, delay) {
     o.type = type || 'square';
     o.frequency.setValueAtTime(f, t);
     if (to) o.frequency.exponentialRampToValueAtTime(to, t + d);
-    g.gain.setValueAtTime(vol || 0.05, t);
+    g.gain.setValueAtTime((vol || 0.05) * 0.45, t);
     g.gain.exponentialRampToValueAtTime(0.0001, t + d);
     o.connect(g).connect(ctx.destination);
     o.start(t); o.stop(t + d);
   } catch (e) {}
 }
 const sfx = {
-  hover: () => tone(520, .07, 'square', .025, 900),
   click: () => tone(300, .12, 'square', .06, 120),
   play:  () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .12, 'square', .05, null, i * .07)),
   ok:    () => [659, 880].forEach((f, i) => tone(f, .14, 'triangle', .08, null, i * .09)),
@@ -218,11 +225,7 @@ muteBtn.onclick = () => {
 };
 paintMute();
 
-/* ---------- Title letters + sparks ---------- */
-const title = document.getElementById('title');
-title.innerHTML = [...title.textContent].map(c => c === ' ' ? ' ' : '<span>' + c + '</span>').join('');
-title.querySelectorAll('span').forEach(s => s.addEventListener('mouseenter', () => tone(600 + Math.random() * 500, .08, 'triangle', .04)));
-
+/* ---------- Sparks ---------- */
 ['✦', '♥', '⚡', '★', '✧'].forEach((ch, k) => {
   for (let i = 0; i < 3; i++) {
     const s = document.createElement('div');
@@ -247,11 +250,10 @@ document.querySelectorAll('.card').forEach(card => {
     card.style.setProperty('--gx', (x * 100) + '%');
     card.style.setProperty('--gy', (y * 100) + '%');
   });
-  card.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch') sfx.hover(); });
   card.addEventListener('pointerleave', () => { card.style.setProperty('--rx', '0deg'); card.style.setProperty('--ry', '0deg'); });
 });
 document.querySelectorAll('a.btn').forEach(a => a.addEventListener('click', () => sfx.play()));
-document.querySelectorAll('.btn.grey:not(.mute)').forEach(b => b.addEventListener('click', () => tone(150, .15, 'sawtooth', .04)));
+document.querySelectorAll('.btn.grey:not(.mute)').forEach(b => b.addEventListener('click', () => tone(220, .08, 'triangle', .04, 160)));
 
 /* ---------- Username (same localStorage key as the games) ---------- */
 const authBox = document.getElementById('discordAuth');
@@ -283,7 +285,7 @@ function openModal() { modal.style.display = 'flex'; input.value = ''; setTimeou
 function closeModal() { modal.style.display = 'none'; }
 function saveCustomUsername() {
   const clean = input.value.trim().replace(/[<>]/g, '');
-  if (!clean) { tone(150, .15, 'sawtooth', .05); input.focus(); return; }
+  if (!clean) { tone(220, .08, 'triangle', .04, 160); input.focus(); return; }
   const userData = {
     id: 'player_' + Date.now(),
     username: clean,
