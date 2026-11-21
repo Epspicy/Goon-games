@@ -329,6 +329,55 @@
             text-align: center;
             font-weight: bold;
         }
+        .logout-btn {
+            background: transparent;
+            border: none;
+            color: #a995c9;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0 2px;
+            line-height: 1;
+        }
+        .logout-btn:hover { color: #ff2e93; }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 15px;
+        }
+        .modal-box {
+            background: #1c0b30;
+            border: 2px solid #19f0d4;
+            border-radius: 14px;
+            padding: 25px 20px;
+            max-width: 360px;
+            width: 100%;
+            box-shadow: 0 0 25px rgba(25,240,212,0.25);
+        }
+        .modal-title { color: #19f0d4; font-size: 18px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; }
+        .modal-desc { color: #a995c9; font-size: 13px; margin-bottom: 16px; }
+        .modal-input {
+            width: 100%;
+            box-sizing: border-box;
+            background: #160828;
+            border: 1px solid #3a2a65;
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            margin-bottom: 16px;
+            outline: none;
+            text-align: center;
+        }
+        .modal-input:focus { border-color: #ff2e93; }
+        .modal-actions { display: flex; gap: 10px; }
+        .modal-save { flex: 1; background: #ff2e93; color: #fff; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .modal-cancel { flex: 1; background: #3a2a65; color: #a995c9; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
         .action-btn:disabled {
             background-color: #3a2a65;
             color: #a995c9;
@@ -356,8 +405,8 @@
         <div class="top-bar">
             <a href="../" class="back-link" onclick="playClickSound()">← Back to Arcade</a>
             <div id="userProfileArea">
-                <button class="discord-btn" onclick="loginWithDiscord()">
-                    <span>Login with Discord</span>
+                <button class="discord-btn" onclick="openUsernameModal()">
+                    <span>Set Username</span>
                 </button>
             </div>
         </div>
@@ -384,10 +433,23 @@
             </div>
 
             <div class="btn-group">
-                <button class="secondary-btn" onclick="shareResults()">ΚΟΙΝΟΠΟΙΗΣΗ ΑΠΟΤΕΛΕΣΜΑΤΩΝ</button>
-                <button class="secondary-btn" style="border-color: #ff2e93; color: #ff2e93;" onclick="resetSelection()">ΕΠΑΝΑΦΟΡΑ ΕΠΙΛΟΓΩΝ</button>
+                <button class="secondary-btn" onclick="shareResults()">SHARE RESULTS</button>
+                <button class="secondary-btn" style="border-color: #ff2e93; color: #ff2e93;" onclick="resetSelection()">RESTART</button>
             </div>
             <div id="toast">Results copied to clipboard!</div>
+        </div>
+    </div>
+
+    <!-- Username Modal -->
+    <div class="modal-overlay" id="usernameModal">
+        <div class="modal-box">
+            <div class="modal-title">Set Username</div>
+            <div class="modal-desc">Enter your Discord or display name — it stays saved across all games & stats.</div>
+            <input type="text" id="customUsernameInput" class="modal-input" maxlength="24" placeholder="Enter your username..." onkeydown="if(event.key==='Enter') saveCustomUsername()">
+            <div class="modal-actions">
+                <button class="modal-cancel" onclick="closeUsernameModal()">Cancel</button>
+                <button class="modal-save" onclick="saveCustomUsername()">Save</button>
+            </div>
         </div>
     </div>
 
@@ -401,15 +463,53 @@
             window.history.replaceState({}, '', newUrl);
         }
 
-        const DISCORD_CLIENT_ID = "1560589530136838194";
-        const REDIRECT_URI = "https://epspicy.github.io/Goon-games/matrix/";
-        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1560690246893568180/RdJzCmVN_6M34J8wgQAHNlAfEpgCdKxSSp4HkHR7kumWcyvaz46YrRMpV2brDatKwGDi";
+        // Paste your Cloudflare Worker URL here (NOT the raw Discord webhook)
+        const DISCORD_WEBHOOK_URL = "https://REPLACE-WITH-YOUR-WORKER-URL.workers.dev";
+
+        function esc(t) {
+            return String(t == null ? '' : t).replace(/[&<>"']/g, function(c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
 
         let currentUser = null;
 
-        function loginWithDiscord() {
-            const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
-            window.location.href = discordUrl;
+        function openUsernameModal() {
+            document.getElementById('usernameModal').style.display = 'flex';
+            const input = document.getElementById('customUsernameInput');
+            input.value = '';
+            setTimeout(function() { input.focus(); }, 50);
+        }
+
+        function closeUsernameModal() {
+            document.getElementById('usernameModal').style.display = 'none';
+        }
+
+        function saveCustomUsername() {
+            const rawName = document.getElementById('customUsernameInput').value.trim();
+            if (!rawName) return;
+
+            const cleanName = rawName.replace(/[<>]/g, '');
+            const userData = {
+                id: 'player_' + Date.now(),
+                username: cleanName,
+                avatar: 'https://cdn.discordapp.com/embed/avatars/1.png',
+                isCustom: true
+            };
+            localStorage.setItem('discord_user', JSON.stringify(userData));
+            currentUser = userData;
+            closeUsernameModal();
+            renderUserProfile(userData);
+        }
+
+        function logoutUser() {
+            localStorage.removeItem('discord_user');
+            currentUser = null;
+            document.getElementById('userProfileArea').innerHTML = `
+                <button class="discord-btn" onclick="openUsernameModal()">
+                    <span>Set Username</span>
+                </button>
+            `;
         }
 
         function checkDiscordAuth() {
@@ -417,40 +517,15 @@
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
                 renderUserProfile(currentUser);
-                return;
-            }
-
-            const fragment = new URLSearchParams(window.location.hash.slice(1));
-            const accessToken = fragment.get('access_token');
-
-            if (accessToken) {
-                window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-                
-                fetch('https://discord.com/api/users/@me', {
-                    headers: { authorization: `Bearer ${accessToken}` }
-                })
-                .then(res => res.json())
-                .then(user => {
-                    if (user && user.id) {
-                        const userData = {
-                            id: user.id,
-                            username: user.global_name || user.username,
-                            avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png'
-                        };
-                        localStorage.setItem('discord_user', JSON.stringify(userData));
-                        currentUser = userData;
-                        renderUserProfile(userData);
-                    }
-                })
-                .catch(err => console.error("Auth Error:", err));
             }
         }
 
         function renderUserProfile(user) {
             document.getElementById('userProfileArea').innerHTML = `
                 <div class="user-profile">
-                    <img src="${user.avatar}" class="user-avatar" alt="Avatar">
-                    <span class="user-name">${user.username}</span>
+                    <img src="${esc(user.avatar)}" class="user-avatar" alt="Avatar">
+                    <span class="user-name">${esc(user.username)}</span>
+                    <button class="logout-btn" title="Change username" onclick="logoutUser()">×</button>
                 </div>
             `;
         }
@@ -663,12 +738,16 @@
                 content: resultsText
             };
 
-            fetch(DISCORD_WEBHOOK_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(discordPayload)
-            }).then(r => { if (!r.ok) console.error("Discord Webhook failed, status:", r.status); })
-              .catch(err => console.error("Discord Webhook Error:", err));
+            if (DISCORD_WEBHOOK_URL.indexOf('REPLACE-WITH') !== -1) {
+                console.warn("Discord hook not set: paste your Worker URL in DISCORD_WEBHOOK_URL");
+            } else {
+                fetch(DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(discordPayload)
+                }).then(r => { if (!r.ok) console.error("Discord hook failed, status:", r.status); })
+                  .catch(err => console.error("Discord hook error:", err));
+            }
 
             // 2) Save for the community stats
             if (!hasSubmitted) {
@@ -719,7 +798,7 @@
                 let pct = total > 0 ? Math.round((countForThisChar / total) * 100) : 100;
 
                 statsHtml += '<div class="stat-row">' +
-                    '<span>Position ' + i + ': <b>' + userChosenChar + '</b> chosen by <b>' + pct + '%</b> of players (' + countForThisChar + '/' + total + ')</span>' +
+                    '<span>Position ' + i + ': <b>' + esc(userChosenChar) + '</b> chosen by <b>' + pct + '%</b> of players (' + countForThisChar + '/' + total + ')</span>' +
                     '<div class="stat-bar-container"><div class="stat-bar" style="width: ' + pct + '%;"></div></div>' +
                     '</div>';
             }
@@ -739,15 +818,15 @@
                         
                         picksHtml += '<div class="mini-pick">' +
                             '<img src="' + posObj.gif + '" class="mini-gif" title="Position ' + p + '">' +
-                            '<span class="mini-char">' + charName + '</span>' +
+                            '<span class="mini-char">' + esc(charName) + '</span>' +
                             '</div>';
                     }
                 }
 
                 feedHtml += '<div class="feed-item">' +
                     '<div class="feed-user">' +
-                    '<img src="' + avatar + '" class="feed-avatar">' +
-                    '<span>' + username + '</span>' +
+                    '<img src="' + esc(avatar) + '" class="feed-avatar">' +
+                    '<span>' + esc(username) + '</span>' +
                     '</div>' +
                     '<div class="feed-picks">' + picksHtml + '</div>' +
                     '</div>';
