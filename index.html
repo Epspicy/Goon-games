@@ -35,24 +35,42 @@
             position: absolute;
             top: 20px;
             right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         .discord-btn {
             background-color: #5865F2;
             color: white;
             border: none;
-            padding: 8px 16px;
+            padding: 8px 14px;
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
             font-size: 13px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             transition: background 0.2s;
             text-decoration: none;
         }
         .discord-btn:hover {
             background-color: #4752C4;
+        }
+        .username-btn {
+            background-color: #121218;
+            color: #00ffcc;
+            border: 1px solid #00ffcc;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .username-btn:hover {
+            background-color: #00ffcc;
+            color: #0f0f13;
         }
         .user-profile {
             display: flex;
@@ -62,6 +80,9 @@
             padding: 6px 12px;
             border-radius: 20px;
             border: 1px solid #5865F2;
+        }
+        .user-profile.guest-mode {
+            border-color: #00ffcc;
         }
         .user-avatar {
             width: 28px;
@@ -73,6 +94,94 @@
             color: #ffffff;
             font-weight: bold;
         }
+        .logout-btn {
+            background: transparent;
+            border: none;
+            color: #8888a0;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+        .logout-btn:hover {
+            color: #ff007f;
+        }
+        /* Modal gia Custom Username */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 15px;
+        }
+        .modal-box {
+            background: #1a1a24;
+            border: 2px solid #00ffcc;
+            border-radius: 14px;
+            padding: 25px 20px;
+            max-width: 360px;
+            width: 100%;
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.25);
+        }
+        .modal-title {
+            color: #00ffcc;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .modal-desc {
+            color: #8888a0;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+        .modal-input {
+            width: 100%;
+            box-sizing: border-box;
+            background: #121218;
+            border: 1px solid #2a2a3a;
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            margin-bottom: 16px;
+            outline: none;
+            text-align: center;
+        }
+        .modal-input:focus {
+            border-color: #ff007f;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .modal-save {
+            flex: 1;
+            background: #ff007f;
+            color: #ffffff;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .modal-cancel {
+            flex: 1;
+            background: #2a2a3a;
+            color: #8888a0;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
         .arcade-title {
             color: #00ffcc;
             font-size: 36px;
@@ -81,7 +190,7 @@
             letter-spacing: 2px;
             font-weight: bold;
             text-shadow: 0 0 15px rgba(0,255,204,0.4);
-            margin-top: 15px;
+            margin-top: 25px;
         }
         .arcade-subtitle {
             color: #8888a0;
@@ -167,17 +276,17 @@
         @media (max-width: 600px) {
             body { padding: 10px; }
             .arcade-container { padding: 20px 10px; }
-            .arcade-title { font-size: 26px; }
-            .top-bar { position: relative; top: 0; right: 0; margin-bottom: 15px; display: flex; justify-content: center; }
+            .arcade-title { font-size: 26px; margin-top: 10px; }
+            .top-bar { position: relative; top: 0; right: 0; margin-bottom: 15px; justify-content: center; flex-wrap: wrap; }
         }
     </style>
-    <!-- Φόρτωση του εξωτερικού config.js -->
     <script src="./js/config.js"></script>
 </head>
 <body>
 
     <div class="arcade-container">
         <div class="top-bar" id="discordAuth">
+            <button class="username-btn" onclick="openUsernameModal()">Set Username</button>
             <button class="discord-btn" onclick="loginWithDiscord()">
                 <span>Login with Discord</span>
             </button>
@@ -210,8 +319,20 @@
         </div>
     </div>
 
+    <!-- Custom Username Modal -->
+    <div class="modal-overlay" id="usernameModal">
+        <div class="modal-box">
+            <div class="modal-title">Set Player Name</div>
+            <div class="modal-desc">Play without Discord login — your name stays saved across all games & leaderboards.</div>
+            <input type="text" id="customUsernameInput" class="modal-input" maxlength="24" placeholder="Enter your username..." onkeydown="if(event.key==='Enter') saveCustomUsername()">
+            <div class="modal-actions">
+                <button class="modal-cancel" onclick="closeUsernameModal()">Cancel</button>
+                <button class="modal-save" onclick="saveCustomUsername()">Save</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Έλεγχος αν υπάρχει επιστροφή token από το Discord ΠΡΙΝ πειράξουμε το URL
         if (!window.location.hash.includes('access_token')) {
             if (!window.location.search.includes('session')) {
                 const randomSession = Math.floor(1000 + Math.random() * 9000);
@@ -229,6 +350,43 @@
             window.location.href = discordUrl;
         }
 
+        function openUsernameModal() {
+            document.getElementById('usernameModal').style.display = 'flex';
+            const input = document.getElementById('customUsernameInput');
+            input.value = '';
+            setTimeout(() => input.focus(), 50);
+        }
+
+        function closeUsernameModal() {
+            document.getElementById('usernameModal').style.display = 'none';
+        }
+
+        function saveCustomUsername() {
+            const rawName = document.getElementById('customUsernameInput').value.trim();
+            if (!rawName) return;
+
+            const cleanName = rawName.replace(/[<>]/g, '');
+            const userData = {
+                id: 'custom_' + Date.now(),
+                username: cleanName,
+                avatar: 'https://cdn.discordapp.com/embed/avatars/1.png',
+                isCustom: true
+            };
+            localStorage.setItem('discord_user', JSON.stringify(userData));
+            closeUsernameModal();
+            renderUserProfile(userData);
+        }
+
+        function logoutUser() {
+            localStorage.removeItem('discord_user');
+            document.getElementById('discordAuth').innerHTML = `
+                <button class="username-btn" onclick="openUsernameModal()">Set Username</button>
+                <button class="discord-btn" onclick="loginWithDiscord()">
+                    <span>Login with Discord</span>
+                </button>
+            `;
+        }
+
         function checkDiscordAuth() {
             let savedUser = localStorage.getItem('discord_user');
             if (savedUser) {
@@ -240,7 +398,6 @@
             const accessToken = fragment.get('access_token');
 
             if (accessToken) {
-                // Καθαρισμός του token hash από τη γραμμή διευθύνσεων με ασφάλεια
                 window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
                 
                 fetch('https://discord.com/api/users/@me', {
@@ -252,7 +409,8 @@
                         const userData = {
                             id: user.id,
                             username: user.global_name || user.username,
-                            avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png'
+                            avatar: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png',
+                            isCustom: false
                         };
                         localStorage.setItem('discord_user', JSON.stringify(userData));
                         renderUserProfile(userData);
@@ -263,10 +421,12 @@
         }
 
         function renderUserProfile(user) {
+            const isCustomClass = user.isCustom ? 'guest-mode' : '';
             document.getElementById('discordAuth').innerHTML = `
-                <div class="user-profile">
+                <div class="user-profile ${isCustomClass}">
                     <img src="${user.avatar}" class="user-avatar" alt="Avatar">
                     <span class="user-name">${user.username}</span>
+                    <button class="logout-btn" title="Change user / Logout" onclick="logoutUser()">×</button>
                 </div>
             `;
         }
