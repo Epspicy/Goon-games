@@ -540,12 +540,12 @@
         ];
 
         const TARGET_POSITIONS = [
-            { title: "Position 1", gif: "../air.gif" },
-            { title: "Position 2", gif: "../rimjob.gif" },
-            { title: "Position 3", gif: "../strapon.gif" },
-            { title: "Position 4", gif: "../gangbang.gif" },
-            { title: "Position 5", gif: "../deepthroat.gif" },
-            { title: "Position 6", gif: "../anal.gif" }
+            { title: "Position 1", label: "Standing Carry", gif: "../air.gif" },
+            { title: "Position 2", label: "Rimjob", gif: "../rimjob.gif" },
+            { title: "Position 3", label: "Strapon", gif: "../strapon.gif" },
+            { title: "Position 4", label: "Gangbang", gif: "../gangbang.gif" },
+            { title: "Position 5", label: "Deepthroat", gif: "../deepthroat.gif" },
+            { title: "Position 6", label: "Anal", gif: "../anal.gif" }
         ];
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -731,7 +731,7 @@
             // 1) Send the Discord message FIRST (does not wait for the database)
             let resultsText = `🎮 **New Spicy Sequence Results from ${playerName}!**\n`;
             for (let i = 1; i <= 6; i++) {
-                resultsText += `> **Position ${i}:** ${assignments[i]}\n`;
+                resultsText += `> **${TARGET_POSITIONS[i - 1].label}:** ${assignments[i]}\n`;
             }
 
             const discordPayload = {
@@ -841,7 +841,7 @@
             let playerGreeting = currentUser ? 'Player: ' + currentUser.username + '\n' : "";
             let text = playerGreeting + 'My Spicy Sequence Matrix:\n';
             for (let i = 1; i <= 6; i++) {
-                text += "Position " + i + ": " + assignments[i] + "\n";
+                text += TARGET_POSITIONS[i - 1].label + ": " + assignments[i] + "\n";
             }
             text += "Play at: https://epspicy.github.io/Goon-games/matrix/";
             
