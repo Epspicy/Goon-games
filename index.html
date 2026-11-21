@@ -1,371 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Epspicy Mini Games Arcade</title>
-    <link rel="icon" type="image/png" href="./logo.png">
-    <style>
-        body {
-            background-color: #0f0f13;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-        .arcade-container {
-            max-width: 900px;
-            width: 100%;
-            background: #1a1a24;
-            padding: 40px 20px;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.7);
-            border: 2px solid #2a2a3a;
-            box-sizing: border-box;
-            position: relative;
-        }
-        .top-bar {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .username-btn {
-            background-color: #5865F2;
-            color: #ffffff;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 13px;
-            transition: background 0.2s, transform 0.1s;
-        }
-        .username-btn:hover {
-            background-color: #4752C4;
-        }
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #121218;
-            padding: 6px 12px;
-            border-radius: 20px;
-            border: 1px solid #00ffcc;
-        }
-        .user-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-        }
-        .user-name {
-            font-size: 13px;
-            color: #ffffff;
-            font-weight: bold;
-        }
-        .logout-btn {
-            background: transparent;
-            border: none;
-            color: #8888a0;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 0 4px;
-            line-height: 1;
-            transition: color 0.2s;
-        }
-        .logout-btn:hover {
-            color: #ff007f;
-        }
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.8);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 15px;
-        }
-        .modal-box {
-            background: #1a1a24;
-            border: 2px solid #00ffcc;
-            border-radius: 14px;
-            padding: 25px 20px;
-            max-width: 360px;
-            width: 100%;
-            box-shadow: 0 0 25px rgba(0, 255, 204, 0.25);
-        }
-        .modal-title {
-            color: #00ffcc;
-            font-size: 18px;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-        .modal-desc {
-            color: #8888a0;
-            font-size: 13px;
-            margin-bottom: 16px;
-        }
-        .modal-input {
-            width: 100%;
-            box-sizing: border-box;
-            background: #121218;
-            border: 1px solid #2a2a3a;
-            color: #ffffff;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 15px;
-            margin-bottom: 16px;
-            outline: none;
-            text-align: center;
-        }
-        .modal-input:focus {
-            border-color: #ff007f;
-        }
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-        }
-        .modal-save {
-            flex: 1;
-            background: #ff007f;
-            color: #ffffff;
-            border: none;
-            padding: 10px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-        .modal-cancel {
-            flex: 1;
-            background: #2a2a3a;
-            color: #8888a0;
-            border: none;
-            padding: 10px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-        .arcade-title {
-            color: #00ffcc;
-            font-size: 36px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: bold;
-            text-shadow: 0 0 15px rgba(0,255,204,0.4);
-            margin-top: 25px;
-        }
-        .arcade-subtitle {
-            color: #8888a0;
-            font-size: 14px;
-            margin-bottom: 40px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px;
-        }
-        .game-card {
-            background: #121218;
-            border: 2px solid #2a2a3a;
-            border-radius: 12px;
-            padding: 25px 20px;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .game-card.active {
-            border-color: #00ffcc;
-            box-shadow: 0 0 20px rgba(0,255,204,0.2);
-        }
-        .game-card.active:hover {
-            transform: translateY(-5px);
-            border-color: #ff007f;
-            box-shadow: 0 0 25px rgba(255,0,127,0.3);
-        }
-        .game-icon {
-            font-size: 40px;
-            margin-bottom: 15px;
-        }
-        .game-title {
-            color: #ffffff;
-            font-size: 18px;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-        }
-        .game-desc {
-            color: #8888a0;
-            font-size: 13px;
-            margin-bottom: 20px;
-            line-height: 1.4;
-        }
-        .play-btn {
-            background-color: #ff007f;
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-decoration: none;
-            transition: background 0.2s, transform 0.1s;
-        }
-        .play-btn:hover {
-            background-color: #e00070;
-        }
-        .play-btn:active {
-            transform: scale(0.95);
-        }
-        .coming-soon-btn {
-            background-color: #2a2a3a;
-            color: #8888a0;
-            border: none;
-            padding: 10px 24px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 6px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: not-allowed;
-        }
-        @media (max-width: 600px) {
-            body { padding: 10px; }
-            .arcade-container { padding: 20px 10px; }
-            .arcade-title { font-size: 26px; margin-top: 10px; }
-            .top-bar { position: relative; top: 0; right: 0; margin-bottom: 15px; justify-content: center; }
-        }
-    </style>
-    <script src="./js/config.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Epspicy Mini Games Arcade</title>
+<link rel="icon" type="image/png" href="./logo.png">
+<style>
+:root{
+  --bg:#12061f; --panel:#1c0b30; --pink:#ff2e93; --cyan:#19f0d4; --yellow:#ffd23f; --violet:#7b4dff; --text:#fff; --muted:#a995c9;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  background:radial-gradient(ellipse at 50% 0%,#3a0f66 0%,var(--bg) 60%);
+  color:var(--text);
+  font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  min-height:100vh; overflow-x:hidden; position:relative;
+}
+/* 3D retro grid floor */
+.floor{position:fixed;left:-50%;right:-50%;bottom:0;height:55vh;z-index:0;pointer-events:none;
+  background:
+   linear-gradient(var(--pink) 1px,transparent 1px) 0 0/80px 80px,
+   linear-gradient(90deg,var(--pink) 1px,transparent 1px) 0 0/80px 80px;
+  opacity:.28; transform:perspective(420px) rotateX(62deg); transform-origin:bottom;
+  animation:grid 2.4s linear infinite;
+  -webkit-mask-image:linear-gradient(to top,#000 20%,transparent 95%);mask-image:linear-gradient(to top,#000 20%,transparent 95%);
+}
+@keyframes grid{to{background-position:0 80px,0 0}}
+.blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.35;z-index:0;pointer-events:none;animation:drift 14s ease-in-out infinite alternate}
+.b1{width:420px;height:420px;background:var(--pink);top:-120px;left:-100px}
+.b2{width:380px;height:380px;background:var(--cyan);top:30%;right:-120px;animation-delay:-5s}
+.b3{width:340px;height:340px;background:var(--violet);bottom:-100px;left:25%;animation-delay:-9s}
+@keyframes drift{to{transform:translate(60px,40px) scale(1.15)}}
+.spark{position:fixed;z-index:0;pointer-events:none;opacity:.7;animation:rise linear infinite}
+@keyframes rise{from{transform:translateY(105vh) rotate(0)}to{transform:translateY(-15vh) rotate(360deg)}}
+
+.page{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:22px 16px 60px}
+.top-bar{display:flex;justify-content:flex-end;align-items:center;gap:10px;min-height:46px}
+
+/* 3D pressable buttons */
+.btn{
+  --c:var(--pink); --d:#a8005f;
+  border:0;border-radius:12px;padding:11px 20px;font:inherit;font-weight:900;letter-spacing:.5px;
+  color:#fff;background:var(--c);cursor:pointer;text-decoration:none;display:inline-block;
+  box-shadow:0 6px 0 var(--d),0 10px 18px rgba(0,0,0,.45);
+  transition:transform .08s,box-shadow .08s,filter .15s;position:relative;top:0;
+}
+.btn:hover{filter:brightness(1.12);transform:translateY(-2px)}
+.btn:active{transform:translateY(5px);box-shadow:0 1px 0 var(--d),0 3px 6px rgba(0,0,0,.45)}
+.btn.cyan{--c:var(--cyan);--d:#0a9a86;color:#06231f}
+.btn.violet{--c:var(--violet);--d:#4a2bb8}
+.btn.grey{--c:#3a2a55;--d:#241638;color:var(--muted)}
+.btn:focus-visible,.card:focus-visible,.modal-input:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
+.mute{padding:9px 13px}
+
+.user-profile{display:flex;align-items:center;gap:10px;background:var(--panel);padding:6px 8px 6px 6px;border-radius:30px;
+  border:2px solid var(--cyan);box-shadow:0 0 18px rgba(25,240,212,.35)}
+.user-avatar{width:32px;height:32px;border-radius:50%;border:2px solid var(--pink)}
+.user-name{font-weight:900;font-size:14px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.logout-btn{background:var(--pink);color:#fff;border:0;border-radius:50%;width:24px;height:24px;font-weight:900;cursor:pointer;line-height:1}
+.logout-btn:hover{filter:brightness(1.2)}
+
+/* Title */
+.hero{text-align:center;margin:22px 0 40px;perspective:700px}
+.title{
+  display:inline-block;margin:0;font-size:clamp(38px,9vw,84px);font-weight:900;font-style:italic;letter-spacing:2px;line-height:1;
+  color:#fff;transform:rotateX(14deg) rotateY(-6deg);animation:floaty 4s ease-in-out infinite;
+  text-shadow:1px 1px 0 var(--pink),2px 2px 0 var(--pink),3px 3px 0 #d6247c,4px 4px 0 #d6247c,5px 5px 0 #a8005f,6px 6px 0 #a8005f,7px 7px 0 #7a0046,8px 8px 0 #7a0046,0 0 40px rgba(255,46,147,.75);
+}
+.title span{display:inline-block;transition:transform .2s}
+.title span:hover{transform:translateY(-12px) rotate(-6deg) scale(1.15);color:var(--yellow)}
+@keyframes floaty{50%{transform:rotateX(10deg) rotateY(6deg) translateY(-8px)}}
+.sub{margin:22px 0 0;color:var(--cyan);font-weight:700;font-size:16px;text-shadow:0 0 12px rgba(25,240,212,.6)}
+
+/* Cards */
+.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:26px}
+.card{
+  --c:var(--cyan); --rx:0deg; --ry:0deg; --gx:50%; --gy:50%;
+  position:relative;border-radius:20px;padding:28px 20px 24px;text-align:center;
+  background:linear-gradient(160deg,#2b1250,var(--panel));
+  border:3px solid var(--c);
+  box-shadow:0 0 0 1px rgba(255,255,255,.06) inset,0 18px 40px rgba(0,0,0,.55),0 0 28px color-mix(in srgb,var(--c) 45%,transparent);
+  transform:perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style:preserve-3d;transition:transform .18s ease-out,box-shadow .2s;will-change:transform;
+  display:flex;flex-direction:column;align-items:center;
+}
+.card::after{content:"";position:absolute;inset:0;border-radius:17px;pointer-events:none;opacity:0;transition:opacity .2s;
+  background:radial-gradient(circle at var(--gx) var(--gy),rgba(255,255,255,.28),transparent 55%)}
+.card:hover::after{opacity:1}
+.card.pink{--c:var(--pink)} .card.yellow{--c:var(--yellow)} .card.locked{--c:#6b5a8c;filter:saturate(.5)}
+.icon{font-size:62px;line-height:1;margin-bottom:12px;transform:translateZ(60px);filter:drop-shadow(0 12px 8px rgba(0,0,0,.5));animation:bob 2.6s ease-in-out infinite}
+.card:nth-child(2) .icon{animation-delay:-.9s}.card:nth-child(3) .icon{animation-delay:-1.7s}
+@keyframes bob{50%{margin-top:-8px;margin-bottom:20px}}
+.gtitle{font-size:21px;font-weight:900;margin:0 0 10px;transform:translateZ(38px);text-shadow:2px 2px 0 rgba(0,0,0,.5)}
+.gdesc{color:var(--muted);font-size:14px;line-height:1.45;margin:0 0 22px;transform:translateZ(22px)}
+.card .btn{transform:translateZ(45px);margin-top:auto}
+.card .btn:hover{transform:translateZ(45px) translateY(-2px)}
+.card .btn:active{transform:translateZ(45px) translateY(5px)}
+.card .btn.grey{cursor:not-allowed}
+.badge{position:absolute;top:-12px;right:-8px;background:var(--yellow);color:#2a1a00;font-weight:900;font-size:12px;
+  padding:5px 10px;border-radius:20px;transform:translateZ(70px) rotate(8deg);box-shadow:0 4px 0 #b88a00}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(10,2,20,.85);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;z-index:1000;padding:15px}
+.modal-box{background:linear-gradient(160deg,#2b1250,var(--panel));border:3px solid var(--cyan);border-radius:20px;padding:26px 22px;
+  max-width:380px;width:100%;box-shadow:0 0 40px rgba(25,240,212,.35);animation:pop .25s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{from{transform:scale(.6) rotate(-4deg);opacity:0}}
+.modal-title{font-size:22px;font-weight:900;color:var(--cyan);margin-bottom:8px}
+.modal-desc{color:var(--muted);font-size:14px;margin-bottom:16px;line-height:1.4}
+.modal-input{width:100%;background:#12061f;border:2px solid #4a2bb8;color:#fff;padding:13px;border-radius:12px;font:inherit;font-size:16px;text-align:center;margin-bottom:18px}
+.modal-input:focus{border-color:var(--pink)}
+.modal-actions{display:flex;gap:12px}.modal-actions .btn{flex:1}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,120px);background:var(--cyan);color:#06231f;font-weight:900;
+  padding:12px 22px;border-radius:30px;box-shadow:0 6px 0 #0a9a86;transition:transform .35s cubic-bezier(.3,1.6,.5,1);z-index:2000}
+.toast.show{transform:translate(-50%,0)}
+
+@media (max-width:600px){.title{transform:none;animation:none}.top-bar{justify-content:center}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+<script src="./js/config.js"></script>
 </head>
 <body>
+<div class="floor"></div>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
 
-    <div class="arcade-container">
-        <div class="top-bar" id="discordAuth">
-            <button class="username-btn" onclick="openUsernameModal()">Set Username</button>
-        </div>
+<main class="page">
+  <div class="top-bar">
+    <button class="btn grey mute" id="muteBtn" title="Sound on/off" aria-label="Toggle sound">🔊</button>
+    <div id="discordAuth"></div>
+  </div>
 
-        <div class="arcade-title">Epspicy Arcade</div>
-        <div class="arcade-subtitle">Select a mini-game to play</div>
+  <header class="hero">
+    <h1 class="title" id="title">Epspicy Arcade</h1>
+    <p class="sub">Pick a game. Climb the stats. Show off in Discord.</p>
+  </header>
 
-        <div class="games-grid">
-            <div class="game-card active">
-                <div class="game-icon">🎮</div>
-                <div class="game-title">Character Matrix</div>
-                <div class="game-desc">Assign characters to target GIF positions and compare live stats with the community!</div>
-                <a href="./matrix/" class="play-btn">Play Now</a>
-            </div>
+  <section class="games">
+    <article class="card" tabindex="0">
+      <div class="icon">🎮</div>
+      <h2 class="gtitle">Character Matrix</h2>
+      <p class="gdesc">Assign characters to target GIF positions and compare live stats with the community!</p>
+      <a class="btn" href="./matrix/">Play now</a>
+    </article>
 
-            <div class="game-card active">
-                <div class="game-icon">🔮</div>
-                <div class="game-title">Blind Ranking</div>
-                <div class="game-desc">Rank 10 random models blindly from #1 to #10 without knowing who comes next!</div>
-                <a href="./blind/" class="play-btn">Play Now</a>
-            </div>
+    <article class="card pink" tabindex="0">
+      <span class="badge">NEW</span>
+      <div class="icon">🔮</div>
+      <h2 class="gtitle">Blind Ranking</h2>
+      <p class="gdesc">Rank 10 random models blindly from #1 to #10 without knowing who comes next!</p>
+      <a class="btn cyan" href="./blind/">Play now</a>
+    </article>
 
-            <div class="game-card">
-                <div class="game-icon">⚡</div>
-                <div class="game-title">Game #3</div>
-                <div class="game-desc">Stay tuned for future releases and community challenges.</div>
-                <div class="coming-soon-btn">Coming Soon</div>
-            </div>
-        </div>
+    <article class="card locked" tabindex="0">
+      <div class="icon">⚡</div>
+      <h2 class="gtitle">Game #3</h2>
+      <p class="gdesc">Stay tuned for future releases and community challenges.</p>
+      <span class="btn grey">Coming soon</span>
+    </article>
+  </section>
+</main>
+
+<div class="modal-overlay" id="usernameModal">
+  <div class="modal-box">
+    <div class="modal-title">Set your username</div>
+    <div class="modal-desc">Enter your Discord or display name. It is saved across all games and stats.</div>
+    <input type="text" id="customUsernameInput" class="modal-input" maxlength="24" placeholder="Your name...">
+    <div class="modal-actions">
+      <button class="btn grey" id="cancelBtn">Cancel</button>
+      <button class="btn cyan" id="saveBtn">Save</button>
     </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
 
-    <!-- Username Modal -->
-    <div class="modal-overlay" id="usernameModal">
-        <div class="modal-box">
-            <div class="modal-title">Set Username</div>
-            <div class="modal-desc">Enter your Discord or display name — it stays saved across all games & stats.</div>
-            <input type="text" id="customUsernameInput" class="modal-input" maxlength="24" placeholder="Enter your username..." onkeydown="if(event.key==='Enter') saveCustomUsername()">
-            <div class="modal-actions">
-                <button class="modal-cancel" onclick="closeUsernameModal()">Cancel</button>
-                <button class="modal-save" onclick="saveCustomUsername()">Save</button>
-            </div>
-        </div>
-    </div>
+<script>
+/* keep the ?session= behaviour */
+if (!window.location.search.includes('session')) {
+  const s = Math.floor(1000 + Math.random() * 9000);
+  window.history.replaceState({}, '', window.location.pathname + '?session=' + s + '&hub=arcade');
+}
 
-    <script>
-        if (!window.location.search.includes('session')) {
-            const randomSession = Math.floor(1000 + Math.random() * 9000);
-            const newUrl = window.location.pathname + '?session=' + randomSession + '&hub=arcade';
-            window.history.replaceState({}, '', newUrl);
-        }
+/* ---------- Sound (WebAudio, no files needed) ---------- */
+let muted = false, ctx = null, unlocked = false;
+try { muted = localStorage.getItem('arcade_muted') === '1'; } catch (e) {}
+function tone(f, d, type, vol, to, delay) {
+  if (muted || !unlocked) return;
+  try {
+    ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    const t = ctx.currentTime + (delay || 0);
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type || 'square';
+    o.frequency.setValueAtTime(f, t);
+    if (to) o.frequency.exponentialRampToValueAtTime(to, t + d);
+    g.gain.setValueAtTime(vol || 0.05, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    o.connect(g).connect(ctx.destination);
+    o.start(t); o.stop(t + d);
+  } catch (e) {}
+}
+const sfx = {
+  hover: () => tone(520, .07, 'square', .025, 900),
+  click: () => tone(300, .12, 'square', .06, 120),
+  play:  () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .12, 'square', .05, null, i * .07)),
+  ok:    () => [659, 880].forEach((f, i) => tone(f, .14, 'triangle', .08, null, i * .09)),
+  back:  () => tone(400, .12, 'triangle', .06, 200)
+};
+['pointerdown', 'keydown'].forEach(ev => addEventListener(ev, () => { unlocked = true; }, { once: true, capture: true }));
 
-        function openUsernameModal() {
-            document.getElementById('usernameModal').style.display = 'flex';
-            const input = document.getElementById('customUsernameInput');
-            input.value = '';
-            setTimeout(() => input.focus(), 50);
-        }
+const muteBtn = document.getElementById('muteBtn');
+function paintMute() { muteBtn.textContent = muted ? '🔇' : '🔊'; }
+muteBtn.onclick = () => {
+  muted = !muted; paintMute();
+  try { localStorage.setItem('arcade_muted', muted ? '1' : '0'); } catch (e) {}
+  unlocked = true; sfx.click();
+};
+paintMute();
 
-        function closeUsernameModal() {
-            document.getElementById('usernameModal').style.display = 'none';
-        }
+/* ---------- Title letters + sparks ---------- */
+const title = document.getElementById('title');
+title.innerHTML = [...title.textContent].map(c => c === ' ' ? ' ' : '<span>' + c + '</span>').join('');
+title.querySelectorAll('span').forEach(s => s.addEventListener('mouseenter', () => tone(600 + Math.random() * 500, .08, 'triangle', .04)));
 
-        function saveCustomUsername() {
-            const rawName = document.getElementById('customUsernameInput').value.trim();
-            if (!rawName) return;
+['✦', '♥', '⚡', '★', '✧'].forEach((ch, k) => {
+  for (let i = 0; i < 3; i++) {
+    const s = document.createElement('div');
+    s.className = 'spark'; s.textContent = ch;
+    s.style.left = Math.random() * 100 + 'vw';
+    s.style.fontSize = 12 + Math.random() * 22 + 'px';
+    s.style.color = ['#ff2e93', '#19f0d4', '#ffd23f', '#7b4dff'][(k + i) % 4];
+    s.style.animationDuration = 14 + Math.random() * 16 + 's';
+    s.style.animationDelay = -Math.random() * 20 + 's';
+    document.body.appendChild(s);
+  }
+});
 
-            const cleanName = rawName.replace(/[<>]/g, '');
-            const userData = {
-                id: 'player_' + Date.now(),
-                username: cleanName,
-                avatar: 'https://cdn.discordapp.com/embed/avatars/1.png',
-                isCustom: true
-            };
-            localStorage.setItem('discord_user', JSON.stringify(userData));
-            closeUsernameModal();
-            renderUserProfile(userData);
-        }
+/* ---------- 3D tilt cards ---------- */
+document.querySelectorAll('.card').forEach(card => {
+  card.addEventListener('pointermove', e => {
+    if (e.pointerType === 'touch') return;
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    card.style.setProperty('--rx', ((0.5 - y) * 18).toFixed(1) + 'deg');
+    card.style.setProperty('--ry', ((x - 0.5) * 22).toFixed(1) + 'deg');
+    card.style.setProperty('--gx', (x * 100) + '%');
+    card.style.setProperty('--gy', (y * 100) + '%');
+  });
+  card.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch') sfx.hover(); });
+  card.addEventListener('pointerleave', () => { card.style.setProperty('--rx', '0deg'); card.style.setProperty('--ry', '0deg'); });
+});
+document.querySelectorAll('a.btn').forEach(a => a.addEventListener('click', () => sfx.play()));
+document.querySelectorAll('.btn.grey:not(.mute)').forEach(b => b.addEventListener('click', () => tone(150, .15, 'sawtooth', .04)));
 
-        function logoutUser() {
-            localStorage.removeItem('discord_user');
-            document.getElementById('discordAuth').innerHTML = `
-                <button class="username-btn" onclick="openUsernameModal()">Set Username</button>
-            `;
-        }
+/* ---------- Username (same localStorage key as the games) ---------- */
+const authBox = document.getElementById('discordAuth');
+const modal = document.getElementById('usernameModal');
+const input = document.getElementById('customUsernameInput');
 
-        function checkSavedUser() {
-            let savedUser = localStorage.getItem('discord_user');
-            if (savedUser) {
-                renderUserProfile(JSON.parse(savedUser));
-            }
-        }
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+function renderLoggedOut() {
+  authBox.replaceChildren();
+  const b = document.createElement('button');
+  b.className = 'btn violet'; b.textContent = 'Set username';
+  b.onclick = () => { sfx.click(); openModal(); };
+  authBox.appendChild(b);
+}
+function renderUserProfile(user) {
+  authBox.replaceChildren();
+  const wrap = document.createElement('div'); wrap.className = 'user-profile';
+  const img = document.createElement('img'); img.className = 'user-avatar'; img.alt = ''; img.src = user.avatar;
+  const name = document.createElement('span'); name.className = 'user-name'; name.textContent = user.username; /* textContent = no XSS */
+  const x = document.createElement('button'); x.className = 'logout-btn'; x.title = 'Change username'; x.textContent = '×';
+  x.onclick = () => { sfx.back(); localStorage.removeItem('discord_user'); renderLoggedOut(); };
+  wrap.append(img, name, x); authBox.appendChild(wrap);
+}
+function openModal() { modal.style.display = 'flex'; input.value = ''; setTimeout(() => input.focus(), 50); }
+function closeModal() { modal.style.display = 'none'; }
+function saveCustomUsername() {
+  const clean = input.value.trim().replace(/[<>]/g, '');
+  if (!clean) { tone(150, .15, 'sawtooth', .05); input.focus(); return; }
+  const userData = {
+    id: 'player_' + Date.now(),
+    username: clean,
+    avatar: 'https://cdn.discordapp.com/embed/avatars/' + Math.floor(Math.random() * 5) + '.png',
+    isCustom: true
+  };
+  localStorage.setItem('discord_user', JSON.stringify(userData));
+  sfx.ok(); closeModal(); renderUserProfile(userData); toast('Welcome, ' + clean + '!');
+}
+document.getElementById('saveBtn').onclick = saveCustomUsername;
+document.getElementById('cancelBtn').onclick = () => { sfx.back(); closeModal(); };
+input.addEventListener('keydown', e => { if (e.key === 'Enter') saveCustomUsername(); if (e.key === 'Escape') closeModal(); });
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
 
-        function renderUserProfile(user) {
-            document.getElementById('discordAuth').innerHTML = `
-                <div class="user-profile">
-                    <img src="${user.avatar}" class="user-avatar" alt="Avatar">
-                    <span class="user-name">${user.username}</span>
-                    <button class="logout-btn" title="Change username" onclick="logoutUser()">×</button>
-                </div>
-            `;
-        }
-
-        checkSavedUser();
-    </script>
-
+try {
+  const saved = localStorage.getItem('discord_user');
+  saved ? renderUserProfile(JSON.parse(saved)) : renderLoggedOut();
+} catch (e) { renderLoggedOut(); }
+</script>
 </body>
 </html>
